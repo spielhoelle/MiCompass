@@ -4,14 +4,18 @@ import Cookies from 'universal-cookie';
 
 class FetchService {
   public isofetch(url: string, data: object, type: string): Promise<any> {
-    return fetch(`${process.env.NEXT_PUBLIC_API_URL}${url}`, {
-      body: JSON.stringify({ ...data }),
+    const options = {
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json'
       },
       method: type
-    })
+    }
+    if (data !== undefined) {
+      options.body = JSON.stringify({ ...data })
+    }
+
+    return fetch(`${process.env.NEXT_PUBLIC_API_URL}${url}`, options)
       .then((response: Response) => response.json())
       .then(this.handleErrors)
       .catch((error) => {
@@ -37,17 +41,21 @@ class FetchService {
     const cookies = new Cookies();
     const token = cookies.get('token');
 
+    const options = {
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        Authorization: `${token}`
+      },
+      method: type
+    }
+    if (data !== undefined) {
+      options.body = JSON.stringify({ ...data })
+    }
+
     return fetch(
       `${ssr ? process.env.NEXT_PUBLIC_NETWORK_API_URL : process.env.NEXT_PUBLIC_API_URL}${url}`,
-      {
-        body: JSON.stringify({ ...data }),
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
-          Authorization: 'Bearer ' + token
-        },
-        method: type
-      }
+      options
     )
       .then((response: Response) => response.json())
       .then(this.handleErrors)

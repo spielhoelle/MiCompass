@@ -12,6 +12,7 @@ import { CustomNodeModel } from './CustomNode/CustomNodeModel';
 import { CustomNodeFactory } from './CustomNode/CustomNodeFactory';
 import { CustomPortFactory } from './CustomNode/CustomPortFactory';
 import { CustomPortModel } from './CustomNode/CustomPortModel';
+import FetchService from '../services/Fetch.service';
 const engine = createEngine({ registerDefaultDeleteItemsAction: false });
 class StartNodeModel extends DiagramModel {
   serialize() {
@@ -42,7 +43,7 @@ const CanvasWrapper = styled.div`
   flex-grow: 1;
   overflow: hidden;
   & > div {
-    height: 400px2;
+    height: 400px;
     width: 100vw;
   }
 `
@@ -57,12 +58,9 @@ function QuestionsDiagram() {
     formRef.current = form
   }, [form])
   useEffect(() => {
-    fetch(`/admin/questions/fetch`, {
-      headers: {
-        "content-type": "application/json"
-      },
-    }).then(res => res.json())
-      .then(res => {
+    FetchService.isofetchAuthed('/flows/get', undefined, 'GET')
+      .then((res) => {
+        console.log('res', res);
         if (res.payload.model) {
           model.deserializeModel(res.payload.model, engine);
           Object.values(model.activeNodeLayer.models).forEach((item) => {
