@@ -1,6 +1,6 @@
 version: "3"
 services:
-  client_dev:
+  flowbuilder-fe:
     build:
       context: ./client
       dockerfile: Dockerfile.prod
@@ -8,7 +8,7 @@ services:
     volumes:
       - ./client:/home/app/client
       - /home/app/client/node_modules
-  api_dev:
+  flowbuilder-be:
     build:
       context: ./api
       dockerfile: Dockerfile.prod

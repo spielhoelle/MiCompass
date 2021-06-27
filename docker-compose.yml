@@ -1,9 +1,9 @@
 version: "3"
 services:
-  client_dev:
+  flowbuilder-fe:
+    container_name: flowbuilder-fe
     build: ./client
     command: sh -c "npm run dev"
-    container_name: pc-client-dev
     ports:
       - 3000:3000
     volumes:
@@ -12,18 +12,18 @@ services:
     working_dir: /home/app/client
     environment:
       NEXT_PUBLIC_API_URL: http://localhost:3001/v1
-      NEXT_PUBLIC_NETWORK_API_URL: http://api_dev:3001/v1
-  api_dev:
+      NEXT_PUBLIC_NETWORK_API_URL: http://flowbuilder-be:3001/v1
+  flowbuilder-be:
+    container_name: flowbuilder-be
     build: ./api
     command: sh -c "npm run db-migrate && npm run run-dev"
-    container_name: pc-api-dev
     environment:
       DB_USER: user
       DB_PASSWORD: password
       DB_NAME: next-ts-jwt-boilerplate
-      DB_HOST: db
+      DB_HOST: flowbuilder-db
       DB_PORT: 5432
-      DB_TEST_HOST: db-test
+      DB_TEST_HOST: flowbuilder-db-test
     ports:
       - 3001:3001
     volumes:
@@ -32,9 +32,10 @@ services:
     working_dir: /home/app/api
     restart: on-failure
     depends_on:
-      - db
-      - db-test
-  db:
+      - flowbuilder-db
+      - flowbuilder-db-test
+  flowbuilder-db:
+    container_name: flowbuilder-db
     image: postgres
     environment:
       - POSTGRES_USER=user
@@ -45,7 +46,8 @@ services:
       - ./db/data/postgres:/var/lib/postgresql/data
     ports:
       - 5432:5432
-  db-test:
+  flowbuilder-db-test:
+    container_name: flowbuilder-db-test
     image: postgres
     environment:
       - POSTGRES_USER=user
