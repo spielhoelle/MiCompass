@@ -1,0 +1,48 @@
+{
+  "scripts": {
+    "build": "next build",
+    "dev": "ts-node --project ./src/tsconfig.server.json ./src/server.ts",
+    "linter": "tslint '**/*.{ts,js}'",
+    "prettier": "prettier --write '**/*.{ts,js,css,html,json}' && npx sort-package-json",
+    "start": "NODE_ENV=production && next build ./src && next start ./src",
+    "test": "jest --detectOpenHandles",
+    "update-all": "npx npm-check-updates -u"
+  },
+  "dependencies": {
+    "@types/enzyme": "^3.10.5",
+    "@types/enzyme-adapter-react-16": "^1.0.6",
+    "@types/express": "^4.17.7",
+    "@types/faker": "^4.1.12",
+    "@types/jest": "^26.0.5",
+    "@types/jsonwebtoken": "^8.5.0",
+    "@types/next": "^9.0.0",
+    "@types/react": "^16.9.43",
+    "@types/react-dom": "^16.9.8",
+    "body-parser": "^1.19.0",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "formik": "^2.1.5",
+    "isomorphic-unfetch": "^3.0.0",
+    "jsonwebtoken": "^8.5.1",
+    "next": "^9.4.4",
+    "next-plugin-custom-babel-config": "^1.0.4",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1",
+    "universal-cookie": "^4.0.3"
+  },
+  "devDependencies": {
+    "enzyme": "^3.11.0",
+    "enzyme-adapter-react-16": "^1.15.2",
+    "faker": "^4.1.0",
+    "jest": "^26.1.0",
+    "jest-cli": "^26.1.0",
+    "prettier": "^2.0.5",
+    "sass": "^1.26.10",
+    "ts-node": "^8.10.2",
+    "tslint": "^6.1.2",
+    "tslint-config-prettier": "^1.18.0",
+    "tslint-plugin-prettier": "^2.3.0",
+    "tslint-react": "^5.0.0",
+    "typescript": "^3.9.7"
+  }
+}
