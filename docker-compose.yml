@@ -20,7 +20,7 @@ services:
     environment:
       DB_USER: user
       DB_PASSWORD: password
-      DB_NAME: next-ts-jwt-boilerplate
+      DB_NAME: flowbuilder
       DB_HOST: flowbuilder-db
       DB_PORT: 5432
       DB_TEST_HOST: flowbuilder-db-test
@@ -39,7 +39,7 @@ services:
     image: postgres
     environment:
       - POSTGRES_USER=user
-      - POSTGRES_DB=next-ts-jwt-boilerplate
+      - POSTGRES_DB=flowbuilder
       - POSTGRES_PASSWORD=password
       - POSTGRES_HOST_AUTH_METHOD=trust
     volumes:
@@ -51,7 +51,7 @@ services:
     image: postgres
     environment:
       - POSTGRES_USER=user
-      - POSTGRES_DB=next-ts-jwt-boilerplate
+      - POSTGRES_DB=flowbuilder
       - POSTGRES_PASSWORD=password
       - POSTGRES_HOST_AUTH_METHOD=trust
     volumes:
