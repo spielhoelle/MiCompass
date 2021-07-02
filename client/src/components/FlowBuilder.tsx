@@ -177,13 +177,11 @@ function QuestionsDiagram() {
     if (errorNodes.length === 0) {
       seterror(undefined)
     }
-    fetch(`/admin/questions/update`, {
-      method: "POST",
-      headers: {
-        "content-type": "application/json"
-      },
-      body: JSON.stringify(model.serialize())
-    }).then(res => res.json())
+    FetchService.isofetchAuthed(
+      `/flows/save`,
+      model.serialize(),
+      "POST",
+    )
       .then(res => {
         setloading(false)
       })

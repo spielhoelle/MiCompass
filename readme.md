@@ -52,3 +52,8 @@ Test docs for client coming soon.
 As the app is server side rendered using Next.js, we get the benefit of having routes protected against unauthorized users in a different way than a normal React application. In the case of a simple React app using Create React App, the whole app is sent down to the browser at the first request. On the other hand, Next provides automatic code splitting and can protect logged-in routes from being accessed by users with invalid JWT's.
 
 The code for this is in `client/src/services/Token.service` and leverages the power of Next's `getInitialProps()` lifecycle method to verify the user's token whether they are on the client or the server side. This is possible because `getInitialProps()` is executed on the client and server side.
+
+## Migrations
+
+Example:  
+`docker exec -it flowbuilder-be npx sequelize-cli migration:create --name create_flows`
