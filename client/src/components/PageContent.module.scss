@@ -1,4 +1,9 @@
 .pageContent {
   margin: 0 auto;
   margin-top: 40px;
+  flex-grow: 1;
+  position: relative;
+  display: flex;
+  flex-flow: column;
+  width: 100%;
 }

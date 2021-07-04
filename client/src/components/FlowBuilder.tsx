@@ -43,7 +43,7 @@ const CanvasWrapper = styled.div`
   flex-grow: 1;
   overflow: hidden;
   & > div {
-    height: 400px;
+    height: 100%;
     width: 100vw;
   }
 `
@@ -201,7 +201,7 @@ function QuestionsDiagram() {
   }
   engine.getActionEventBus().registerAction(new DeleteItemsAction({ keyCodes: [8], modifiers: { shiftKey: true } }));
   return (
-    <div className="h-100 d-flex flex-column">
+    <div className="container-fluid h-100 d-flex flex-column">
       <div>
         <form onSubmit={addQuestion}>
           <div className=" row">
@@ -248,7 +248,7 @@ function QuestionsDiagram() {
                   setForm({ ...form, [e.target.name]: e.target.value })
                 }} type="text" data-type="answer" data-color="rgb(256, 204, 1)" style={{ borderColor: "rgb(255, 204, 1)", borderStyle: "solid" }} id="addanswer" />
             </div>
-            <div className="col-md-3">
+            <div className="col-md-4">
               <label htmlFor="answertranslation">Answertranslation</label>
               <input className="form-control w-99" name="answertranslation" type="text" value={form['answertranslation']}
                 onChange={(e) => {

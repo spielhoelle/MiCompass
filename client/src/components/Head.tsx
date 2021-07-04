@@ -22,6 +22,7 @@ function Header(props: IProps) {
           <title>Next.js, Typescript and JWT boilerplate</title>
           <meta name="viewport" content="initial-scale=1.0, width=device-width" />
         </Head>
+        {/* TODO creates the Error: `Expected server HTML to contain a matching <p> in <div>.` */}
         {auth.email ? (
           <div>
             <p>Logged in with user: {auth.email}</p>
@@ -41,7 +42,7 @@ function Header(props: IProps) {
           </div>
         ) : null}
         {globalMessaging.message ? <p className="globalStatus">{globalMessaging.message}</p> : null}
-        <h1 className={'h1'}>Next.js, Typescript and JWT boilerplate</h1>
+        <h1 className={'h1'}>MiCompass</h1>
       </div>
     </div>
   );

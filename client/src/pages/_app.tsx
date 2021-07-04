@@ -3,7 +3,7 @@ import * as React from 'react';
 
 import { AuthProvider } from '../services/Auth.context';
 import { GlobalMessagingProvider } from '../services/GlobalMessaging.context';
-
+import 'bootstrap/dist/css/bootstrap.css'
 import './global.scss';
 
 function MyApp({ Component, pageProps }: AppProps) {
