@@ -121,18 +121,15 @@ function Home(props: IProps) {
       return n.ports[0].links.includes(answer.ports[1].links[0])
     });
     if (!nextQuestions) {
-      setmodalopen(true)
-
       FetchService.isofetch(
-        '/auth/login',
+        '/answers/save',
         {
           answers: localStorage.getItem('answers')
         },
         'POST'
-      )
-        .then((res: any) => {
-
-        })
+      ).then((res: any) => {
+        setmodalopen(true)
+      })
     } else {
       const answers = getAnswers(nextQuestions, model)
       currentQA({ question: nextQuestions, answers: answers })
@@ -230,7 +227,9 @@ function Home(props: IProps) {
           </div>
         ) : "Nothing"}
       </div>
-      <ModalBackdrop open={modalopen}>
+      <ModalBackdrop open={modalopen} onClick={e => {
+        setmodalopen(false)
+      }}>
         <Modal>
           Success! You gonna hear from us soon!
         </Modal>

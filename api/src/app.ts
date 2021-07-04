@@ -15,6 +15,7 @@ require('dotenv').config();
 // Route handlers
 const authApi = require('./v1/auth');
 const flows = require('./v1/flows');
+const answers = require('./v1/answers');
 
 // Create server
 const app: express.Application = express();
@@ -38,5 +39,6 @@ app.use(errorHandler());
 // API routes
 app.use('/v1/auth', authApi);
 app.use('/v1/flows', flows);
+app.use('/v1/answers', answers);
 
 export { app };
