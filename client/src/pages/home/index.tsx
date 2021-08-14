@@ -11,7 +11,6 @@ import FetchService from '../../services/Fetch.service';
 import { useGlobalMessaging } from '../../services/GlobalMessaging.context';
 import TokenService from '../../services/Token.service';
 
-import { ILoginIn } from '../../types/auth.types';
 import internal from 'stream';
 import styled from '@emotion/styled';
 interface IProps {
@@ -139,64 +138,7 @@ function Home(props: IProps) {
   return (
     <PageContent>
       <div>
-        <Formik
-          initialValues={{
-            email: '',
-            password: ''
-          }}
-          onSubmit={(values: ILoginIn, { setSubmitting }: FormikActions<ILoginIn>) => {
-            FetchService.isofetch(
-              '/auth/login',
-              {
-                email: values.email,
-                password: values.password
-              },
-              'POST'
-            )
-              .then((res: any) => {
-                setSubmitting(false);
-                if (res.success) {
-                  // save token in cookie for subsequent requests
-                  const tokenService = new TokenService();
-                  tokenService.saveToken(res.authToken);
 
-                  authDispatch({
-                    type: 'setAuthDetails',
-                    payload: {
-                      email: res.email
-                    }
-                  });
-
-                  Router.push('/dashboard');
-                } else {
-                  messageDispatch({
-                    type: 'setMessage',
-                    payload: {
-                      message: res.message
-                    }
-                  });
-                }
-              })
-              .catch();
-          }}
-          render={() => (
-            <Form>
-              <div className="inputWrap">
-                <label htmlFor="email">Email</label>
-                <Field id="email" name="email" placeholder="" type="email" />
-              </div>
-
-              <div className="inputWrap">
-                <label htmlFor="password">Password</label>
-                <Field id="password" name="password" placeholder="" type="password" />
-              </div>
-
-              <button type="submit" style={{ display: 'block' }}>
-                Submit
-              </button>
-            </Form>
-          )}
-        />
 
         <div>
           Click{' '}
@@ -211,6 +153,13 @@ function Home(props: IProps) {
             <a>here</a>
           </Link>{' '}
           to register
+        </div>
+        <div>
+          Click{' '}
+          <Link href="/login">
+            <a>here</a>
+          </Link>{' '}
+          to login
         </div>
       </div>
       <div>

@@ -17,6 +17,7 @@ services:
     container_name: flowbuilder-be
     build: ./api
     command: sh -c "npm run db-migrate && npm run run-dev"
+    restart: always
     environment:
       DB_USER: user
       DB_PASSWORD: password
