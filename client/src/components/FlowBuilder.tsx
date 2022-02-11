@@ -91,6 +91,9 @@ function QuestionsDiagram() {
             });
           });
           engine.setModel(model);
+        } else {
+          console.log("no model");
+          setloading(false)
         }
       }).catch(err => {
         console.log(err);

@@ -19,9 +19,9 @@ router.get('/get', async (req, res) => {
   const flow = new Flow({})
   const allFlows = await flow.getFlows()
   res.send({
-    payload: {
-      model: allFlows[0] ? allFlows[0].data : {}
-    }
+    payload: allFlows[0] ? {
+      model: allFlows[0].data
+    } : false
   });
 });
 
