@@ -20,7 +20,7 @@ router.get('/get', async (req, res) => {
   const allFlows = await flow.getFlows()
   res.send({
     payload: {
-      model: allFlows[0].data
+      model: allFlows[0] ? allFlows[0].data : {}
     }
   });
 });
