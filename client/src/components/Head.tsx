@@ -32,7 +32,7 @@ function Header(props: IProps) {
         </button>
         <div className={`collapse navbar-collapse collapse ${navbar ? `show` : ``}`} id="navbarSupportedContent">
           <ul className="navbar-nav me-auto mb-2 mb-lg-0">
-            {!auth.email && (
+            {!auth.email ? (
               <>
                 <li className='nav-item'>
                   <Link href="/register">
@@ -42,6 +42,19 @@ function Header(props: IProps) {
                 <li className='nav-item'>
                   <Link href="/login">
                     <a className="nav-link">Login</a>
+                  </Link>
+                </li>
+              </>
+            ) : (
+              <>
+                <li className='nav-item'>
+                  <Link href="/dashboard">
+                    <a className="nav-link">Flowbuilder</a>
+                  </Link>
+                </li>
+                <li className='nav-item'>
+                  <Link href="/history">
+                    <a className="nav-link">History</a>
                   </Link>
                 </li>
               </>

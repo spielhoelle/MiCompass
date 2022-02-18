@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import Router from 'next/router';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { NextPageContext } from 'next';
 
 import PageContent from '../../components/PageContent';
@@ -37,6 +37,9 @@ export interface QA {
   question: Model;
   answers: Model[];
 }
+export interface History extends QA {
+  choosenAnswer: Model;
+}
 const ModalBackdrop = styled.div<{ open: boolean }>`
   opacity: ${(props) => !props.open ? 0 : 1};
   pointer-events: ${(props) => !props.open ? `none` : `all`};
@@ -65,22 +68,22 @@ function Home(props: IProps) {
   const [model, setmodel] = useState(undefined);
   const [modalopen, setmodalopen] = useState(false);
   const [QAs, currentQA] = useState<QA | undefined>(undefined);
+  const [history, setHistory] = useState<History[] | undefined>([]);
+  const messagesEndRef = useRef(null)
+
+  useEffect(() => {
+    scrollToBottom()
+  }, [history]);
 
   useEffect(() => {
     if (props.action && props.action == 'logout') {
       authDispatch({
         type: 'removeAuthDetails'
       });
-
       tokenService.deleteToken();
-
       Router.push('/');
     }
   }, []);
-
-  const getAnswers = (question, model) => Object.values(model.layers.find(layer => layer.type === "diagram-nodes").models)
-    .filter((links: any) => Object.values(model.layers.find(layer => layer.type === "diagram-links").models)
-      .filter((layer: any) => layer.source === question.id).map((l: any) => l.target).includes(links.id))
 
   useEffect(() => {
     FetchService.isofetchAuthed('/flows/get', undefined, 'GET')
@@ -97,8 +100,15 @@ function Home(props: IProps) {
       })
   }, [])
 
+  const scrollToBottom = () => messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+
+  const getAnswers = (question, model) => Object.values(model.layers.find(layer => layer.type === "diagram-nodes").models)
+    .filter((links: any) => Object.values(model.layers.find(layer => layer.type === "diagram-links").models)
+      .filter((layer: any) => layer.source === question.id).map((l: any) => l.target).includes(links.id))
+
   const setNextQA = (answer) => {
     const form_payload = { [QAs.question.name]: answer.name }
+    setHistory([...history, { question: QAs.question, answers: QAs.answers, choosenAnswer: answer }])
     localStorage.setItem('answers', JSON.stringify({ ...JSON.parse(localStorage.getItem('answers')), ...form_payload }))
     var nextQuestions = Object.values(model.layers[1].models).find((n: any) => {
       return n.ports[0].links.includes(answer.ports[1].links[0])
@@ -106,9 +116,7 @@ function Home(props: IProps) {
     if (!nextQuestions) {
       FetchService.isofetch(
         '/answers/save',
-        {
-          answers: localStorage.getItem('answers')
-        },
+        { answers: localStorage.getItem('answers') },
         'POST'
       ).then((res: any) => {
         setmodalopen(true)
@@ -122,7 +130,24 @@ function Home(props: IProps) {
   return (
     <PageContent>
       <div>
-        <h1>Have you ever considered leaving Afghanistan to start a new life in Europe? Do you think you know enough to make an informed decision?</h1>
+        <h1 className='mb-3'>Have you ever considered leaving Afghanistan to start a new life in Europe? Do you think you know enough to make an informed decision?</h1>
+        {history.length > 0 && history.map(historyItem => (
+          <div className='row'>
+            <div className='col-md-6'>
+              <button className={`btn btn-light mb-3 text-start`} disabled>{historyItem.question.name}</button >
+              <div className="">
+                {historyItem.answers.map((a, i) => (
+                  <div>
+                    <button className={`btn mb-2 btn-sm text-start ${historyItem.choosenAnswer.name === a.name ? `btn-primary opacity-50` : `btn-secondary opacity-50`}`} disabled>{a.name}</button>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className='offset-md-6 col-md-6 text-end'>
+              <button className={`btn mb-2 btn-sm btn-primary text-start`} disabled>{historyItem.choosenAnswer.name}</button>
+            </div>
+          </div>
+        ))}
         {QAs ? (
           <div className='row'>
             <div className='col-md-6'>
@@ -139,6 +164,7 @@ function Home(props: IProps) {
             </div>
           </div>
         ) : "Nothing"}
+        <div ref={messagesEndRef} />
       </div>
       <ModalBackdrop open={modalopen} onClick={e => {
         setmodalopen(false)
