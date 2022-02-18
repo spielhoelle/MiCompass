@@ -1,7 +1,7 @@
 import css from './index.module.scss';
 import Router from 'next/router';
 import { useAuth } from '../../services/Auth.context';
-import { Field, Form, Formik, FormikActions } from 'formik';
+import { Field, Form, Formik, FormikHelpers } from 'formik';
 import React, { useEffect } from 'react';
 
 import PageContent from '../../components/PageContent';
@@ -18,7 +18,6 @@ function Register(props: IProps) {
 
   const [auth, authDispatch] = useAuth()
   useEffect(() => {
-    console.log('auth', auth);
     if (auth.email) {
       Router.push('/');
     }
@@ -32,7 +31,7 @@ function Register(props: IProps) {
           email: '',
           password: ''
         }}
-        onSubmit={(values: IRegisterIn, { setSubmitting }: FormikActions<IRegisterIn>) => {
+        onSubmit={(values: IRegisterIn, { setSubmitting }: FormikHelpers<IRegisterIn>) => {
           FetchService.isofetch(
             '/auth/register',
             {

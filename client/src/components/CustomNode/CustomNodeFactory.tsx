@@ -2,14 +2,15 @@ import { CustomNodeWidget } from './CustomNodeWidget';
 import { CustomNodeModel } from './CustomNodeModel';
 import * as React from 'react';
 import { AbstractReactFactory } from '@projectstorm/react-canvas-core';
+import { DiagramEngine } from '@projectstorm/react-diagrams-core';
 
-export class CustomNodeFactory extends AbstractReactFactory {
-    constructor(props) {
+export class CustomNodeFactory extends AbstractReactFactory<CustomNodeModel, DiagramEngine> {
+    constructor() {
         super('custom_question_node');
     }
 
-    generateReactWidget(event) {
-        return <CustomNodeWidget engine={this.engine} size={50} node={event.model} />;
+    generateReactWidget(event): JSX.Element {
+        return <CustomNodeWidget engine={this.engine} node={event.model} />;
     }
 
     generateModel(event) {

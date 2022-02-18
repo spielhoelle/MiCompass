@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { PortModelAlignment, PortWidget } from '@projectstorm/react-diagrams';
+import * as _ from "lodash"
 import { DefaultNodeWidget, DefaultPortLabel } from '@projectstorm/react-diagrams';
 import styled from '@emotion/styled';
 
@@ -17,14 +17,14 @@ export const Port = styled.div`
 
 
 export const Node = styled.div`
-		background-color: ${(p) => p.background};
+		background-color: ${(p: { background: string }) => p.background};
 		border-radius: 5px;
 		font-family: sans-serif;
 		color: white;
 		border: solid 2px black;
 		overflow: visible;
 		font-size: 11px;
-		border: solid 2px ${(p) => (p.selected ? 'rgb(0,192,255)' : 'black')};
+		border: solid 2px ${(p: any) => (p.selected ? 'rgb(0,192,255)' : 'black')};
 		max-width: 120px;
 	`;
 
@@ -69,20 +69,20 @@ export class CustomNodeWidget extends DefaultNodeWidget {
 				background={this.props.node.getOptions().color}> <Title>
 					<TitleName>{this.props.node.getOptions().name}</TitleName>
 				</Title>
-				{this.props.node.options.extras.customType === "question" && (
-					<TitleName>Key: {this.props.node.options.extras.questionidentifier}</TitleName>
+				{this.props.node.getOptions().extras.customType === "question" && (
+					<TitleName>Key: {this.props.node.getOptions().extras.questionidentifier}</TitleName>
 				)}
-				{this.props.node.options.extras.customType === "question" && (
-					<TitleName>DE trans: {this.props.node.options.extras.questiontranslation}</TitleName>
+				{this.props.node.getOptions().extras.customType === "question" && (
+					<TitleName>DE trans: {this.props.node.getOptions().extras.questiontranslation}</TitleName>
 				)}
-				{this.props.node.options.extras.customType === "answer" && this.props.node.options.extras.dropdown && (
+				{this.props.node.getOptions().extras.customType === "answer" && this.props.node.getOptions().extras.dropdown && (
 					<TitleName>Type: dropdown</TitleName>
 				)}
-				{this.props.node.options.extras.customType === "answer" && this.props.node.options.extras.answeridentifier && (
-					<TitleName>Key: {this.props.node.options.extras.answeridentifier}</TitleName>
+				{this.props.node.getOptions().extras.customType === "answer" && this.props.node.getOptions().extras.answeridentifier && (
+					<TitleName>Key: {this.props.node.getOptions().extras.answeridentifier}</TitleName>
 				)}
-				{this.props.node.options.extras.customType === "answer" && this.props.node.options.extras.answertranslation && (
-					<TitleName>DE trans: {this.props.node.options.extras.answertranslation}</TitleName>
+				{this.props.node.getOptions().extras.customType === "answer" && this.props.node.getOptions().extras.answertranslation && (
+					<TitleName>DE trans: {this.props.node.getOptions().extras.answertranslation}</TitleName>
 				)}
 				<Ports>
 					<PortsContainer>{_.map(this.props.node.getInPorts(), this.generatePort)}</PortsContainer>

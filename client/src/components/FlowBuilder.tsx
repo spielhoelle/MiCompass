@@ -1,11 +1,12 @@
-import dynamic from 'next/dynamic'
+import { PortModelAlignment } from '@projectstorm/react-diagrams';
 import React, { useState, useEffect, useRef } from 'react';
 import createEngine, {
   DiagramModel
 } from '@projectstorm/react-diagrams';
 import {
   CanvasWidget,
-  DeleteItemsAction
+  DeleteItemsAction,
+  DeserializeEvent
 } from '@projectstorm/react-canvas-core';
 import styled from '@emotion/styled';
 import { CustomNodeModel } from './CustomNode/CustomNodeModel';
@@ -15,6 +16,11 @@ import { CustomPortModel } from './CustomNode/CustomPortModel';
 import FetchService from '../services/Fetch.service';
 const engine = createEngine({ registerDefaultDeleteItemsAction: false });
 class StartNodeModel extends DiagramModel {
+  extras: any
+  label: any
+  icon: any
+  name: string
+
   serialize() {
     return {
       ...super.serialize(),
@@ -23,8 +29,8 @@ class StartNodeModel extends DiagramModel {
       icon: this.icon,
     };
   }
-  deserialize(event, engine) {
-    super.deserialize(event, engine);
+  deserialize(event: DeserializeEvent<this>) {
+    super.deserialize(event);
     this.extras = event.data.extras;
     this.label = event.data.label;
     this.icon = event.data.icon;
@@ -60,24 +66,23 @@ function QuestionsDiagram() {
   useEffect(() => {
     FetchService.isofetchAuthed('/flows/get', undefined, 'GET')
       .then((res) => {
-        console.log('res', res);
-        if (res.payload.model) {
+        if (res.payload?.model) {
           model.deserializeModel(res.payload.model, engine);
-          Object.values(model.activeNodeLayer.models).forEach((item) => {
+          Object.values(model.getActiveNodeLayer().getModels()).forEach((item) => {
             item.registerListener({
-              eventDidFire: (e) => {
+              eventDidFire: (e: any) => {
                 e.stopPropagation();
                 e.isSelected ? setbutton('update') : setbutton('add')
                 if (e.isSelected) {
                   const newForm = {
-                    "question": e.isSelected && item.options.extras.customType === "question" ? item.options.name : "",
-                    'questionidentifier': e.isSelected ? item.options.extras.questionidentifier : "",
-                    'questiontranslation': e.isSelected ? item.options.extras.questiontranslation : "",
-                    "answer": e.isSelected && item.options.extras.customType === "answer" ? item.options.name : "",
-                    "answeridentifier": e.isSelected ? item.options.extras.answeridentifier : "",
-                    "answertranslation": e.isSelected ? item.options.extras.answertranslation : "",
-                    "freeanswer": e.isSelected ? item.options.extras.freeanswer : "",
-                    "dropdown": e.isSelected ? item.options.extras.dropdown : "",
+                    "question": e.isSelected && item.getOptions().extras.customType === "question" ? item.getOptions().extras.questionidentifier : "",
+                    'questionidentifier': e.isSelected ? item.getOptions().extras.questionidentifier : "",
+                    'questiontranslation': e.isSelected ? item.getOptions().extras.questiontranslation : "",
+                    "answer": e.isSelected && item.getOptions().extras.customType === "answer" ? item.getOptions().extras.questionidentifier : "",
+                    "answeridentifier": e.isSelected ? item.getOptions().extras.answeridentifier : "",
+                    "answertranslation": e.isSelected ? item.getOptions().extras.answertranslation : "",
+                    "freeanswer": e.isSelected ? item.getOptions().extras.freeanswer : "",
+                    "dropdown": e.isSelected ? item.getOptions().extras.dropdown : "",
                   }
                   setForm({ ...form, ...newForm })
                 } else {
@@ -104,7 +109,7 @@ function QuestionsDiagram() {
 
   const addQuestion = (e) => {
     e.preventDefault()
-    const selectedNodes = Object.values(engine.model.activeNodeLayer.models).filter(i => i.options.selected)
+    const selectedNodes = Object.values(engine.getModel().getActiveNodeLayer().getModels()).filter(i => i.getOptions().selected)
     let node
     if (selectedNodes.length === 1) {
       node = selectedNodes[0]
@@ -121,7 +126,7 @@ function QuestionsDiagram() {
           questiontranslation: e.target.elements.addquestiontranslation.value
         }
       });
-      node.setPosition(engine.canvas.offsetWidth / 2, engine.canvas.offsetHeight / 2);
+      node.setPosition(engine.getCanvas().offsetWidth / 2, engine.getCanvas().offsetHeight / 2);
       node.addInPort('In');
       node.addOutPort('Out');
     }
@@ -130,7 +135,7 @@ function QuestionsDiagram() {
   }
   const addAnswer = (e) => {
     e.preventDefault()
-    const selectedNodes = Object.values(engine.model.activeNodeLayer.models).filter(i => i.options.selected)
+    const selectedNodes = Object.values(engine.getModel().getActiveNodeLayer().getModels).filter(i => i.options.selected)
     let node
     if (selectedNodes.length === 1) {
       node = selectedNodes[0]
@@ -150,7 +155,7 @@ function QuestionsDiagram() {
           answertranslation: e.target.elements.answertranslation.value
         }
       });
-      node.setPosition(engine.canvas.offsetWidth / 2, engine.canvas.offsetHeight / 2);
+      node.setPosition(engine.getCanvas().offsetWidth / 2, engine.getCanvas().offsetHeight / 2);
       node.addInPort('In');
       node.addOutPort('Out');
     }
@@ -159,20 +164,20 @@ function QuestionsDiagram() {
   }
   const saveModel = () => {
     setloading(true)
-    var nodes = Object.values(model.layers.find(layer => layer.options.type === "diagram-nodes").models)
+    var nodes = Object.values(model.getLayers().find(layer => layer.getOptions().type === "diagram-nodes").getModels())
     let errorNodes = []
 
     var checkQABalance = (question) => {
-      return Object.values(question.portsOut[0].links).map(link => {
+      return Object.values(question.portsOut[0].links).map((link: any) => {
         if (link.targetPort.parent.options.extras.customType !== "answer") {
           engine.getModel().getNode(link.targetPort.parent.options.id).setSelected(true);
-          engine.getModel().getNode(link.targetPort.parent.options.id).options.color = "rgb(255,0,0)"
+          engine.getModel().getNode(link.targetPort.parent.options.id).getOptions().extras.color = "rgb(255,0,0)"
           return link.targetPort.parent
         }
       }).filter(l => !!l)
     }
 
-    const questions = nodes.filter(n => n.options.extras.customType !== "answer")
+    const questions = nodes.filter(n => n.getOptions().extras.customType !== "answer")
     questions.map(q => {
       errorNodes = [...errorNodes, ...checkQABalance(q)]
     })
@@ -193,7 +198,7 @@ function QuestionsDiagram() {
   const cloneSelected = () => {
     setloading(true)
     let itemMap = {};
-    model.getSelectedEntities().filter(m => m.parent.options.type === "diagram-nodes").map(item => {
+    model.getSelectedEntities().filter(m => m.getOptions().type === "custom_question_node").map(item => {
       let newItem = item.clone(itemMap)
       model.addNode(newItem)
       newItem.setPosition(newItem.getX() + 20, newItem.getY() + 20)
@@ -214,7 +219,7 @@ function QuestionsDiagram() {
                 onChange={(e) => {
                   e.stopPropagation();
                   setForm({ ...form, [e.target.name]: e.target.value })
-                }} data-type="question" data-color={questioncolor} style={{ borderColor: { questioncolor }, borderStyle: "solid" }} id="addquestion" required />
+                }} data-type="question" data-color={questioncolor} style={{ borderColor: questioncolor, borderStyle: "solid" }} id="addquestion" required />
             </div>
             <div className="col-md-4">
               <label htmlFor="addquestiontranslation">DE Questiontranslation</label>
@@ -222,7 +227,7 @@ function QuestionsDiagram() {
                 onChange={(e) => {
                   e.stopPropagation();
                   setForm({ ...form, [e.target.name]: e.target.value })
-                }} data-type="questiontranslation" data-color={questioncolor} style={{ borderColor: { questioncolor }, borderStyle: "solid" }} id="addquestiontranslation" required />
+                }} data-type="questiontranslation" data-color={questioncolor} style={{ borderColor: questioncolor, borderStyle: "solid" }} id="addquestiontranslation" required />
             </div>
             <div className="col-md-4">
               <div className='d-flex align-items-end'>
@@ -232,7 +237,7 @@ function QuestionsDiagram() {
                     onChange={(e) => {
                       e.stopPropagation();
                       setForm({ ...form, [e.target.name]: e.target.value })
-                    }} data-type="questionidentifier" data-color={questioncolor} style={{ borderColor: { questioncolor }, borderStyle: "solid" }} id="addquestionidentifier" required />
+                    }} data-type="questionidentifier" data-color={questioncolor} style={{ borderColor: questioncolor, borderStyle: "solid" }} id="addquestionidentifier" required />
                 </div>
                 <button className="btn btn-primary ml-1" type="submit">{button}</button>
               </div>
@@ -278,7 +283,7 @@ function QuestionsDiagram() {
               <input
                 checked={form['freeanswer']}
                 name='freeanswer'
-                type="checkbox" name="freeanswer" className="form-check-input"
+                type="checkbox" className="form-check-input"
                 onChange={(e) => {
                   e.stopPropagation();
 
@@ -290,7 +295,7 @@ function QuestionsDiagram() {
               <input
                 checked={form['dropdown']}
                 name='dropdown'
-                type="checkbox" name="dropdown" className="form-check-input"
+                type="checkbox" className="form-check-input"
                 onChange={(e) => {
                   e.stopPropagation();
                   setForm({ ...form, [e.target.name]: e.target.checked })
@@ -313,13 +318,13 @@ function QuestionsDiagram() {
           }}>{loading ? "Loading" : "Save"}</button>
       </div>
       {error && (
-        <div claseName="flash m-0 mr-3 alert fade show alert-danger ">
+        <div className="flash m-0 mr-3 alert fade show alert-danger ">
           Error: {error}
           <button className="close ml-3" type="button" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
         </div>
       )}
       <CanvasWrapper>
-        <CanvasWidget id='canvas' engine={engine} />
+        <CanvasWidget engine={engine} />
       </CanvasWrapper>
     </div>
   );

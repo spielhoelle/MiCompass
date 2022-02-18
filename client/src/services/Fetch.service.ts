@@ -4,7 +4,7 @@ import Cookies from 'universal-cookie';
 
 class FetchService {
   public isofetch(url: string, data: object, type: string): Promise<any> {
-    const options = {
+    const options: any = {
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json'
@@ -41,7 +41,7 @@ class FetchService {
     const cookies = new Cookies();
     const token = cookies.get('token');
 
-    const options = {
+    const options: any = {
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',

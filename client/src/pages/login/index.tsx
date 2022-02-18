@@ -1,7 +1,7 @@
 import css from './index.module.scss';
 import Router from 'next/router';
 import { useAuth } from '../../services/Auth.context';
-import { Field, Form, Formik, FormikActions } from 'formik';
+import { Field, Form, Formik, FormikHelpers } from 'formik';
 import React, { useEffect } from 'react';
 
 import TokenService from '../../services/Token.service';
@@ -20,7 +20,6 @@ function Register(props: IProps) {
   const [messageState, messageDispatch] = useGlobalMessaging();
 
   useEffect(() => {
-    console.log('auth', auth);
     if (auth.email) {
       Router.push('/');
     }
@@ -33,7 +32,7 @@ function Register(props: IProps) {
           email: '',
           password: ''
         }}
-        onSubmit={(values: ILoginIn, { setSubmitting }: FormikActions<ILoginIn>) => {
+        onSubmit={(values: ILoginIn, { setSubmitting }: FormikHelpers<ILoginIn>) => {
           FetchService.isofetch(
             '/auth/login',
             {

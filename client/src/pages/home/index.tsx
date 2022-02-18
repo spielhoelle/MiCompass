@@ -1,4 +1,3 @@
-import { Field, Form, Formik, FormikActions } from 'formik';
 import Link from 'next/link';
 import Router from 'next/router';
 import React, { useEffect, useState } from 'react';
@@ -16,47 +15,31 @@ import styled from '@emotion/styled';
 interface IProps {
   action: string;
 }
-export interface QA {
-  question: {
-    color: "rgb(0, 128, 129)"
-    extras: {
-      customType: string
-      questionidentifier: string
-      questiontranslation: string
-    }
-    id: string
-    name: string
-    ports: any[]
-    portsInOrder: any[]
-    portsOutOrder: any[]
-    selected: boolean
-    type: string
-    x: number
-    y: number
-  };
-  answers: {
-    color: string
-    extras: {
-      answeridentifier: string
-      answertranslation: string
-      customType: string
-      dropdown: boolean
-      freeanswer: boolean
-    }
-    id: string
-    name: string
-    ports: any[]
-    portsInOrder: any[]
-    portsOutOrder: any[]
-    selected: boolean
-    type: string
-    x: number
-    y: number
-  }[];
+export interface Model {
+
+  color: string
+  extras: {
+    customType: string
+    questionidentifier: string
+    questiontranslation: string
+  }
+  id: string
+  name: string
+  ports: any[]
+  portsInOrder: any[]
+  portsOutOrder: any[]
+  selected: boolean
+  type: string
+  x: number
+  y: number
 }
-const ModalBackdrop = styled.div`
-  opacity: ${props => !props.open ? 0 : 1};
-  pointer-events: ${props => !props.open ? `none` : `all`};
+export interface QA {
+  question: Model;
+  answers: Model[];
+}
+const ModalBackdrop = styled.div<{ open: boolean }>`
+  opacity: ${(props) => !props.open ? 0 : 1};
+  pointer-events: ${(props) => !props.open ? `none` : `all`};
   position: fixed;
   width: 100%;
   height: 100%;
@@ -81,7 +64,7 @@ function Home(props: IProps) {
   const [authState, authDispatch] = useAuth();
   const [model, setmodel] = useState(undefined);
   const [modalopen, setmodalopen] = useState(false);
-  const [QAs, currentQA] = useState<QA>(undefined);
+  const [QAs, currentQA] = useState<QA | undefined>(undefined);
 
   useEffect(() => {
     if (props.action && props.action == 'logout') {
@@ -96,17 +79,17 @@ function Home(props: IProps) {
   }, []);
 
   const getAnswers = (question, model) => Object.values(model.layers.find(layer => layer.type === "diagram-nodes").models)
-    .filter(links => Object.values(model.layers.find(layer => layer.type === "diagram-links").models)
-      .filter(layer => layer.source === question.id).map(l => l.target).includes(links.id))
+    .filter((links: any) => Object.values(model.layers.find(layer => layer.type === "diagram-links").models)
+      .filter((layer: any) => layer.source === question.id).map((l: any) => l.target).includes(links.id))
 
   useEffect(() => {
     FetchService.isofetchAuthed('/flows/get', undefined, 'GET')
       .then((res) => {
         const diagramNodes = res.payload.model.layers.find(layer => layer.type === "diagram-nodes").models
-        const startquestion = Object.values(diagramNodes).find(model => model.ports.find(port => port.label === "In").links.length === 0)
+        const startquestion = Object.values(diagramNodes).find((model: any) => model.ports.find(port => port.label === "In").links.length === 0)
         const answers = getAnswers(startquestion, res.payload.model)
         setmodel(res.payload.model)
-        currentQA({ question: startquestion, answers })
+        currentQA({ question: startquestion as Model, answers: answers as Model[] })
       }).catch(err => {
         console.log(err);
       }).finally(() => {
@@ -116,7 +99,7 @@ function Home(props: IProps) {
   const setNextQA = (answer) => {
     const form_payload = { [QAs.question.name]: answer.name }
     localStorage.setItem('answers', JSON.stringify({ ...JSON.parse(localStorage.getItem('answers')), ...form_payload }))
-    var nextQuestions = Object.values(model.layers[1].models).find(n => {
+    var nextQuestions = Object.values(model.layers[1].models).find((n: any) => {
       return n.ports[0].links.includes(answer.ports[1].links[0])
     });
     if (!nextQuestions) {
@@ -131,7 +114,7 @@ function Home(props: IProps) {
       })
     } else {
       const answers = getAnswers(nextQuestions, model)
-      currentQA({ question: nextQuestions, answers: answers })
+      currentQA({ question: nextQuestions as Model, answers: answers as Model[] })
     }
   }
 
