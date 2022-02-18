@@ -89,7 +89,8 @@ function Home(props: IProps) {
         const startquestion = Object.values(diagramNodes).find((model: any) => model.ports.find(port => port.label === "In").links.length === 0)
         const answers = getAnswers(startquestion, res.payload.model)
         setmodel(res.payload.model)
-        currentQA({ question: startquestion as Model, answers: answers as Model[] })
+        const sortedanswers = answers.sort((a: Model, b: Model) => a.y - b.y)
+        currentQA({ question: startquestion as Model, answers: sortedanswers as Model[] })
       }).catch(err => {
         console.log(err);
       }).finally(() => {
@@ -121,40 +122,20 @@ function Home(props: IProps) {
   return (
     <PageContent>
       <div>
-
-
-        <div>
-          Click{' '}
-          <Link href="/about">
-            <a>here</a>
-          </Link>{' '}
-          to read more
-        </div>
-        <div>
-          Click{' '}
-          <Link href="/register">
-            <a>here</a>
-          </Link>{' '}
-          to register
-        </div>
-        <div>
-          Click{' '}
-          <Link href="/login">
-            <a>here</a>
-          </Link>{' '}
-          to login
-        </div>
-      </div>
-      <div>
+        <h1>Have you ever considered leaving Afghanistan to start a new life in Europe? Do you think you know enough to make an informed decision?</h1>
         {QAs ? (
-          <div>
-            <h1>{QAs.question.name}</h1>
-            <div className="">
-              {QAs.answers.map((a, i) => (
-                <button className={`btn btn-primary`} key={i} onClick={e => {
-                  setNextQA(a)
-                }}>{a.name}</button>
-              ))}
+          <div className='row'>
+            <div className='col-md-6'>
+              <button className={`btn btn-light mb-3 text-start`} disabled>{QAs.question.name}</button >
+              <div className="">
+                {QAs.answers.map((a, i) => (
+                  <div>
+                    <button className={`btn btn-primary mb-2 btn-sm text-start`} key={i} onClick={e => {
+                      setNextQA(a)
+                    }}>{a.name}</button>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         ) : "Nothing"}

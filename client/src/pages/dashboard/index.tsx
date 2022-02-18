@@ -14,9 +14,6 @@ const FlowBuilder = dynamic(
 function Dashboard() {
   return (
     <PageContent>
-      <div className="container-fluid">
-        <h2 className={css.example}>Have you ever considered leaving Afghanistan to start a new life in Europe?</h2>
-      </div>
       <FlowBuilder />
     </PageContent>
   );

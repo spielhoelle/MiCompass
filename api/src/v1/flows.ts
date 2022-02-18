@@ -5,9 +5,7 @@ import { Request, Response } from 'express';
 import * as errors from '../helpers/error';
 import { verifyToken } from '../middleware/auth';
 
-router.use(verifyToken());
-
-router.post('/save', async (req: any, res: any) => {
+router.post('/save', verifyToken(), async (req: any, res: any) => {
   const flow = new Flow(req.body)
   await flow.saveFlow()
 
