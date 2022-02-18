@@ -108,7 +108,9 @@ function Home(props: IProps) {
 
   const setNextQA = (answer) => {
     const form_payload = { [QAs.question.name]: answer.name }
-    setHistory([...history, { question: QAs.question, answers: QAs.answers, choosenAnswer: answer }])
+    if (history.length < Object.values(model.layers[1].models).filter(item => item.extras.customType === "question").length - 1) {
+      setHistory([...history, { question: QAs.question, answers: QAs.answers, choosenAnswer: answer }])
+    }
     localStorage.setItem('answers', JSON.stringify({ ...JSON.parse(localStorage.getItem('answers')), ...form_payload }))
     var nextQuestions = Object.values(model.layers[1].models).find((n: any) => {
       return n.ports[0].links.includes(answer.ports[1].links[0])
@@ -137,7 +139,7 @@ function Home(props: IProps) {
               <button className={`btn btn-light mb-3 text-start`} disabled>{historyItem.question.name}</button >
               <div className="">
                 {historyItem.answers.map((a, i) => (
-                  <div>
+                  <div key={i}>
                     <button className={`btn mb-2 btn-sm text-start ${historyItem.choosenAnswer.name === a.name ? `btn-primary opacity-50` : `btn-secondary opacity-50`}`} disabled>{a.name}</button>
                   </div>
                 ))}
@@ -154,7 +156,7 @@ function Home(props: IProps) {
               <button className={`btn btn-light mb-3 text-start`} disabled>{QAs.question.name}</button >
               <div className="">
                 {QAs.answers.map((a, i) => (
-                  <div>
+                  <div key={i}>
                     <button className={`btn btn-primary mb-2 btn-sm text-start`} key={i} onClick={e => {
                       setNextQA(a)
                     }}>{a.name}</button>

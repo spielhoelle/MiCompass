@@ -14,6 +14,9 @@ class Answer {
       data: this.data
     });
   }
+  getAnswers() {
+    return db.answers.findAll({})
+  }
 }
 
 export { Answer };
