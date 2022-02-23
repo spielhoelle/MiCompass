@@ -1,28 +1,35 @@
 import db from '../db/models';
 interface FlowInterface {
-  dataValues: {
-    id: number,
-    flowId: string,
-    data: any,
-    createdAt: string,
-    updatedAt: string
-  },
-  _previousDataValues: {
-    id: number,
-    flowId: string,
-    data: any,
-    createdAt: string,
-    updatedAt: string
-  },
-  _changed: Object,
-  _options: {
-    isNewRecord: boolean,
-    _schema: any,
-    _schemaDelimiter: string,
-    raw: boolean,
-    attributes: any
-  },
-  isNewRecord: boolean
+
+  model: {
+    dataValues: {
+      id: number,
+      flowId: string,
+      flowname: string;
+      renderselector: string;
+      data: any,
+      createdAt: string,
+      updatedAt: string
+    },
+    _previousDataValues: {
+      id: number,
+      flowId: string,
+      flowname: string;
+      renderselector: string;
+      data: any,
+      createdAt: string,
+      updatedAt: string
+    },
+    _changed: Object,
+    _options: {
+      isNewRecord: boolean,
+      _schema: any,
+      _schemaDelimiter: string,
+      raw: boolean,
+      attributes: any
+    },
+    isNewRecord: boolean
+  }
 }
 class Flow {
   data: any
@@ -43,16 +50,20 @@ class Flow {
     }).then(function (flow: FlowInterface[]) {
       if (flow.length === 0) {
         return db.flows.create({
-          flowId: that.data.id,
-          data: that.data
+          flowId: that.data.flowId,
+          flowname: that.data.flowname,
+          renderselector: that.data.renderselector,
+          data: that.data.model
         });
 
       } else {
         return db.flows.update({
-          flowId: that.data.id,
-          data: that.data
+          flowId: that.data.flowId,
+          flowname: that.data.flowname,
+          renderselector: that.data.renderselector,
+          data: that.data.model
         }, {
-          where: { flowId: that.data.id }
+          where: { flowId: that.data.flowId }
         });
       }
     }).catch((err: string) => {
@@ -68,7 +79,7 @@ class Flow {
   getFlow(flowId: number) {
     return db.flows.findOne({
       raw: true,
-      where: { id: flowId },
+      where: { flowId: flowId },
       attributes: ['data']
     });
   }

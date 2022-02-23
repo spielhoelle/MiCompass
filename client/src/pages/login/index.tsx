@@ -69,17 +69,17 @@ function Register(props: IProps) {
         }}
         render={() => (
           <Form>
-            <div className="inputWrap">
+            <div className='form-group'>
               <label htmlFor="email">Email</label>
-              <Field id="email" name="email" placeholder="" type="email" />
+              <Field id="email" name="email" className="form-control" placeholder="" type="email" />
             </div>
 
-            <div className="inputWrap">
+            <div className='form-group mb-3'>
               <label htmlFor="password">Password</label>
-              <Field id="password" name="password" placeholder="" type="password" />
+              <Field id="password" name="password" className="form-control" placeholder="" type="password" />
             </div>
 
-            <button type="submit" style={{ display: 'block' }}>
+            <button className="btn btn-primary" type="submit" style={{ display: 'block' }}>
               Submit
             </button>
           </Form>

@@ -3,6 +3,8 @@ module.exports = (sequelize: any, DataTypes: any) => {
     'flows',
     {
       flowId: DataTypes.STRING,
+      flowname: DataTypes.STRING,
+      renderselector: DataTypes.STRING,
       data: DataTypes.JSONB
     },
     {}

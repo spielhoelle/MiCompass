@@ -1,4 +1,6 @@
 import css from './index.module.scss';
+import TokenService from '../../services/Token.service';
+import { NextPageContext } from 'next';
 import FetchService from '../../services/Fetch.service';
 import React, { useEffect, useState, useRef } from 'react';
 import PageContent from '../../components/PageContent';
@@ -55,4 +57,10 @@ function History() {
   );
 }
 
+History.getInitialProps = async (ctx: NextPageContext) => {
+  const tokenService = new TokenService();
+  await tokenService.authenticateTokenSsr(ctx);
+
+  return {};
+};
 export default History;

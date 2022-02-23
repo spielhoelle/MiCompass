@@ -19,7 +19,7 @@ router.get('/get', async (_: Request, res: Response) => {
   if (allFlows[0]) {
     return res.send({
       payload: {
-        model: allFlows[0].data
+        model: allFlows
       }
     });
   } else {

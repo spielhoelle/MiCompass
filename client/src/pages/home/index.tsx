@@ -88,10 +88,10 @@ function Home(props: IProps) {
   useEffect(() => {
     FetchService.isofetchAuthed('/flows/get', undefined, 'GET')
       .then((res) => {
-        const diagramNodes = res.payload.model.layers.find(layer => layer.type === "diagram-nodes").models
+        const diagramNodes = res.payload.model[0].data.layers.find(layer => layer.type === "diagram-nodes").models
         const startquestion = Object.values(diagramNodes).find((model: any) => model.ports.find(port => port.label === "In").links.length === 0)
-        const answers = getAnswers(startquestion, res.payload.model)
-        setmodel(res.payload.model)
+        const answers = getAnswers(startquestion, res.payload.model[0].data)
+        setmodel(res.payload.model[0].data)
         const sortedanswers = answers.sort((a: Model, b: Model) => a.y - b.y)
         currentQA({ question: startquestion as Model, answers: sortedanswers as Model[] })
       }).catch(err => {
@@ -108,7 +108,7 @@ function Home(props: IProps) {
 
   const setNextQA = (answer) => {
     const form_payload = { [QAs.question.name]: answer.name }
-    if (history.length < Object.values(model.layers[1].models).filter(item => item.extras.customType === "question").length - 1) {
+    if (history.length < Object.values(model.layers[1].models).filter((item: Model) => item.extras.customType === "question").length - 1) {
       setHistory([...history, { question: QAs.question, answers: QAs.answers, choosenAnswer: answer }])
     }
     localStorage.setItem('answers', JSON.stringify({ ...JSON.parse(localStorage.getItem('answers')), ...form_payload }))

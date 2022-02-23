@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { verifyToken } from '../middleware/auth';
 import * as errors from '../helpers/error';
 import { Answer } from '../services/Answer';
 const router = Router();
@@ -12,7 +13,7 @@ router.post('/save', async (req, res) => {
     success: true
   });
 });
-router.get('/get', async (req, res) => {
+router.get('/get', verifyToken(), async (req, res) => {
   const answer = new Answer(null)
   const allAnswers = await answer.getAnswers()
   if (allAnswers[0]) {
