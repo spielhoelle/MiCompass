@@ -3,6 +3,9 @@ import { NextPageContext } from 'next';
 export interface IGlobalStatus {
   message: string;
 }
+export interface IState {
+  lang: string;
+}
 
 export interface IAppContext {
   Component: any;

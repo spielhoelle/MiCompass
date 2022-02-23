@@ -7,31 +7,42 @@ import Router from 'next/router';
 import TokenService from '../services/Token.service';
 import { useAuth } from '../services/Auth.context';
 import { useGlobalMessaging } from '../services/GlobalMessaging.context';
+import { useGlobalState } from '../services/State.context';
 import Link from 'next/link';
 
 interface IProps { }
 
 function Header(props: IProps) {
+  const switchLanguage = (e, lang) => {
+    e.preventDefault()
+    const url = new URL(window.location);
+    url.searchParams.set('lang', lang);
+    window.history.pushState({}, '', url);
+    stateDispatch({
+      type: 'setLang',
+      payload: {
+        lang
+      }
+    });
+  }
+
   const tokenService = new TokenService();
   const [globalMessaging, messageDispatch] = useGlobalMessaging();
   const [auth, authDispatch] = useAuth();
   const [navbar, toggleNav] = useState(false);
+  const [state, stateDispatch] = useGlobalState();
   return (
-    <nav className="navbar navbar-expand-lg navbar-light bg-light">
+    <nav className="navbar navbar-expand-sm navbar-light bg-light">
       <Head>
-        <title>Next.js, Typescript and JWT boilerplate</title>
+        <title>MiCompass</title>
         <meta name="viewport" content="initial-scale=1.0, width=device-width" />
       </Head>
       <div className="container-fluid">
         <Link href="/">
           <a className="navbar-brand">MiCompass</a>
         </Link>
-        <a href="#"> {globalMessaging.message ? <p className="globalStatus">{globalMessaging.message}</p> : null} </a>
-        <button onClick={() => toggleNav(!navbar)} className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-          <span className="navbar-toggler-icon"></span>
-        </button>
         <div className={`collapse navbar-collapse collapse ${navbar ? `show` : ``}`} id="navbarSupportedContent">
-          <ul className="navbar-nav me-auto mb-2 mb-lg-0">
+          <ul className="navbar-nav me-auto mb-lg-0">
             {!auth.email ? (
               <>
                 <li className='nav-item'>
@@ -64,6 +75,13 @@ function Header(props: IProps) {
                 <a className="nav-link">About</a>
               </Link>
             </li>
+            <li className='nav-item'>
+              {!state.lang || state.lang !== "en" ? (
+                <a href='#' className="nav-link" onClick={(e) => switchLanguage(e, 'en')}>EN</a>
+              ) : (
+                <a href='#' className="nav-link" onClick={(e) => switchLanguage(e, 'af')}>AF</a>
+              )}
+            </li>
           </ul>
           {auth.email ? (
             <ul className="navbar-nav ">
@@ -88,6 +106,10 @@ function Header(props: IProps) {
           ) : null}
 
         </div>
+        <code className='me-2'> {globalMessaging.message ? globalMessaging.message : null} </code>
+        <button onClick={() => toggleNav(!navbar)} className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span className="navbar-toggler-icon"></span>
+        </button>
       </div>
     </nav>
   );

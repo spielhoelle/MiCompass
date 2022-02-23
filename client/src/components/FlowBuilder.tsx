@@ -129,18 +129,7 @@ function QuestionsDiagram() {
             let relatedQuestion
             let corospondingHsField
             if (e.isSelected) {
-              if (currentNode.getOptions().extras.customType === "answer") {
-                relatedQuestion = findQuestionFromAnswer(currentNode)
-                corospondingHsField = hbFieldsRef.current.find(f => f.name === relatedQuestion.options.extras.questionidentifier)
-                if (corospondingHsField && (!currentNode.getOptions().extras.dropdown && !currentNode.getOptions().extras.freeanswer)) {
-                  sethbFieldsAnswers(corospondingHsField.options)
-                } else if (currentNode.getOptions().extras.dropdown || currentNode.getOptions().extras.freeanswer === true) {
-                  sethbFieldsAnswers([])
-                  // alert(`${relatedQuestion.options.extras.questionidentifier} not found`)
-                }
-              } /* else {
-                sethbFieldsAnswers([{ name: "Type is freeanswer or dropdown. No answer available." }])
-              } */
+
               const formFromClickedNode = {
                 "question": currentNode.getOptions().extras.customType === "question" ? currentNode.getOptions().name : relatedQuestion ? relatedQuestion.options.name : "",
                 'questionidentifier': currentNode.getOptions().extras.customType === "question" ? currentNode.getOptions().extras.questionidentifier : relatedQuestion ? relatedQuestion.options.name : "",

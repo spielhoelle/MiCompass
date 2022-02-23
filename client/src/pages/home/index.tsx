@@ -12,6 +12,7 @@ import TokenService from '../../services/Token.service';
 
 import internal from 'stream';
 import styled from '@emotion/styled';
+import { useGlobalState } from '../../services/State.context';
 interface IProps {
   action: string;
 }
@@ -70,7 +71,7 @@ function Home(props: IProps) {
   const [QAs, currentQA] = useState<QA | undefined>(undefined);
   const [history, setHistory] = useState<History[] | undefined>([]);
   const messagesEndRef = useRef(null)
-
+  const [state, stateDispatch] = useGlobalState();
   useEffect(() => {
     scrollToBottom()
   }, [history]);
@@ -121,51 +122,56 @@ function Home(props: IProps) {
         { answers: localStorage.getItem('answers') },
         'POST'
       ).then((res: any) => {
-        setmodalopen(true)
+        // setmodalopen(true)
+        messageDispatch({
+          type: 'setMessage',
+          payload: {
+            message: 'Thank you!'
+          }
+        });
       })
     } else {
       const answers = getAnswers(nextQuestions, model)
       currentQA({ question: nextQuestions as Model, answers: answers as Model[] })
     }
   }
-
   return (
     <PageContent>
       <div>
         <h1 className='mb-3'>Have you ever considered leaving Afghanistan to start a new life in Europe? Do you think you know enough to make an informed decision?</h1>
-        {history.length > 0 && history.map(historyItem => (
-          <div className='row'>
+        {history.length > 0 && history.map((historyItem, index) => (
+          <div className='row' key={index} >
             <div className='col-md-6'>
-              <button className={`btn btn-light mb-3 text-start`} disabled>{historyItem.question.name}</button >
+              <button className={`btn btn-light mb-3 text-start`} disabled>{state.lang == 'af' ? historyItem.question.extras.questiontranslation : historyItem.question.name}</button >
               <div className="">
                 {historyItem.answers.map((a, i) => (
                   <div key={i}>
-                    <button className={`btn mb-2 btn-sm text-start ${historyItem.choosenAnswer.name === a.name ? `btn-primary opacity-50` : `btn-secondary opacity-50`}`} disabled>{a.name}</button>
+                    <button className={`btn mb-2 btn-sm text-start ${historyItem.choosenAnswer.name === a.name ? `btn-primary opacity-50` : `btn-secondary opacity-50`}`} disabled>{state.lang == 'af' ? a.extras.answertranslation : a.name}</button>
                   </div>
                 ))}
               </div>
             </div>
             <div className='offset-md-6 col-md-6 text-end'>
-              <button className={`btn mb-2 btn-sm btn-primary text-start`} disabled>{historyItem.choosenAnswer.name}</button>
+              <button className={`btn mb-2 btn-sm btn-primary text-start`} disabled>{state.lang == 'af' ? historyItem.choosenAnswer.extras.answertranslation : historyItem.choosenAnswer.name}</button>
             </div>
           </div>
         ))}
         {QAs ? (
           <div className='row'>
             <div className='col-md-6'>
-              <button className={`btn btn-light mb-3 text-start`} disabled>{QAs.question.name}</button >
+              <button className={`btn btn-light mb-3 text-start`} disabled>{state.lang == 'af' ? QAs.question.extras.questiontranslation : QAs.question.name}</button >
               <div className="">
                 {QAs.answers.map((a, i) => (
                   <div key={i}>
                     <button className={`btn btn-primary mb-2 btn-sm text-start`} key={i} onClick={e => {
                       setNextQA(a)
-                    }}>{a.name}</button>
+                    }}>{state.lang == 'af' ? a.extras.answertranslation : a.name}</button>
                   </div>
                 ))}
               </div>
             </div>
           </div>
-        ) : "Nothing"}
+        ) : "loading..."}
         <div ref={messagesEndRef} />
       </div>
       <ModalBackdrop open={modalopen} onClick={e => {

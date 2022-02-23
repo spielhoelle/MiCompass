@@ -6,3 +6,4 @@ build/
 db/data/
 db/data-test/
 .DS_Store
+*.sql
