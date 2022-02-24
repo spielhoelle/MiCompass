@@ -15,9 +15,9 @@ interface IProps { }
 function Header(props: IProps) {
   const switchLanguage = (e, lang) => {
     e.preventDefault()
-    const url = new URL(window.location);
+    const url = new URL((window as any).location);
     url.searchParams.set('lang', lang);
-    window.history.pushState({}, '', url);
+    (window as any).history.pushState({}, '', (url as unknown as string));
     stateDispatch({
       type: 'setLang',
       payload: {
@@ -76,7 +76,7 @@ function Header(props: IProps) {
               </Link>
             </li>
             <li className='nav-item'>
-              {!state.lang || state.lang !== "en" ? (
+              {state.lang && state.lang !== "en" ? (
                 <a href='#' className="nav-link" onClick={(e) => switchLanguage(e, 'en')}>EN</a>
               ) : (
                 <a href='#' className="nav-link" onClick={(e) => switchLanguage(e, 'af')}>AF</a>

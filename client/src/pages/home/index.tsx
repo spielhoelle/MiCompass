@@ -23,6 +23,7 @@ export interface Model {
     customType: string
     questionidentifier: string
     questiontranslation: string
+    answertranslation: string
   }
   id: string
   name: string
@@ -144,7 +145,7 @@ function Home(props: IProps) {
             <div className='col-md-6'>
               <button className={`btn btn-light mb-3 text-start`} disabled>{state.lang == 'af' ? historyItem.question.extras.questiontranslation : historyItem.question.name}</button >
               <div className="">
-                {historyItem.answers.map((a, i) => (
+                {historyItem.answers.map((a: Model, i) => (
                   <div key={i}>
                     <button className={`btn mb-2 btn-sm text-start ${historyItem.choosenAnswer.name === a.name ? `btn-primary opacity-50` : `btn-secondary opacity-50`}`} disabled>{state.lang == 'af' ? a.extras.answertranslation : a.name}</button>
                   </div>

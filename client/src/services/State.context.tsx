@@ -5,7 +5,7 @@ import { IGlobalStatus, IState } from '../types/global.types';
 export const StateContext = React.createContext({});
 let lang = 'en'
 if (typeof window !== "undefined") {
-	const url = new URL(window.location);
+	const url = new URL((window as any).location);
 	lang = url.searchParams.get('lang')
 }
 const initialState: IState = { lang: lang };

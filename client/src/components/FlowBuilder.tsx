@@ -48,7 +48,7 @@ const CanvasWrapper = styled.div`
     background: white;
   }
 `
-const Loader = styled.section`
+const Loader = styled.section<{ loading: boolean }>`
   opacity: ${props => props.loading ? 0.8 : 0};
   pointer-events: ${props => props.loading ? `all` : `none`};
   position: fixed;
@@ -93,6 +93,7 @@ function QuestionsDiagram() {
   let [loading, setloading] = useState(true)
   const emptyForm = {
     "flowname": "",
+    "active": false,
     "renderselector": "",
     "question": "",
     'questionidentifier': "",
@@ -100,9 +101,9 @@ function QuestionsDiagram() {
     "answer": "",
     "answeridentifier": "",
     "answertranslation": "",
-    "freeanswer": "",
+    "freeanswer": false,
     "freeanswer_type": "text",
-    "dropdown": ""
+    "dropdown": false
   }
   let [form, setForm] = useState(emptyForm)
   let formRef = useRef(form)
@@ -131,10 +132,10 @@ function QuestionsDiagram() {
             if (e.isSelected) {
 
               const formFromClickedNode = {
-                "question": currentNode.getOptions().extras.customType === "question" ? currentNode.getOptions().name : relatedQuestion ? relatedQuestion.options.name : "",
+                "question": currentNode.getOptions().extras.customType === "question" ? (currentNode as any).getOptions().name : relatedQuestion ? relatedQuestion.options.name : "",
                 'questionidentifier': currentNode.getOptions().extras.customType === "question" ? currentNode.getOptions().extras.questionidentifier : relatedQuestion ? relatedQuestion.options.name : "",
                 'questiontranslation': currentNode.getOptions().extras.customType === "question" ? currentNode.getOptions().extras.questiontranslation : relatedQuestion ? relatedQuestion.options.extras.questiontranslation : "",
-                "answer": currentNode.getOptions().extras.customType === "answer" ? currentNode.getOptions().name : "",
+                "answer": currentNode.getOptions().extras.customType === "answer" ? (currentNode as any).getOptions().name : "",
                 "answeridentifier": currentNode.getOptions().extras.customType === "answer" ? currentNode.getOptions().extras.answeridentifier : "",
                 "answertranslation": currentNode.getOptions().extras.customType === "answer" ? currentNode.getOptions().extras.answertranslation : "",
                 "freeanswer": currentNode.getOptions().extras.customType === "answer" ? currentNode.getOptions().extras.freeanswer : "",
@@ -171,8 +172,7 @@ function QuestionsDiagram() {
             ...form,
             flowname: initialModel.flowname,
             active: initialModel.active,
-            renderselector: initialModel.renderselector,
-            sendaltemail: initialModel.sendaltemail
+            renderselector: initialModel.renderselector
           })
           engine.setModel(model);
         } else {
@@ -211,10 +211,6 @@ function QuestionsDiagram() {
     }
     model.addAll(node);
     engine.setModel(model);
-  }
-  const findQuestionFromAnswer = (answer) => {
-    const localquestions = Object.values(model.layers[1].getModels()).filter(m => m.options.extras.customType === "question")
-    return localquestions.find(q => Object.keys(q.portsOut[0].links).includes(Object.keys(answer.portsIn[0].links)[0]))
   }
   const addAnswer = (e) => {
     e.preventDefault()
@@ -267,7 +263,7 @@ function QuestionsDiagram() {
     questions.map(q => {
       errorNodes = [...errorNodes, ...checkQABalance(q)]
     })
-    seterror(`Answer followes to answer for nodes: ${errorNodes.map(e => e.options.name + ', ')}`)
+    seterror([...errorNodes, `Answer followes to answer for nodes: ${errorNodes.map(e => e.options.name + ', ')}`])
     if (errorNodes.length === 0) {
       seterror(undefined)
     }
@@ -334,7 +330,6 @@ function QuestionsDiagram() {
                       ...formRef.current,
                       flowname: res.payload.name,
                       active: false,
-                      sendaltemail: false,
                       renderselector: ""
                     })
                     setmodelState(res.payload.model.id)
@@ -381,12 +376,12 @@ function QuestionsDiagram() {
                   window.history.replaceState({}, '', `${location.pathname}?${searchParams}`);
                   if (theModelToSet.model) {
                     model.deserializeModel(theModelToSet.model, engine);
-                    setForm({ ...form, flowname: theModelToSet.flowname, active: theModelToSet.active, renderselector: theModelToSet.renderselector, sendaltemail: theModelToSet.sendaltemail })
+                    setForm({ ...form, flowname: theModelToSet.flowname, active: theModelToSet.active, renderselector: theModelToSet.renderselector })
                     setmodelState(theModelToSet.id)
                     engine.setModel(model);
                   } else {
                     const newModel = new StartNodeModel();
-                    model.deserializeModel(newModel, engine);
+                    model.deserializeModel((newModel as any), engine);
                     engine.setModel(newModel)
                   }
                   addEventListeners(theModelToSet.name)
@@ -399,14 +394,14 @@ function QuestionsDiagram() {
             </div>
             <div className="col-auto">
               <label htmlFor="flowname">Flow name</label>
-              <input className="form-control" id="flowname" name="flowname" value={form['flowname']} value={form.flowname} onChange={(e) => {
+              <input className="form-control" id="flowname" name="flowname" value={form['flowname']} onChange={(e) => {
                 e.stopPropagation();
                 setForm({ ...form, [e.target.name]: e.target.value })
               }} />
             </div>
             <div className="col-auto ">
               <label htmlFor="renderselector">Flow renderselector</label>
-              <input className="form-control" id="renderselector" name="renderselector" value={form['renderselector']} value={form.renderselector} onChange={(e) => {
+              <input className="form-control" id="renderselector" name="renderselector" value={form['renderselector']} onChange={(e) => {
                 e.stopPropagation();
                 setForm({ ...form, [e.target.name]: e.target.value })
               }} />
@@ -441,14 +436,14 @@ function QuestionsDiagram() {
                 onChange={(e) => {
                   e.stopPropagation();
                   setForm({ ...form, [e.target.name]: e.target.value })
-                }} data-type="question" data-color={questioncolor} style={{ borderColor: { questioncolor }, borderStyle: "solid" }} id="addquestion" required />
+                }} data-type="question" data-color={questioncolor} style={{ borderColor: questioncolor, borderStyle: "solid" }} id="addquestion" required />
               <div >
                 <label htmlFor="addquestiontranslation">DE Questiontranslation</label>
                 <input className="form-control" name="questiontranslation" type="text" value={form['questiontranslation']}
                   onChange={(e) => {
                     e.stopPropagation();
                     setForm({ ...form, [e.target.name]: e.target.value })
-                  }} data-type="questiontranslation" data-color={questioncolor} style={{ borderColor: { questioncolor }, borderStyle: "solid" }} id="addquestiontranslation" required />
+                  }} data-type="questiontranslation" data-color={questioncolor} style={{ borderColor: questioncolor, borderStyle: "solid" }} id="addquestiontranslation" required />
               </div>
             </div>
             <div className="col">
@@ -459,7 +454,7 @@ function QuestionsDiagram() {
                     onChange={(e) => {
                       e.stopPropagation();
                       setForm({ ...form, [e.target.name]: e.target.value })
-                    }} data-type="questionidentifier" data-color={questioncolor} style={{ borderColor: { questioncolor }, borderStyle: "solid" }} id="addquestionidentifier" required />
+                    }} data-type="questionidentifier" data-color={questioncolor} style={{ borderColor: questioncolor, borderStyle: "solid" }} id="addquestionidentifier" required />
                 </div>
                 <div className='d-flex align-items-end flex-wrap flex-grow-1'>
                   <div className="flex-grow-1">
@@ -557,7 +552,7 @@ function QuestionsDiagram() {
               <input
                 checked={form['freeanswer']}
                 name='freeanswer'
-                type="checkbox" name="freeanswer" className="form-check-input"
+                type="checkbox" className="form-check-input"
                 onChange={(e) => {
                   e.stopPropagation();
 
@@ -570,7 +565,7 @@ function QuestionsDiagram() {
               <input
                 checked={form['dropdown']}
                 name='dropdown'
-                type="checkbox" name="dropdown" className="form-check-input"
+                type="checkbox" className="form-check-input"
                 onChange={(e) => {
                   e.stopPropagation();
                   setForm({ ...form, [e.target.name]: e.target.checked, freeanswer: false })
@@ -603,7 +598,7 @@ function QuestionsDiagram() {
         </div>
       )}
       <CanvasWrapper >
-        <CanvasWidget id='canvas' engine={engine} />
+        <CanvasWidget engine={engine} />
         <Loader loading={loading} >
           <img src="/media/dci.svg" />
         </Loader>
