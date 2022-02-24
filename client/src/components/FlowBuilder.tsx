@@ -57,26 +57,17 @@ const Loader = styled.section<{ loading: boolean }>`
   width: 100%;
   height: 100%;
   background: white;
-  img {
+  div {
     left: 50%;
     opacity: .7;
     position: absolute;
     top: 50%;
-    transform: translate(-50%, -50%);
-    animation: shine 1s alternate infinite;
-    @keyframes shine {
-      0% {
-
-        transform: translate(-50%, -50%) rotate(0deg);
-      }
-      50% {
-
-        transform: translate(-50%, -50%) rotate(400deg);
-      }
-      100% {
-        transform: translate(-50%, -50%) rotate(0deg);
-      }
-    }
+    transform: translate(-50%, -50%) scale(4);
+    background: url("data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9Im5vIj8+CjwhRE9DVFlQRSBzdmcgUFVCTElDICItLy9XM0MvL0RURCBTVkcgMS4xLy9FTiIgImh0dHA6Ly93d3cudzMub3JnL0dyYXBoaWNzL1NWRy8xLjEvRFREL3N2ZzExLmR0ZCI+CjxzdmcgdmVyc2lvbj0iMS4xIiB2aWV3Qm94PSIwIDAgMTAwIDEwMCIgcHJlc2VydmVBc3BlY3RSYXRpbz0ieE1pZFlNaWQiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiPgoKPCEtLSAKUHJlbG9hZGVyIHNjYWxhYmxlIGdyYXBoaWNzCmF1dGhvcjogSm9yZ2UgQy4gUy4gQ2FyZG9zbwpkYXRlOiAyMDEyIE9jdCAwNwotLT4KCjxnPgoJPGRlZnM+CgkJPGNsaXBQYXRoIGlkPSJjbGlwIj4KCQkJPHBhdGggZD0iTSA1MCA1MCBMIDM1IDAgTCA2NSAwIHoiLz4KCQk8L2NsaXBQYXRoPgoJCgkJPGVsbGlwc2UgaWQ9Ik15RWxsaXBzZSIgY2xpcC1wYXRoPSJ1cmwoI2NsaXApIiBjeD0iNTAiIGN5PSI1MCIgcng9IjQwIiByeT0iNDAiIHN0eWxlPSJmaWxsOm5vbmU7IHN0cm9rZTojYWFhIiBzdHJva2Utd2lkdGg9IjEwIi8+Cgk8L2RlZnM+CgoKPHVzZSB4bGluazpocmVmPSIjTXlFbGxpcHNlIi8+Cjx1c2UgeGxpbms6aHJlZj0iI015RWxsaXBzZSIgdHJhbnNmb3JtPSJyb3RhdGUoNDAgNTAgNTApIi8+Cjx1c2UgeGxpbms6aHJlZj0iI015RWxsaXBzZSIgdHJhbnNmb3JtPSJyb3RhdGUoODAgNTAgNTApIi8+Cjx1c2UgeGxpbms6aHJlZj0iI015RWxsaXBzZSIgdHJhbnNmb3JtPSJyb3RhdGUoMTIwIDUwIDUwKSIvPgo8dXNlIHhsaW5rOmhyZWY9IiNNeUVsbGlwc2UiIHRyYW5zZm9ybT0icm90YXRlKDE2MCA1MCA1MCkiLz4KPHVzZSB4bGluazpocmVmPSIjTXlFbGxpcHNlIiB0cmFuc2Zvcm09InJvdGF0ZSgyMDAgNTAgNTApIi8+Cjx1c2UgeGxpbms6aHJlZj0iI015RWxsaXBzZSIgdHJhbnNmb3JtPSJyb3RhdGUoMjQwIDUwIDUwKSIvPgo8dXNlIHhsaW5rOmhyZWY9IiNNeUVsbGlwc2UiIHRyYW5zZm9ybT0icm90YXRlKDI4MCA1MCA1MCkiLz4KPHVzZSB4bGluazpocmVmPSIjTXlFbGxpcHNlIiB0cmFuc2Zvcm09InJvdGF0ZSgzMjAgNTAgNTApIi8+CgoKPGVsbGlwc2UgY2xpcC1wYXRoPSJ1cmwoI2NsaXApIiBjeD0iNTAiIGN5PSI1MCIgcng9IjQwIiByeT0iNDAiIHN0eWxlPSJmaWxsOm5vbmU7IHN0cm9rZTpibGFjayIgc3Ryb2tlLXdpZHRoPSIxMiI+Cgk8YW5pbWF0ZVRyYW5zZm9ybSBhdHRyaWJ1dGVOYW1lPSJ0cmFuc2Zvcm0iIGF0dHJpYnV0ZVR5cGU9IlhNTCIgdHlwZT0icm90YXRlIiB2YWx1ZXM9IjAgNTAgNTA7IDQwIDUwIDUwOyA4MCA1MCA1MDsgMTIwIDUwIDUwOyAxNjAgNTAgNTA7IDIwMCA1MCA1MDsgMjQwIDUwIDUwOyAyODAgNTAgNTA7IDMyMCA1MCA1MDsgMzYwIDUwIDUwIiBkdXI9IjFzIiByZXBlYXRDb3VudD0iaW5kZWZpbml0ZSIgYWRkaXRpdmU9InJlcGxhY2UiIGNhbGNNb2RlPSJkaXNjcmV0ZSIgZmlsbD0iZnJlZXplIi8+CjwvZWxsaXBzZT4gIAogIDwvZz4KPC9zdmc+");
+    width: 3em;
+    height: 3em;
+    background-size: cover;
+    background-repeat: no-repeat;
   }
 `
 const Pre = styled.pre`
@@ -600,7 +591,7 @@ function QuestionsDiagram() {
       <CanvasWrapper >
         <CanvasWidget engine={engine} />
         <Loader loading={loading} >
-          <img src="/media/dci.svg" />
+          <div></div>
         </Loader>
       </CanvasWrapper>
     </div>
