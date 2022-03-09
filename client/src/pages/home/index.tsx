@@ -129,10 +129,6 @@ function Home(props: IProps) {
 
   const setNextQA = (answer, value) => {
     const form_payload = { [QAs.question.name]: value }
-    if (history.length < Object.values(model.layers[1].models).filter((item: ModelQ) => item.extras.customType === "question").length - 1) {
-      setHistory([...history, { question: QAs.question, answers: QAs.answers, choosenAnswer: answer, choosenAnswerValue: value }])
-    }
-    localStorage.setItem('answers', JSON.stringify({ ...JSON.parse(localStorage.getItem('answers')), ...form_payload }))
     var nextQuestions = Object.values(model.layers[1].models).find((n: any) => {
       return n.ports[0].links.includes(answer.ports[1].links[0])
     });
@@ -142,7 +138,7 @@ function Home(props: IProps) {
         { answers: localStorage.getItem('answers') },
         'POST'
       ).then((res: any) => {
-        // setmodalopen(true)
+          // setmodalopen(true)
         messageDispatch({
           type: 'setMessage',
           payload: {
@@ -152,6 +148,10 @@ function Home(props: IProps) {
         localStorage.removeItem('answers')
       })
     } else {
+      if (history.length < Object.values(model.layers[1].models).filter((item: ModelQ) => item.extras.customType === "question").length - 1) {
+        setHistory([...history, { question: QAs.question, answers: QAs.answers, choosenAnswer: answer, choosenAnswerValue: value }])
+      }
+      localStorage.setItem('answers', JSON.stringify({ ...JSON.parse(localStorage.getItem('answers')), ...form_payload }))
       const answers = getAnswers(nextQuestions, model)
       currentQA({ question: nextQuestions as ModelQ, answers: answers as ModelA[] })
     }

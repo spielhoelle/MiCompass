@@ -32,7 +32,7 @@ function Header(props: IProps) {
   const [navbar, toggleNav] = useState(false);
   const [state, stateDispatch] = useGlobalState();
   return (
-    <nav className="navbar navbar-expand-sm navbar-light bg-light">
+    <nav className="navbar navbar-expand-sm navbar-light bg-light fixed-top">
       <Head>
         <title>MiCompass</title>
         <meta name="viewport" content="initial-scale=1.0, width=device-width" />

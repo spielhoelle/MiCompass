@@ -84,7 +84,7 @@ const colorFreeanswer = "rgb(182, 133, 1)"
 const colorAnswer = "rgb(255, 204, 1)"
 const colorError = "rgb(255,0,0)"
 const questioncolor = "rgb(0, 128, 129)"
-function QuestionsDiagram() {
+function FlowBuilder() {
   let [loading, setloading] = useState(true)
   const emptyForm = {
     "flowname": "",
@@ -589,4 +589,4 @@ function QuestionsDiagram() {
   );
 }
 
-export default QuestionsDiagram;
+export default FlowBuilder;
