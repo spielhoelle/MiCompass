@@ -85,7 +85,7 @@ function Header(props: IProps) {
           </ul>
           {auth.email ? (
             <ul className="navbar-nav ">
-              <span className="navbar-text">Logged in with user: {auth.email}</span>
+              <span className="navbar-text">{auth.email}</span>
               <li className="nav-item">
                 <a className="nav-link"
                   href="#"

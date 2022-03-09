@@ -71,17 +71,6 @@ const ModalBackdrop = styled.div<{ open: boolean }>`
   left: 0;
   background-color: rgba(0,0,0,0.4);
 `
-const Modal = styled.div`
-  position: fixed;
-  width: 300px;
-  height: 400px;
-  background-color: white;
-  box-shadow: 0 0 10px rgba(0,0,0,0.2);
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  text-align: center;
-`
 function Home(props: IProps) {
   const tokenService = new TokenService();
   const [messageState, messageDispatch] = useGlobalMessaging();
@@ -138,7 +127,7 @@ function Home(props: IProps) {
         { answers: localStorage.getItem('answers') },
         'POST'
       ).then((res: any) => {
-          // setmodalopen(true)
+        setmodalopen(true)
         messageDispatch({
           type: 'setMessage',
           payload: {
@@ -213,12 +202,27 @@ function Home(props: IProps) {
         ) : "loading..."}
         <div ref={messagesEndRef} />
       </div>
-      <ModalBackdrop open={modalopen} onClick={e => {
-        setmodalopen(false)
-      }}>
-        <Modal>
-          Success! You gonna hear from us soon!
-        </Modal>
+      <ModalBackdrop open={modalopen}>
+        <div className="modal d-block" tabIndex={-1}>
+          <div className="modal-dialog modal-dialog-centered">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">Good job</h5>
+                <button type="button" className="btn-close" aria-label="Close" onClick={e => {
+                  setmodalopen(false)
+                }}></button>
+              </div>
+              <div className="modal-body">
+                <p>Success! You gonna hear from us soon!</p>
+              </div>
+              <div className="modal-footer">
+                <button type="button" className="btn btn-secondary" onClick={e => {
+                  setmodalopen(false)
+                }}>Close</button>
+              </div>
+            </div>
+          </div>
+        </div>
       </ModalBackdrop>
     </PageContent>
   );
