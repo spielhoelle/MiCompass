@@ -17,6 +17,12 @@ import { useGlobalState } from '../../services/State.context';
 interface IProps {
   action: string;
 }
+interface Answer {
+  question: string,
+  answer: string,
+  points: number,
+  index: number
+};
 export interface ModelQ {
   color: string
   extras: {
@@ -78,7 +84,7 @@ function Home(props: IProps) {
   const [messageState, messageDispatch] = useGlobalMessaging();
   const [authState, authDispatch] = useAuth();
   const [model, setmodel] = useState(undefined);
-  const [modalopen, setmodalopen] = useState(true);
+  const [modalopen, setmodalopen] = useState(false);
   const [QAs, currentQA] = useState<QA | undefined>(undefined);
   const [history, setHistory] = useState<History[] | undefined>([]);
   const messagesEndRef = useRef(null)
@@ -118,8 +124,8 @@ function Home(props: IProps) {
     .filter((links: any) => Object.values(model.layers.find(layer => layer.type === "diagram-links").models)
       .filter((layer: any) => layer.source === question.id).map((l: any) => l.target).includes(links.id))
 
-  const setNextQA = (answer, value) => {
-    const form_payload = { [QAs.question.name]: value }
+  const setNextQA = (answer, value, points, index) => {
+    const form_payload: Answer = { question: QAs.question.name, answer: value, points: points, index: index };
     var nextQuestions = Object.values(model.layers[1].models).find((n: any) => {
       return n.ports[0].links.includes(answer.ports[1].links[0])
     });
@@ -139,12 +145,19 @@ function Home(props: IProps) {
         localStorage.removeItem('answers')
       })
     } else {
+      const answers = getAnswers(nextQuestions, model)
+      currentQA({ question: nextQuestions as ModelQ, answers: answers as ModelA[] })
       if (history.length < Object.values(model.layers[1].models).filter((item: ModelQ) => item.extras.customType === "question").length - 1) {
         setHistory([...history, { question: QAs.question, answers: QAs.answers, choosenAnswer: answer, choosenAnswerValue: value }])
       }
-      localStorage.setItem('answers', JSON.stringify({ ...JSON.parse(localStorage.getItem('answers')), ...form_payload }))
-      const answers = getAnswers(nextQuestions, model)
-      currentQA({ question: nextQuestions as ModelQ, answers: answers as ModelA[] })
+      let savedAnswers = JSON.parse(localStorage.getItem('answers')) || []
+      const currentAnswerIndex = savedAnswers.findIndex(a => a.index === form_payload.index)
+      if (currentAnswerIndex !== -1) {
+        savedAnswers[currentAnswerIndex] = form_payload
+      } else {
+        savedAnswers.push(form_payload)
+      }
+      localStorage.setItem('answers', JSON.stringify(savedAnswers))
     }
   }
   const myRef = useRef([]);
@@ -188,12 +201,12 @@ function Home(props: IProps) {
                         <label htmlFor={a.extras.answeridentifier} className="form-label">{state.lang == 'af' ? a.extras.answertranslation : a.name}</label>
                         <input ref={ref => myRef.current[i] = ref} id={a.extras.answeridentifier} name={a.extras.answeridentifier} className={`form-control mb-3`} />
                         <button className={`btn btn-primary mb-2 btn-sm text-start`} key={i} onClick={e => {
-                          setNextQA(a, myRef.current[i].value)
+                          setNextQA(a, myRef.current[i].value, a.extras.points, history.length)
                         }}>{state.lang == 'af' ? "سپارل" : "Submit"}</button>
                       </>
                     ) : (
                       <button className={`btn btn-primary mb-2 btn-sm text-start`} key={i} onClick={e => {
-                        setNextQA(a, a.extras.answeridentifier)
+                          setNextQA(a, a.extras.answeridentifier, a.extras.points, history.length)
                       }}>{state.lang == 'af' ? a.extras.answertranslation : a.name}</button>
                     )}
                   </div>)
@@ -205,7 +218,7 @@ function Home(props: IProps) {
         <div ref={messagesEndRef} />
       </div>
       <ModalBackdrop open={modalopen}>
-        <div className="modal d-block" tabIndex={-1}>
+        <div className={`modal ${modalopen ? `d-block` : ``}`} tabIndex={-1}>
           <div className="modal-dialog modal-dialog-centered">
             <div className="modal-content">
               <div className="modal-header">
