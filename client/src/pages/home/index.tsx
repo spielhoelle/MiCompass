@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import css from './index.module.scss';
 import Router from 'next/router';
 import React, { useEffect, useState, useRef } from 'react';
 import { NextPageContext } from 'next';
@@ -39,6 +40,7 @@ export interface ModelA {
     customType: string
     answertranslation: string
     answeridentifier: string
+    points: number
     freeanswer: boolean
     freeanswer_type: string
     dropdown: boolean
@@ -76,7 +78,7 @@ function Home(props: IProps) {
   const [messageState, messageDispatch] = useGlobalMessaging();
   const [authState, authDispatch] = useAuth();
   const [model, setmodel] = useState(undefined);
-  const [modalopen, setmodalopen] = useState(false);
+  const [modalopen, setmodalopen] = useState(true);
   const [QAs, currentQA] = useState<QA | undefined>(undefined);
   const [history, setHistory] = useState<History[] | undefined>([]);
   const messagesEndRef = useRef(null)
@@ -148,7 +150,7 @@ function Home(props: IProps) {
   const myRef = useRef([]);
   return (
     <PageContent>
-      <div>
+      <div className={css.bottomspacing}>
         {history.length > 0 && history.map((historyItem, index) => (
           <div className='row' key={index} >
             <div className='col-md-6'>

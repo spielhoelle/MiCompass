@@ -84,6 +84,9 @@ export class CustomNodeWidget extends DefaultNodeWidget {
 				{this.props.node.getOptions().extras.customType === "answer" && this.props.node.getOptions().extras.answertranslation && (
 					<TitleName>DE trans: {this.props.node.getOptions().extras.answertranslation}</TitleName>
 				)}
+				{this.props.node.getOptions().extras.customType === "answer" && !isNaN(this.props.node.getOptions().extras.points) && (
+					<TitleName>Points: {this.props.node.getOptions().extras.points}</TitleName>
+				)}
 				<Ports>
 					<PortsContainer>{_.map(this.props.node.getInPorts(), this.generatePort)}</PortsContainer>
 					<PortsContainer>{_.map(this.props.node.getOutPorts(), this.generatePort)}</PortsContainer>
