@@ -17,10 +17,13 @@ function History() {
         setHistory(mappedHistory)
         const overview = mappedHistory.reduce((acc, item) => {
           Object.keys(item.data).map(q => {
-            if (acc[item.data[q]] === undefined) {
-              acc[item.data[q]] = 0
+            if (acc[q] === undefined) {
+              acc[q] = []
             }
-            acc[item.data[q]]++
+            if (acc[q][item.data[q]] === undefined) {
+              acc[q][item.data[q]] = 0
+            }
+            acc[q][item.data[q]]++
           })
           return acc
         }, {})
@@ -34,7 +37,12 @@ function History() {
       <h3>Overview</h3>
       {Object.keys(answerOverview).map((item, index) => (
         <div>
-          {item}: {answerOverview[item]}
+          <h2>{item.slice(0, 50)}</h2>
+          {Object.keys(answerOverview[item]).map((item2, index) => (
+            <div>
+              {item2}: {answerOverview[item][item2]}
+            </div>
+          ))}
         </div>
       ))}
       <hr />

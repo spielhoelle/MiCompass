@@ -8,9 +8,10 @@ import { verifyToken } from '../middleware/auth';
 router.post('/save', verifyToken(), async (req: any, res: any) => {
   const flow = new Flow(req.body)
   await flow.saveFlow()
-
+  
   res.send({
-    success: true
+    success: true, 
+    flow
   });
 });
 router.get('/get', async (_: Request, res: Response) => {

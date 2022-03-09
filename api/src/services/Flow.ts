@@ -47,23 +47,20 @@ class Flow {
         //your where conditions, or without them if you need ANY entry
       },
       order: [['createdAt', 'DESC']]
-    }).then(function (flow: FlowInterface[]) {
-      if (flow.length === 0) {
+    }).then(async function (flow: FlowInterface[]) {
+      if (!that.data.id) {
         return db.flows.create({
-          flowId: that.data.flowId,
           flowname: that.data.flowname,
           renderselector: that.data.renderselector,
           data: that.data.model
         });
-
       } else {
         return db.flows.update({
-          flowId: that.data.flowId,
           flowname: that.data.flowname,
           renderselector: that.data.renderselector,
           data: that.data.model
         }, {
-          where: { flowId: that.data.flowId }
+          where: { id: Number(that.data.id) }
         });
       }
     }).catch((err: string) => {
@@ -71,15 +68,14 @@ class Flow {
     });
 
   }
-
   getFlows() {
     return db.flows.findAll({})
   }
 
-  getFlow(flowId: number) {
+  getFlow(id: number) {
     return db.flows.findOne({
       raw: true,
-      where: { flowId: flowId },
+      where: { id: id },
       attributes: ['data']
     });
   }

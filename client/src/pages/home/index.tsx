@@ -16,14 +16,32 @@ import { useGlobalState } from '../../services/State.context';
 interface IProps {
   action: string;
 }
-export interface Model {
-
+export interface ModelQ {
   color: string
   extras: {
     customType: string
     questionidentifier: string
     questiontranslation: string
+  }
+  id: string
+  name: string
+  ports: any[]
+  portsInOrder: any[]
+  portsOutOrder: any[]
+  selected: boolean
+  type: string
+  x: number
+  y: number
+}
+export interface ModelA {
+  color: string
+  extras: {
+    customType: string
     answertranslation: string
+    answeridentifier: string
+    freeanswer: boolean
+    freeanswer_type: string
+    dropdown: boolean
   }
   id: string
   name: string
@@ -36,11 +54,12 @@ export interface Model {
   y: number
 }
 export interface QA {
-  question: Model;
-  answers: Model[];
+  question: ModelQ;
+  answers: ModelA[];
 }
 export interface History extends QA {
-  choosenAnswer: Model;
+  choosenAnswer: ModelA;
+  choosenAnswerValue: string;
 }
 const ModalBackdrop = styled.div<{ open: boolean }>`
   opacity: ${(props) => !props.open ? 0 : 1};
@@ -94,8 +113,8 @@ function Home(props: IProps) {
         const startquestion = Object.values(diagramNodes).find((model: any) => model.ports.find(port => port.label === "In").links.length === 0)
         const answers = getAnswers(startquestion, res.payload.model[0].data)
         setmodel(res.payload.model[0].data)
-        const sortedanswers = answers.sort((a: Model, b: Model) => a.y - b.y)
-        currentQA({ question: startquestion as Model, answers: sortedanswers as Model[] })
+        const sortedanswers = answers.sort((a: ModelA, b: ModelA) => a.y - b.y)
+        currentQA({ question: startquestion as ModelQ, answers: sortedanswers as ModelA[] })
       }).catch(err => {
         console.log(err);
       }).finally(() => {
@@ -108,10 +127,10 @@ function Home(props: IProps) {
     .filter((links: any) => Object.values(model.layers.find(layer => layer.type === "diagram-links").models)
       .filter((layer: any) => layer.source === question.id).map((l: any) => l.target).includes(links.id))
 
-  const setNextQA = (answer) => {
-    const form_payload = { [QAs.question.name]: answer.name }
-    if (history.length < Object.values(model.layers[1].models).filter((item: Model) => item.extras.customType === "question").length - 1) {
-      setHistory([...history, { question: QAs.question, answers: QAs.answers, choosenAnswer: answer }])
+  const setNextQA = (answer, value) => {
+    const form_payload = { [QAs.question.name]: value }
+    if (history.length < Object.values(model.layers[1].models).filter((item: ModelQ) => item.extras.customType === "question").length - 1) {
+      setHistory([...history, { question: QAs.question, answers: QAs.answers, choosenAnswer: answer, choosenAnswerValue: value }])
     }
     localStorage.setItem('answers', JSON.stringify({ ...JSON.parse(localStorage.getItem('answers')), ...form_payload }))
     var nextQuestions = Object.values(model.layers[1].models).find((n: any) => {
@@ -130,31 +149,40 @@ function Home(props: IProps) {
             message: 'Thank you!'
           }
         });
+        localStorage.removeItem('answers')
       })
     } else {
       const answers = getAnswers(nextQuestions, model)
-      currentQA({ question: nextQuestions as Model, answers: answers as Model[] })
+      currentQA({ question: nextQuestions as ModelQ, answers: answers as ModelA[] })
     }
   }
+  const myRef = useRef([]);
   return (
     <PageContent>
       <div>
-        <h1 className='mb-3'>Have you ever considered leaving Afghanistan to start a new life in Europe? Do you think you know enough to make an informed decision?</h1>
         {history.length > 0 && history.map((historyItem, index) => (
           <div className='row' key={index} >
             <div className='col-md-6'>
               <button className={`btn btn-light mb-3 text-start`} disabled>{state.lang == 'af' ? historyItem.question.extras.questiontranslation : historyItem.question.name}</button >
+              {historyItem.choosenAnswer.extras.freeanswer && (
+                <>
+                  <label htmlFor={historyItem.choosenAnswer.extras.answeridentifier} className="form-label">{state.lang == 'af' ? historyItem.choosenAnswer.extras.answertranslation : historyItem.choosenAnswer.name}</label>
+                  <input value={historyItem.choosenAnswerValue} disabled className={`form-control mb-3`} />
+                </>
+              )}
               <div className="">
-                {historyItem.answers.map((a: Model, i) => (
+                {historyItem.answers.map((a: ModelA, i) => (
                   <div key={i}>
-                    <button className={`btn mb-2 btn-sm text-start ${historyItem.choosenAnswer.name === a.name ? `btn-primary opacity-50` : `btn-secondary opacity-50`}`} disabled>{state.lang == 'af' ? a.extras.answertranslation : a.name}</button>
+                    <button className={`btn mb-2 btn-sm text-start ${historyItem.choosenAnswer.name === a.name ? `btn-primary opacity-50` : `btn-secondary opacity-50`}`} disabled>{historyItem.choosenAnswer.extras.freeanswer ? historyItem.choosenAnswerValue : state.lang == 'af' ? a.extras.answertranslation : a.name}</button>
                   </div>
                 ))}
               </div>
             </div>
-            <div className='offset-md-6 col-md-6 text-end'>
-              <button className={`btn mb-2 btn-sm btn-primary text-start`} disabled>{state.lang == 'af' ? historyItem.choosenAnswer.extras.answertranslation : historyItem.choosenAnswer.name}</button>
-            </div>
+            {!historyItem.choosenAnswer.extras.freeanswer && (
+              <div className='offset-md-6 col-md-6 text-end'>
+                <button className={`btn mb-2 btn-sm btn-primary text-start`} disabled>{state.lang == 'af' ? historyItem.choosenAnswer.extras.answertranslation : historyItem.choosenAnswer.name}</button>
+              </div>
+            )}
           </div>
         ))}
         {QAs ? (
@@ -164,11 +192,21 @@ function Home(props: IProps) {
               <div className="">
                 {QAs.answers.map((a, i) => (
                   <div key={i}>
-                    <button className={`btn btn-primary mb-2 btn-sm text-start`} key={i} onClick={e => {
-                      setNextQA(a)
-                    }}>{state.lang == 'af' ? a.extras.answertranslation : a.name}</button>
-                  </div>
-                ))}
+                    {a.extras.freeanswer ? (
+                      <>
+                        <label htmlFor={a.extras.answeridentifier} className="form-label">{state.lang == 'af' ? a.extras.answertranslation : a.name}</label>
+                        <input ref={ref => myRef.current[i] = ref} id={a.extras.answeridentifier} name={a.extras.answeridentifier} className={`form-control mb-3`} />
+                        <button className={`btn btn-primary mb-2 btn-sm text-start`} key={i} onClick={e => {
+                          setNextQA(a, myRef.current[i].value)
+                        }}>{state.lang == 'af' ? "سپارل" : "Submit"}</button>
+                      </>
+                    ) : (
+                      <button className={`btn btn-primary mb-2 btn-sm text-start`} key={i} onClick={e => {
+                        setNextQA(a, a.extras.answeridentifier)
+                      }}>{state.lang == 'af' ? a.extras.answertranslation : a.name}</button>
+                    )}
+                  </div>)
+                )}
               </div>
             </div>
           </div>

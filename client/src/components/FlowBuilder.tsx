@@ -8,6 +8,10 @@ import { CustomNodeFactory } from './CustomNode/CustomNodeFactory';
 import { CustomPortFactory } from './CustomNode/CustomPortFactory';
 import { CustomPortModel } from './CustomNode/CustomPortModel';
 import FetchService from '../services/Fetch.service';
+import { useGlobalMessaging } from '../services/GlobalMessaging.context';
+import Router from 'next/router';
+import { useAuth } from '../services/Auth.context';
+import TokenService from '../services/Token.service';
 const engine = createEngine({ registerDefaultDeleteItemsAction: false });
 class StartNodeModel extends DiagramModel {
   extras: any
@@ -102,11 +106,12 @@ function QuestionsDiagram() {
   let [nodevisibility, setnodevisibility] = useState(true)
   let [answersvisiblity, setanswersvisiblity] = useState(false)
   let [allFlows, setallFlows] = useState([])
+  const [authState, authDispatch] = useAuth();
+  const tokenService = new TokenService();
   let [answers, setanswers] = useState([])
   let [currentModelId, setmodelState] = useState("")
   let [error, seterror] = useState([])
-  let hbFieldsRef = useRef(undefined)
-  let [hbFieldsAnswers, sethbFieldsAnswers] = useState([])
+  const [messageState, messageDispatch] = useGlobalMessaging();
   useEffect(() => {
     formRef.current = form
   }, [form])
@@ -119,9 +124,7 @@ function QuestionsDiagram() {
           e.isSelected ? setbutton('update') : setbutton('add')
           if (e.function === "selectionChanged") {
             let relatedQuestion
-            let corospondingHsField
             if (e.isSelected) {
-
               const formFromClickedNode = {
                 "question": currentNode.getOptions().extras.customType === "question" ? (currentNode as any).getOptions().name : relatedQuestion ? relatedQuestion.options.name : "",
                 'questionidentifier': currentNode.getOptions().extras.customType === "question" ? currentNode.getOptions().extras.questionidentifier : relatedQuestion ? relatedQuestion.options.name : "",
@@ -137,7 +140,10 @@ function QuestionsDiagram() {
               setForm({ ...formRef.current, ...formFromClickedNode })
             }
             else {
-              setForm({ ...formRef.current, ...emptyForm })
+              const emptyFormClone = { ...emptyForm }
+              delete emptyFormClone.flowname
+              delete emptyFormClone.renderselector
+              setForm({ ...formRef.current, ...emptyFormClone })
             }
           }
         }
@@ -147,13 +153,11 @@ function QuestionsDiagram() {
   useEffect(() => {
     FetchService.isofetchAuthed('/flows/get', undefined, 'GET')
       .then(res => {
-        console.log('res.payload', res.payload);
         if (res.payload?.model) {
           var searchParams = new URLSearchParams(window.location.search);
           const cachedFlow = searchParams.get("flow");
           setallFlows(res.payload.model)
           const initialModel = res.payload.model.find(f => f.id === cachedFlow) || res.payload.model[0]
-          console.log('initialModel', initialModel);
           if (initialModel.data) {
             model.deserializeModel(initialModel.data, engine);
           }
@@ -205,7 +209,7 @@ function QuestionsDiagram() {
   }
   const addAnswer = (e) => {
     e.preventDefault()
-    const selectedNodes = Object.values(engine.getModel().getActiveNodeLayer().getModels).filter(i => i.options.selected)
+    const selectedNodes = Object.values(engine.getModel().getActiveNodeLayer().getModels()).filter(i => i.getOptions().selected)
     let node
     if (selectedNodes.length === 1) {
       node = selectedNodes[0]
@@ -259,7 +263,7 @@ function QuestionsDiagram() {
       seterror(undefined)
     }
     const payload = {
-      flowId: currentModelId,
+      id: currentModelId,
       flowname: form.flowname,
       renderselector: form.renderselector,
       model: model.serialize(),
@@ -272,6 +276,33 @@ function QuestionsDiagram() {
     )
       .then(res => {
         setloading(false)
+        if (res.success !== false) {
+          const oldFlow = { ...allFlows.find(f => f.id === res.flow.data.id) }
+          const newFlow = { ...oldFlow, ...res.flow.data }
+          const flowsClone = [...allFlows]
+          flowsClone[flowsClone.findIndex(f => f.id === res.flow.data.id)] = newFlow
+          setallFlows(flowsClone)
+          messageDispatch({
+            type: 'setMessage',
+            payload: {
+              message: 'Flow saved'
+            }
+          });
+        } else {
+          messageDispatch({
+            type: 'setMessage',
+            payload: {
+              message: res.message
+            }
+          });
+          setTimeout(() => {
+            Router.push('/login');
+            authDispatch({
+              type: 'removeAuthDetails'
+            });
+            tokenService.deleteToken();
+          }, 1000);
+        }
       })
   }
 
@@ -300,36 +331,35 @@ function QuestionsDiagram() {
             if (form.flowname) {
               setloading(true)
               const newModel = new StartNodeModel();
-              fetch(`/admin/questions/update`, {
-                method: "POST",
-                headers: {
-                  "content-type": "application/json"
-                },
-                body: JSON.stringify({
-                  id: "",
-                  flowname: "New Flow",
-                  renderselector: "",
-                  model: newModel.serialize(),
-                })
-              }).then(res => res.json())
+
+              const payload = {
+                id: "",
+                flowname: "New Flow",
+                renderselector: "",
+                model: newModel.serialize(),
+              }
+              FetchService.isofetchAuthed(
+                `/flows/save`,
+                payload,
+                "POST",
+              )
                 .then(res => {
                   if (res.error) {
                     seterror([...error, res.error])
                   } else {
-                    setallFlows([...allFlows, res.payload])
-                    setForm({
-                      ...formRef.current,
-                      flowname: res.payload.name,
-                      active: false,
-                      renderselector: ""
-                    })
-                    setmodelState(res.payload.model.id)
-                    model.deserializeModel(res.payload.model, engine);
-                    engine.setModel(newModel)
+                    // setallFlows([...allFlows, res.payload])
+                    // setForm({
+                    //   ...formRef.current,
+                    //   flowname: res.payload.name,
+                    //   active: false,
+                    //   renderselector: ""
+                    // })
+                    // setmodelState(res.payload.model.id)
+                    // model.deserializeModel(res.payload.model, engine);
+                    // engine.setModel(newModel)
                   }
                   setloading(false)
                 })
-              seterror(error.splice(error.findIndex(e => e === `Name must be provided`), 1))
             } else {
               seterror([...error, `Name must be provided`])
             }
@@ -352,21 +382,20 @@ function QuestionsDiagram() {
       </div>
       <div className={!nodevisibility ? `d-none` : ``}>
         <form onSubmit={addQuestion}>
-          <div className="form-row align-items-end">
-            <div className="col-auto flex-column d-flex">
+          <div className="row form-row align-items-end">
+            <div className="col-3 flex-column d-flex">
               <label htmlFor="flowselector">flowselector</label>
               <select
                 id="flowselector"
                 className={`form-control w-100 mr-2`}
                 value={currentModelId}
                 onChange={e => {
-                  console.log('allFlows', allFlows);
-                  const theModelToSet = allFlows.find(f => f.id === e.target.selectedOptions[0].value)
+                  const theModelToSet = allFlows.find(f => f.id === Number(e.target.selectedOptions[0].value))
                   var searchParams = new URLSearchParams(window.location.search);
                   searchParams.set("flow", theModelToSet.id);
                   window.history.replaceState({}, '', `${location.pathname}?${searchParams}`);
-                  if (theModelToSet.model) {
-                    model.deserializeModel(theModelToSet.model, engine);
+                  if (theModelToSet.data) {
+                    model.deserializeModel(theModelToSet.data, engine);
                     setForm({ ...form, flowname: theModelToSet.flowname, active: theModelToSet.active, renderselector: theModelToSet.renderselector })
                     setmodelState(theModelToSet.id)
                     engine.setModel(model);
@@ -375,7 +404,7 @@ function QuestionsDiagram() {
                     model.deserializeModel((newModel as any), engine);
                     engine.setModel(newModel)
                   }
-                  addEventListeners(theModelToSet.name)
+                  addEventListeners(theModelToSet.flowname)
                 }}>
                 <option disabled>select flow...</option>
                 {allFlows.map((f, i) => (
@@ -383,61 +412,51 @@ function QuestionsDiagram() {
                 ))}
               </select>
             </div>
-            <div className="col-auto">
+            <div className="col-3">
               <label htmlFor="flowname">Flow name</label>
               <input className="form-control" id="flowname" name="flowname" value={form['flowname']} onChange={(e) => {
                 e.stopPropagation();
                 setForm({ ...form, [e.target.name]: e.target.value })
               }} />
             </div>
-            <div className="col-auto ">
+            <div className="col-3 ">
               <label htmlFor="renderselector">Flow renderselector</label>
               <input className="form-control" id="renderselector" name="renderselector" value={form['renderselector']} onChange={(e) => {
                 e.stopPropagation();
                 setForm({ ...form, [e.target.name]: e.target.value })
               }} />
             </div>
-            <div className="col-auto px-3 align-items-center d-flex">
+            <div className="col-3 px-3 align-items-center d-flex">
               <input
-                checked={form['active']}
+                defaultChecked={form['active']}
                 type="checkbox" name="active" className="form-check-input"
                 onChange={(e) => {
                   e.stopPropagation();
-
                   setForm({ ...form, [e.target.name]: e.target.checked })
                 }} style={{ borderColor: colorAnswer, borderStyle: "solid" }} id="active" />
               <label className="form-check-label" htmlFor="active">Active?</label>
-            </div>
-            <div className="col-auto px-3 align-items-center d-flex">
-              <input
-                checked={form['sendaltemail']}
-                type="checkbox" name="sendaltemail" className="form-check-input"
-                onChange={(e) => {
-                  e.stopPropagation();
-                  setForm({ ...form, [e.target.name]: e.target.checked })
-                }} style={{ borderColor: colorAnswer, borderStyle: "solid" }} id="sendaltemail" />
-              <label className="form-check-label" htmlFor="sendaltemail">Is form for company?</label>
+
               <button className="btn btn-secondary badge ml-2" type="button" data-container="body" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="That results in sending a alternative email to settings.tourmailreceiver and prevents a redirect to /thank-you"> ? </button>
             </div>
           </div>
           <div className="row">
-            <div className="col-md-4">
+            <div className="col-md-6 col-lg-3">
               <label htmlFor="addquestion">Add Question</label>
               <input className="form-control" name="question" type="text" value={form['question']}
                 onChange={(e) => {
                   e.stopPropagation();
                   setForm({ ...form, [e.target.name]: e.target.value })
                 }} data-type="question" data-color={questioncolor} style={{ borderColor: questioncolor, borderStyle: "solid" }} id="addquestion" required />
-              <div >
-                <label htmlFor="addquestiontranslation">DE Questiontranslation</label>
-                <input className="form-control" name="questiontranslation" type="text" value={form['questiontranslation']}
-                  onChange={(e) => {
-                    e.stopPropagation();
-                    setForm({ ...form, [e.target.name]: e.target.value })
-                  }} data-type="questiontranslation" data-color={questioncolor} style={{ borderColor: questioncolor, borderStyle: "solid" }} id="addquestiontranslation" required />
-              </div>
             </div>
-            <div className="col">
+            <div className="col-md-6 col-lg-3">
+              <label htmlFor="addquestiontranslation">DE Questiontranslation</label>
+              <input className="form-control" name="questiontranslation" type="text" value={form['questiontranslation']}
+                onChange={(e) => {
+                  e.stopPropagation();
+                  setForm({ ...form, [e.target.name]: e.target.value })
+                }} data-type="questiontranslation" data-color={questioncolor} style={{ borderColor: questioncolor, borderStyle: "solid" }} id="addquestiontranslation" required />
+            </div>
+            <div className="col-md-6 col-lg-3">
               <div className=''>
                 <div className="flex-grow-1">
                   <label htmlFor="addquestionidentifier">Questionidentifier</label>
@@ -447,40 +466,25 @@ function QuestionsDiagram() {
                       setForm({ ...form, [e.target.name]: e.target.value })
                     }} data-type="questionidentifier" data-color={questioncolor} style={{ borderColor: questioncolor, borderStyle: "solid" }} id="addquestionidentifier" required />
                 </div>
-                <div className='d-flex align-items-end flex-wrap flex-grow-1'>
-                  <div className="flex-grow-1">
-                    <label htmlFor="type">Type</label>
-                    <select
-                      id="type"
-                      className={` w-100 mr-2 form-control`}
-                      value={form['questionidentifier']}
-                      onChange={e => {
-                        const matchingSubHbFields = hbFieldsRef.current.find(f => f.name === e.target.value)
-                        setForm({ ...form, questionidentifier: matchingSubHbFields.name })
-                        sethbFieldsAnswers(matchingSubHbFields.options)
-                      }}>
-                      <option disabled>select type</option>
-                      {(hbFieldsRef.current ? hbFieldsRef.current : []).map((f, i) => (
-                        <option key={i} value={f.name}>{f.name}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <button className="btn btn-primary ml-1" type="submit">{button}</button>
-                </div>
               </div>
+            </div>
+            <div className="col-md-6 col-lg-3 align-items-end d-flex justify-content0-end">
+              <button className="btn btn-primary ml-1" type="submit">{button}</button>
             </div>
           </div>
         </form>
 
         <form className="" onSubmit={addAnswer}>
           <div className=" row">
-            <div className="col-md-4">
+            <div className="col-md-6 col-lg-3">
               <label htmlFor="addanswer">Add Answer</label>
               <input className="form-control w-99" name="answer" value={form['answer']}
                 onChange={(e) => {
                   e.stopPropagation();
                   setForm({ ...form, [e.target.name]: e.target.value })
                 }} type="text" data-type="answer" data-color="rgb(256, 204, 1)" style={{ borderColor: "rgb(255, 204, 1)", borderStyle: "solid" }} id="addanswer" />
+            </div>
+            <div className="col-md-6 col-lg-3">
               <div>
                 <label htmlFor="answertranslation">Answertranslation</label>
                 <input className="form-control w-99" name="answertranslation" type="text" value={form['answertranslation']}
@@ -490,7 +494,7 @@ function QuestionsDiagram() {
                   }} data-type="answertranslation" data-color={questioncolor} style={{ borderColor: "rgb(256, 204, 1)", borderStyle: "solid" }} id="answertranslation" required />
               </div>
             </div>
-            <div className="col">
+            <div className="col-md-6 col-lg-3">
               <div className='flex-grow-1'>
                 <div>
                   <label htmlFor="answeridentifier">Answeridentifier</label>
@@ -500,40 +504,27 @@ function QuestionsDiagram() {
                       setForm({ ...form, [e.target.name]: e.target.value })
                     }} data-type="answeridentifier" data-color={questioncolor} style={{ borderColor: "rgb(255, 204, 1)", borderStyle: "solid" }} id="answeridentifier" required />
                 </div>
-                <div className="flex-grow-1 d-flex align-items-end">
-                  <div className="flex-grow-1">
-                    <label htmlFor="type">Type</label>
-                    <select
-                      id="type"
-                      className={`w-100 mr-2 form-control`}
-                      value={form['freeanswer_type']}
-                      onChange={e => {
-                        setForm({ ...form, freeanswer_type: e.target.selectedOptions[0].value, dropdown: false, freeanswer: true })
-                      }}>
-                      <option disabled>select type</option>
-                      {["text", "email", "number", "tel", "textarea", "hidden"].map((f, i) => (
-                        <option key={i} value={f}>{f}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div className="flex-grow-1">
-                    <label htmlFor="type2">HS answers</label>
-                    <select
-                      id="type2"
-                      className={`w-100 mr-2 form-control`}
-                      value={form['answeridentifier']}
-                      onChange={e => {
-                        setForm({ ...form, answeridentifier: e.target.selectedOptions[0].value, dropdown: false, freeanswer: true })
-                      }}>
-                      <option disabled>select type</option>
-                      {(hbFieldsAnswers ? hbFieldsAnswers : []).map((f, i) => (
-                        <option key={i} value={f.value}>{f.value}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div>
-                    <button className="btn btn-primary ml-1" type="submit">{button}</button>
-                  </div>
+              </div>
+            </div>
+            <div className="col-md-6 col-lg-3">
+              <div className="flex-grow-1 d-flex align-items-end">
+                <div className="w-100">
+                  <label htmlFor="type">Type</label>
+                  <select
+                    id="type"
+                    className={`w-100 mr-2 form-control`}
+                    value={form['freeanswer_type']}
+                    onChange={e => {
+                      setForm({ ...form, freeanswer_type: e.target.selectedOptions[0].value, dropdown: false, freeanswer: true })
+                    }}>
+                    <option disabled>select type</option>
+                    {["text", "email", "number", "tel", "textarea", "hidden"].map((f, i) => (
+                      <option key={i} value={f}>{f}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <button className="btn btn-primary ml-1" type="submit">{button}</button>
                 </div>
               </div>
             </div>
