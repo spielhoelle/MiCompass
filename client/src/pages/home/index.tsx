@@ -125,14 +125,14 @@ function Home(props: IProps) {
       .filter((layer: any) => layer.source === question.id).map((l: any) => l.target).includes(links.id))
 
   const setNextQA = (answer, value, points, index) => {
-    const form_payload: Answer = { question: QAs.question.name, answer: value, points: points, index: index };
+    const form_payload: Answer = { question: QAs.question.name, answer: value, points: answer.extras.pointanswer ? points : -1, index: index };
     var nextQuestions = Object.values(model.layers[1].models).find((n: any) => {
       return n.ports[0].links.includes(answer.ports[1].links[0])
     });
     if (!nextQuestions) {
       FetchService.isofetch(
         '/answers/save',
-        { answers: localStorage.getItem('answers') },
+        [...JSON.parse(localStorage.getItem('answers')), form_payload],
         'POST'
       ).then((res: any) => {
         setmodalopen(true)
@@ -202,7 +202,7 @@ function Home(props: IProps) {
                         <input ref={ref => myRef.current[i] = ref} id={a.extras.answeridentifier} name={a.extras.answeridentifier} className={`form-control mb-3`} />
                         <button className={`btn btn-primary mb-2 btn-sm text-start`} key={i} onClick={e => {
                           setNextQA(a, myRef.current[i].value, a.extras.points, history.length)
-                        }}>{state.lang == 'af' ? "سپارل" : "Submit"}</button>
+                        }}>{state.lang == 'af' ? "ښه، دوام ورکړئ" : "Ok, continue..."}</button>
                       </>
                     ) : (
                       <button className={`btn btn-primary mb-2 btn-sm text-start`} key={i} onClick={e => {

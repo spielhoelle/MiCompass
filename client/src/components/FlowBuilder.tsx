@@ -53,7 +53,7 @@ const CanvasWrapper = styled.div`
   }
 `
 const Loader = styled.section<{ loading: boolean }>`
-  opacity: ${props => props.loading ? 0.8 : 0};
+  opacity: ${props => props.loading ? 0.5 : 0};
   pointer-events: ${props => props.loading ? `all` : `none`};
   position: fixed;
   left: 0;
@@ -79,7 +79,7 @@ const Pre = styled.pre`
   padding: 10px;
   background-color: white;
 `
-const colorDropdown = "rgb(170, 182, 1)"
+const colorPointanswer = "rgb(255, 144, 0)"
 const colorFreeanswer = "rgb(182, 133, 1)"
 const colorAnswer = "rgb(255, 204, 1)"
 const colorError = "rgb(255,0,0)"
@@ -98,6 +98,7 @@ function FlowBuilder() {
     "answertranslation": "",
     "points": 0,
     "freeanswer": false,
+    "pointanswer": false,
     "freeanswer_type": "text",
     "dropdown": false
   }
@@ -114,6 +115,7 @@ function FlowBuilder() {
   let [disabled, setdisabled] = useState(undefined)
   let [currentModelId, setmodelState] = useState("")
   let [error, seterror] = useState([])
+  const [fakeState, setFakeState] = useState(false)
   const [messageState, messageDispatch] = useGlobalMessaging();
   useEffect(() => {
     formRef.current = form
@@ -123,7 +125,6 @@ function FlowBuilder() {
   }, [nodevisibility])
   const handleUserKeyPress = useCallback(event => {
     const { keyCode } = event;
-    console.log('event', event);
     if (keyCode === 32 && event.target.nodeName === "BODY") {
       setnodevisibility(!nodevisibilityRef.current)
     }
@@ -139,8 +140,8 @@ function FlowBuilder() {
       currentNode.registerListener({
         eventDidFire: (e: any) => {
           e.stopPropagation();
-          e.isSelected ? setbutton('update') : setbutton('add')
           if (e.function === "selectionChanged") {
+            e.isSelected ? setbutton('update') : setbutton('add')
             let relatedQuestion
             if (e.isSelected) {
               setdisabled(currentNode.getOptions().extras.customType === "question" ? "answer" : "question")
@@ -153,6 +154,7 @@ function FlowBuilder() {
                 "answertranslation": currentNode.getOptions().extras.customType === "answer" ? currentNode.getOptions().extras.answertranslation : "",
                 "points": currentNode.getOptions().extras.customType === "answer" ? currentNode.getOptions().extras.points : 0,
                 "freeanswer": currentNode.getOptions().extras.customType === "answer" ? currentNode.getOptions().extras.freeanswer : "",
+                "pointanswer": currentNode.getOptions().extras.customType === "answer" ? currentNode.getOptions().extras.pointanswer : "",
                 "dropdown": currentNode.getOptions().extras.customType === "answer" ? currentNode.getOptions().extras.dropdown : "",
                 "freeanswer_type": currentNode.getOptions().extras.customType === "answer" ? currentNode.getOptions().extras.freeanswer_type : "text",
                 "flowname": name
@@ -237,17 +239,20 @@ function FlowBuilder() {
       node.options.name = form['answer']
       node.options.extras.dropdown = form['dropdown']
       node.options.extras.freeanswer = form['freeanswer']
+      node.options.extras.pointanswer = form['pointanswer']
       node.options.extras.answeridentifier = form['answeridentifier']
       node.options.extras.answertranslation = form['answertranslation']
       node.options.extras.points = form['points']
       node.options.extras.freeanswer_type = form['freeanswer_type']
+      node.options.color = !!e.target.elements.freeanswer && !!e.target.elements.freeanswer.checked ? colorFreeanswer : !!e.target.elements.pointanswer.checked ? colorPointanswer : e.target.elements.answer.dataset.color
     } else {
       node = new CustomNodeModel({
         name: e.target.elements.answer.value,
-        color: !!e.target.elements.freeanswer && !!e.target.elements.freeanswer.checked ? colorFreeanswer : !!e.target.elements.dropdown.checked ? colorDropdown : e.target.elements.answer.dataset.color,
+        color: !!e.target.elements.freeanswer && !!e.target.elements.freeanswer.checked ? colorFreeanswer : !!e.target.elements.pointanswer.checked ? colorPointanswer : e.target.elements.answer.dataset.color,
         extras: {
           customType: e.target.elements.answer.dataset.type,
           freeanswer: !!e.target.elements.freeanswer && !!e.target.elements.freeanswer.checked,
+          pointanswer: !!e.target.elements.pointanswer && !!e.target.elements.pointanswer.checked,
           freeanswer_type: !!e.target.elements.freeanswer_type && !!e.target.elements.freeanswer_type.selectedOptions[0].value,
           dropdown: !!e.target.elements.dropdown && !!e.target.elements.dropdown.checked,
           answeridentifier: e.target.elements.answeridentifier.value,
@@ -259,32 +264,56 @@ function FlowBuilder() {
       node.addInPort('In');
       node.addOutPort('Out');
     }
+    setFakeState(!fakeState)
+    checkQABalance()
     model.addAll(node);
     engine.setModel(model);
   }
-  const saveModel = () => {
-    setloading(true)
-    var nodes = Object.values(model.getLayers().find(layer => layer.getOptions().type === "diagram-nodes").getModels())
+  var checkQABalance = () => {
     let errorNodes = []
-
-    var checkQABalance = (question) => {
-      return Object.values(question.portsOut[0].links).map((link: any) => {
+    var nodes = Object.values(model.getLayers().find(layer => layer.getOptions().type === "diagram-nodes").getModels())
+    const questions = nodes.filter(n => n.getOptions().extras.customType !== "answer")
+    const answers = nodes.filter(n => n.getOptions().extras.customType === "answer")
+    const qErrorNodes = questions.map(q => {
+      return Object.values((q as any).portsOut[0].links).map((link: any) => {
         if (link.targetPort.parent.options.extras.customType !== "answer") {
           engine.getModel().getNode(link.targetPort.parent.options.id).setSelected(true);
           engine.getModel().getNode(link.targetPort.parent.options.id).getOptions().extras.color = "rgb(255,0,0)"
           return link.targetPort.parent
         }
       }).filter(l => !!l)
-    }
+    }).filter(l => l == [])
 
-    const questions = nodes.filter(n => n.getOptions().extras.customType !== "answer")
-    questions.map(q => {
-      errorNodes = [...errorNodes, ...checkQABalance(q)]
+    answers.map(a => {
+      if (answers.filter(a2 => a2.getOptions().extras.answeridentifier === a.getOptions().extras.answeridentifier).length > 1) {
+        (a.getOptions() as any).color = "rgb(255,0,0)"
+        errorNodes = [...errorNodes, (a.getOptions() as any).name]
+      } else {
+        let color = colorAnswer
+        if (a.getOptions().extras.freeanswer) {
+          color = colorFreeanswer
+        } else if (a.getOptions().extras.pointanswer) {
+          color = colorPointanswer
+        }
+        (a.getOptions() as any).color = color
+      }
     })
-    seterror([...errorNodes, `Answer followes to answer for nodes: ${errorNodes.map(e => e.options.name + ', ')}`])
-    if (errorNodes.length === 0) {
+    const currenErrors = []
+    if (qErrorNodes.length > 0) {
+      currenErrors.push(`Questions have problems: ${qErrorNodes.map(e => e + ', ').join("")}`)
+    }
+    if (errorNodes.length > 0) {
+      currenErrors.push(`Answer have overlapping answeridentifier: ${errorNodes.map(e => e + ', ').join("")}`)
+    }
+    seterror(currenErrors)
+    if (currenErrors.length === 0) {
       seterror(undefined)
     }
+  }
+  const saveModel = (e) => {
+    e.preventDefault()
+    setloading(true)
+    checkQABalance()
     const payload = {
       id: currentModelId,
       flowname: form.flowname,
@@ -472,12 +501,12 @@ function FlowBuilder() {
                     }}>{loading ? "Loading" : "Clone selected"}</button>
                   <button className="btn btn-success"
                     disabled={loading}
-                    onClick={() => {
-                      saveModel()
+                    onClick={(e) => {
+                      saveModel(e)
                     }}>{loading ? "Loading" : "Save"}</button>
 
                 </div>
-            </div>
+              </div>
             </div>
             <div className="row">
               <div className="col-md-6 col-lg-3">
@@ -578,12 +607,23 @@ function FlowBuilder() {
                   <div className="btn-group" role="group" aria-label="Basic example">
 
                     <input
+                      checked={form['pointanswer']}
+                      name='pointanswer'
+                      type="checkbox" className="btn-check"
+                      onChange={(e) => {
+                        e.stopPropagation();
+                        setForm({ ...form, [e.target.name]: e.target.checked, freeanswer: false, dropdown: false })
+                      }}
+                      style={{ borderColor: "rgb(255, 204, 1)", borderStyle: "solid" }}
+                      id="pointanswer" />
+                    <label className="btn btn-primary" htmlFor="pointanswer">Has Points</label>
+                    <input
                       checked={form['freeanswer']}
                       name='freeanswer'
                       type="checkbox" className="btn-check"
                       onChange={(e) => {
                         e.stopPropagation();
-                        setForm({ ...form, [e.target.name]: e.target.checked, dropdown: false })
+                        setForm({ ...form, [e.target.name]: e.target.checked, pointanswer: false, dropdown: false })
                       }}
                       style={{ borderColor: "rgb(255, 204, 1)", borderStyle: "solid" }}
                       id="freeanswer" />
@@ -613,14 +653,9 @@ function FlowBuilder() {
         </div >
         {
           error && error.length > 0 && (
-        <div className=" m-0 mr-3 alert alert-danger">
-          <button type="button" className="close" onClick={e => {
-            seterror([])
-          }}>
-            <span aria-hidden="true">&times;</span>
-          </button>
-          Errors: {error.map((e, i) => <div key={i}>{e}</div>)}
-        </div>
+            <div className=" m-0 mr-3 alert alert-danger">
+              {error.map((e, i) => <div key={i}>{e}</div>)}
+            </div>
           )
         }
       </div >
