@@ -7,7 +7,7 @@ const router = Router();
 // import * as errors from '../helpers/error';
 
 router.post('/save', async (req, res) => {
-  const answer = new Answer(req.body.answers)
+  const answer = new Answer(req.body)
   await answer.saveAnswer()
   res.send({
     success: true
