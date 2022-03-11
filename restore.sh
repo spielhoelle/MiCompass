@@ -7,7 +7,7 @@ dumpfile=$(ls | grep ".sql" | tail -n 1)
 
 # # # Restore local docker DB
 # # docker cp $dumpfile flowbuilder-db:/
-# # docker exec flowbuilder-db /bin/bash -c "PGPASSWORD=password pg_restore --clean -U user -d flowbuilder /$dumpfile"
+# # docker exec flowbuilder-db /bin/bash -c "PGPASSWORD=$PGPASSWORD pg_restore --clean -U user -d flowbuilder /$dumpfile"
 
 
 
@@ -23,7 +23,7 @@ echo "Done"
 
 
 echo "################# Restore psql db in docker container #################"
-# ssh $rh "docker exec flowbuilder-db /bin/bash -c 'PGPASSWORD=password pg_restore --exit-on-error --no-acl --dbname=flowbuilder --verbose --no-owner --clean -U user /$dumpfile'"
+# ssh $rh "docker exec flowbuilder-db /bin/bash -c 'PGPASSWORD=$PGPASSWORD pg_restore --exit-on-error --no-acl --dbname=flowbuilder --verbose --no-owner --clean -U user /$dumpfile'"
 ssh $rh 'docker exec flowbuilder-db /bin/bash -c "psql -v -U user -d flowbuilder < /$(ls / | grep ".sql" | tail -n 1)"'
 echo "Deploy done"
 
