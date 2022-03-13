@@ -589,9 +589,10 @@ function FlowBuilder() {
               </div>
               <div className="col-md-4 col-lg-2 d-flex flex-column">
                 <div className="flex-grow-1 d-flex align-items-end">
-                  {/* <div className="w-100">
+                  <div className="w-100">
                     <label htmlFor="type">Type</label>
                     <select
+                      disabled={disabled === "answer" || form['freeanswer'] !== true} 
                       id="type"
                       className={`w-100 mr-2 form-control`}
                       value={form['freeanswer_type']}
@@ -603,7 +604,7 @@ function FlowBuilder() {
                         <option key={i} value={f}>{f}</option>
                       ))}
                     </select>
-                  </div> */}
+                  </div> 
                   <div className="btn-group" role="group" aria-label="Basic example">
 
                     <input

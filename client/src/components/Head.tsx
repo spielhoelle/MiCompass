@@ -36,6 +36,7 @@ function Header(props: IProps) {
       <Head>
         <title>MiCompass</title>
         <meta name="viewport" content="initial-scale=1.0, width=device-width" />
+        <link rel="shortcut icon" href="/favicon.ico" />
       </Head>
       <div className="container-fluid">
         <Link href="/">

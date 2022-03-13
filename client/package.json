@@ -1,5 +1,4 @@
 {
-  "type": "module",
   "scripts": {
     "build": "next build",
     "dev": "ts-node --project ./src/tsconfig.server.json ./src/server.ts",

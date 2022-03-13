@@ -85,6 +85,7 @@ function Home(props: IProps) {
   const [authState, authDispatch] = useAuth();
   const [model, setmodel] = useState(undefined);
   const [modalopen, setmodalopen] = useState(false);
+  const [modaldata, setmodaldata] = useState(undefined);
   const [QAs, currentQA] = useState<QA | undefined>(undefined);
   const [history, setHistory] = useState<History[] | undefined>([]);
   const messagesEndRef = useRef(null)
@@ -103,6 +104,16 @@ function Home(props: IProps) {
     }
   }, []);
 
+  const resetQuestions = () => {
+    console.log('model', model);
+    const diagramNodes = model.layers.find(layer => layer.type === "diagram-nodes").models
+    const startquestion = Object.values(diagramNodes).find((model: any) => model.ports.find(port => port.label === "In").links.length === 0)
+    const answers = getAnswers(startquestion, model)
+    const sortedanswers = answers.sort((a: ModelA, b: ModelA) => a.y - b.y)
+    setHistory([])
+    setmodalopen(false)
+    currentQA({ question: startquestion as ModelQ, answers: sortedanswers as ModelA[] })
+  }
   useEffect(() => {
     FetchService.isofetchAuthed('/flows/get', undefined, 'GET')
       .then((res) => {
@@ -130,9 +141,52 @@ function Home(props: IProps) {
       return n.ports[0].links.includes(answer.ports[1].links[0])
     });
     if (!nextQuestions) {
+      const finalFormPayload = [...JSON.parse(localStorage.getItem('answers')), form_payload]
+      const reachedPoints = finalFormPayload.filter(a => a.points > -1).reduce((acc, answer) => acc += answer.points, 0)
+      const maxPoints = finalFormPayload.filter(a => a.points > -1).reduce((acc, answer) => acc += 2, 0)
+      if (reachedPoints < maxPoints / 3) {
+        console.log('1/3')
+        setmodaldata({
+          title: "Gullible Globetrotter", text: `Careful! You’re heading for a risky decision. Build an awareness of what could potentially lay ahead if you were to decide to leave Afghanistan and this will help you to make an informed decision. Keep in mind that individuals with protection needs have the right to claim asylum. Despite this, it’s important to know that asylum procedures are often imperfect and the experience of seeking asylum can have a lasting impact on individuals.
+
+          We can all become Tuned-in Travellers by doing 👇 first:
+          ·      Stop and think - Does this sound true?
+          ·      Check the source – are they trustworthy?
+          ·      Double check with a trustworthy source like UNHCR
+          ·      Search to see if other reliable sites are also writing about the issue
+        `})
+      } else if (maxPoints / 3 < reachedPoints && reachedPoints < maxPoints / 1.5) {
+        console.log('2/3')
+        setmodaldata({
+          title: "Junior Journeyer", text: `ou’re at risk of making a biased decision. Keep building an awareness of what could potentially lay ahead if you were to decide to leave Afghanistan. This will help you to make an informed decision. Keep in mind that individuals with protection needs have the right to claim asylum. Despite this, it’s important to know that asylum procedures are often imperfect and the experience of seeking asylum can have a lasting impact on individuals.
+ 
+          You know that many things shared on Facebook or by friends and family aren’t always true or valid so try to get your information from official sources, like UNHCR.
+          
+          
+          We can all become Tuned-in Travellers by doing 👇 first:
+          ·      Stop and think - Does this sound true?
+          ·      Check the source – are they trustworthy?
+          ·      Double check with a trustworthy source like  UNHCR
+          ·      Search to see if other reliable sites are also writing about the issue`})
+      } else {
+        console.log('3/3')
+        setmodaldata({
+          title: "Tuned-in Traveller", text: `Great! You’re starting to build an awareness of what could potentially lay ahead if you were to decide to leave Afghanistan. This will help you to make an informed decision. You know that individuals with protection needs have the right to claim asylum. Despite this, you understand that asylum procedures are often imperfect and the experience can have a lasting impact on individuals.
+ 
+          You know that many things shared on Facebook or by friends and family aren’t always true or valid so you also seek out information from official sources, like UNHCR.
+
+          
+          You follow international guidance, and you keep informed about the latest developments in migration policy.
+            
+          You can help protect yourself by doing 👇 before migrating:
+          ·      Stop and think - Does this sound true?
+          ·      Check the source – are they trustworthy?
+          ·      Double check with a trustworthy source like UNHCR
+          ·      Search to see if other reliable sites are also writing about the issue`})
+      }
       FetchService.isofetch(
         '/answers/save',
-        [...JSON.parse(localStorage.getItem('answers')), form_payload],
+        finalFormPayload,
         'POST'
       ).then((res: any) => {
         setmodalopen(true)
@@ -167,7 +221,7 @@ function Home(props: IProps) {
         {history.length > 0 && history.map((historyItem, index) => (
           <div className='row' key={index} >
             <div className='col-md-6'>
-              <button className={`btn btn-light mb-3 text-start`} disabled>{state.lang == 'af' ? historyItem.question.extras.questiontranslation : historyItem.question.name}</button >
+              <button className={`btn btn-light mb-3 text-start d-block`} disabled>{state.lang == 'af' ? historyItem.question.extras.questiontranslation : historyItem.question.name}</button >
               {historyItem.choosenAnswer.extras.freeanswer && (
                 <>
                   <label htmlFor={historyItem.choosenAnswer.extras.answeridentifier} className="form-label">{state.lang == 'af' ? historyItem.choosenAnswer.extras.answertranslation : historyItem.choosenAnswer.name}</label>
@@ -198,11 +252,14 @@ function Home(props: IProps) {
                   <div key={i}>
                     {a.extras.freeanswer ? (
                       <>
-                        <label htmlFor={a.extras.answeridentifier} className="form-label">{state.lang == 'af' ? a.extras.answertranslation : a.name}</label>
-                        <input ref={ref => myRef.current[i] = ref} id={a.extras.answeridentifier} name={a.extras.answeridentifier} className={`form-control mb-3`} />
-                        <button className={`btn btn-primary mb-2 btn-sm text-start`} key={i} onClick={e => {
+                        <form onSubmit={e => {
                           setNextQA(a, myRef.current[i].value, a.extras.points, history.length)
-                        }}>{state.lang == 'af' ? "ښه، دوام ورکړئ" : "Ok, continue..."}</button>
+                        }}>
+                          <label htmlFor={a.extras.answeridentifier} className="form-label">{state.lang == 'af' ? a.extras.answertranslation : a.name}</label>
+                          <input required={true} type={a.extras.freeanswer_type} ref={ref => myRef.current[i] = ref} id={a.extras.answeridentifier} name={a.extras.answeridentifier} className={`form-control mb-3`} />
+                          <button type="submit" className={`btn btn-primary mb-2 btn-sm text-start`} key={i} onClick={e => {
+                          }}>{state.lang == 'af' ? "ښه، دوام ورکړئ" : "Ok, continue..."}</button>
+                        </form>
                       </>
                     ) : (
                       <button className={`btn btn-primary mb-2 btn-sm text-start`} key={i} onClick={e => {
@@ -217,28 +274,33 @@ function Home(props: IProps) {
         ) : "loading..."}
         <div ref={messagesEndRef} />
       </div>
-      <ModalBackdrop open={modalopen}>
-        <div className={`modal ${modalopen ? `d-block` : ``}`} tabIndex={-1}>
-          <div className="modal-dialog modal-dialog-centered">
-            <div className="modal-content">
-              <div className="modal-header">
-                <h5 className="modal-title">Good job</h5>
-                <button type="button" className="btn-close" aria-label="Close" onClick={e => {
-                  setmodalopen(false)
-                }}></button>
-              </div>
-              <div className="modal-body">
-                <p>Success! You gonna hear from us soon!</p>
-              </div>
-              <div className="modal-footer">
-                <button type="button" className="btn btn-secondary" onClick={e => {
-                  setmodalopen(false)
-                }}>Close</button>
+      {modalopen && (
+        <ModalBackdrop open={modalopen}>
+          <div className={`modal ${modalopen ? `d-block` : ``}`} tabIndex={-1}>
+            <div className="modal-dialog modal-dialog-centered">
+              <div className="modal-content">
+                <div className="modal-header">
+                  <h5 className="modal-title">{modaldata.title}</h5>
+                  <button type="button" className="btn-close" aria-label="Close" onClick={e => {
+                    setmodalopen(false)
+                  }}></button>
+                </div>
+                <div className="modal-body">
+                  <p>{modaldata.text}</p>
+                </div>
+                <div className="modal-footer">
+                  <button type="button" className="btn btn-secondary" onClick={e => {
+                    setmodalopen(false)
+                  }}>Close</button>
+                  <button type="button" className="btn btn-primary" onClick={e => {
+                    resetQuestions()
+                  }}>Play again</button>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </ModalBackdrop>
+        </ModalBackdrop>
+      )}
     </PageContent>
   );
 }
