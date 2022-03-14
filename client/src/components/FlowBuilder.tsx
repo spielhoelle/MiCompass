@@ -518,7 +518,7 @@ function FlowBuilder() {
                   }} data-type="question" data-color={questioncolor} style={{ borderColor: questioncolor, borderStyle: "solid" }} id="addquestion" required />
               </div>
               <div className="col-md-6 col-lg-3">
-                <label htmlFor="addquestiontranslation">DE Questiontranslation</label>
+                <label htmlFor="addquestiontranslation">AF Questiontranslation</label>
                 <input disabled={disabled === "question"} className="form-control" name="questiontranslation" type="text" value={form['questiontranslation']}
                   onChange={(e) => {
                     e.stopPropagation();

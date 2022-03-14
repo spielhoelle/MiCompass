@@ -79,6 +79,8 @@ const ModalBackdrop = styled.div<{ open: boolean }>`
   left: 0;
   background-color: rgba(0,0,0,0.4);
 `
+const currentFlow = 'afghan-refugee-chatbot';
+
 function Home(props: IProps) {
   const tokenService = new TokenService();
   const [messageState, messageDispatch] = useGlobalMessaging();
@@ -86,11 +88,16 @@ function Home(props: IProps) {
   const [model, setmodel] = useState(undefined);
   const [modalopen, setmodalopen] = useState(false);
   const [modaldata, setmodaldata] = useState(undefined);
-  const [QAs, currentQA] = useState<QA | undefined>(undefined);
+  const [QAs, setQAs] = useState<QA | undefined>(undefined);
   const [history, setHistory] = useState<History[] | undefined>([]);
   const messagesEndRef = useRef(null)
   const [state, stateDispatch] = useGlobalState();
+  const [currentClass, setCurrentClass] = useState<string | undefined>(undefined);
   useEffect(() => {
+    setCurrentClass(`${css.animation}`)
+    setTimeout(() => {
+      setCurrentClass(`${css.animation} ${css.nottransparent}`)
+    }, 20);
     scrollToBottom()
   }, [history]);
 
@@ -105,24 +112,24 @@ function Home(props: IProps) {
   }, []);
 
   const resetQuestions = () => {
-    console.log('model', model);
     const diagramNodes = model.layers.find(layer => layer.type === "diagram-nodes").models
     const startquestion = Object.values(diagramNodes).find((model: any) => model.ports.find(port => port.label === "In").links.length === 0)
     const answers = getAnswers(startquestion, model)
     const sortedanswers = answers.sort((a: ModelA, b: ModelA) => a.y - b.y)
     setHistory([])
     setmodalopen(false)
-    currentQA({ question: startquestion as ModelQ, answers: sortedanswers as ModelA[] })
+    setQAs({ question: startquestion as ModelQ, answers: sortedanswers as ModelA[] })
   }
   useEffect(() => {
     FetchService.isofetchAuthed('/flows/get', undefined, 'GET')
       .then((res) => {
-        const diagramNodes = res.payload.model[0].data.layers.find(layer => layer.type === "diagram-nodes").models
+        const usedFLow = res.payload.model.find(f => f.flowname === currentFlow)
+        const diagramNodes = usedFLow.data.layers.find(layer => layer.type === "diagram-nodes").models
         const startquestion = Object.values(diagramNodes).find((model: any) => model.ports.find(port => port.label === "In").links.length === 0)
-        const answers = getAnswers(startquestion, res.payload.model[0].data)
-        setmodel(res.payload.model[0].data)
+        const answers = getAnswers(startquestion, usedFLow.data)
+        setmodel(usedFLow.data)
         const sortedanswers = answers.sort((a: ModelA, b: ModelA) => a.y - b.y)
-        currentQA({ question: startquestion as ModelQ, answers: sortedanswers as ModelA[] })
+        setQAs({ question: startquestion as ModelQ, answers: sortedanswers as ModelA[] })
       }).catch(err => {
         console.log(err);
       }).finally(() => {
@@ -136,10 +143,10 @@ function Home(props: IProps) {
       .filter((layer: any) => layer.source === question.id).map((l: any) => l.target).includes(links.id))
 
   const setNextQA = (answer, value, points, index) => {
+    setHistory([...history, { question: QAs.question, answers: QAs.answers, choosenAnswer: answer, choosenAnswerValue: value }])
+
     const form_payload: Answer = { question: QAs.question.name, answer: value, points: answer.extras.pointanswer ? points : -1, index: index };
-    var nextQuestions = Object.values(model.layers[1].models).find((n: any) => {
-      return n.ports[0].links.includes(answer.ports[1].links[0])
-    });
+    const nextQuestions = getNextQuestion()
     if (!nextQuestions) {
       const finalFormPayload = [...JSON.parse(localStorage.getItem('answers')), form_payload]
       const reachedPoints = finalFormPayload.filter(a => a.points > -1).reduce((acc, answer) => acc += answer.points, 0)
@@ -200,9 +207,10 @@ function Home(props: IProps) {
       })
     } else {
       const answers = getAnswers(nextQuestions, model)
-      currentQA({ question: nextQuestions as ModelQ, answers: answers as ModelA[] })
-      if (history.length < Object.values(model.layers[1].models).filter((item: ModelQ) => item.extras.customType === "question").length - 1) {
-        setHistory([...history, { question: QAs.question, answers: QAs.answers, choosenAnswer: answer, choosenAnswerValue: value }])
+      setQAs({ question: nextQuestions as ModelQ, answers: answers as ModelA[] })
+
+      const question = Object.values(model.layers[1].models).filter((item: ModelQ) => item.extras.customType === "question")
+      if (history.length < question.length - 1) {
       }
       let savedAnswers = JSON.parse(localStorage.getItem('answers')) || []
       const currentAnswerIndex = savedAnswers.findIndex(a => a.index === form_payload.index)
@@ -215,6 +223,20 @@ function Home(props: IProps) {
     }
   }
   const myRef = useRef([]);
+  const getNextQuestion = () => {
+    if (model && QAs) {
+      var nextQuestions = Object.values(model.layers[1].models).find((n: any) => {
+        return n.ports[0].links.includes(QAs.answers[0].ports[1].links[0])
+      });
+      return nextQuestions
+    } else {
+      false
+    }
+  }
+
+  const maxQuestions = () => {
+    return Object.values(model.layers[1].models).filter((item: ModelQ) => item.extras.customType === "question").length
+  }
   return (
     <PageContent>
       <div className={css.bottomspacing}>
@@ -238,40 +260,57 @@ function Home(props: IProps) {
             </div>
             {!historyItem.choosenAnswer.extras.freeanswer && (
               <div className='offset-md-6 col-md-6 text-end'>
-                <button className={`btn mb-2 btn-sm btn-primary text-start`} disabled>{state.lang == 'af' ? historyItem.choosenAnswer.extras.answertranslation : historyItem.choosenAnswer.name}</button>
+                <button className={`btn mb-2 btn-sm btn-primary text-start ${css.nottransparent}`} disabled>{state.lang == 'af' ? historyItem.choosenAnswer.extras.answertranslation : historyItem.choosenAnswer.name}</button>
               </div>
+            )}
+            {maxQuestions() <= index + 1 && (
+              <>
+                <div className={`row`}>
+                  <div className='col-md-6'>
+                    <button type="button" className="btn btn-success" onClick={e => {
+                      resetQuestions()
+                    }}>Play again!</button>
+                  </div>
+                </div>
+              </>
             )}
           </div>
         ))}
-        {QAs ? (
-          <div className='row'>
+        {QAs && QAs.question && history.length < maxQuestions() ? (
+          <div className={`row`}>
             <div className='col-md-6'>
-              <button className={`btn btn-light mb-3 text-start`} disabled>{state.lang == 'af' ? QAs.question.extras.questiontranslation : QAs.question.name}</button >
-              <div className="">
-                {QAs.answers.map((a, i) => (
-                  <div key={i}>
-                    {a.extras.freeanswer ? (
-                      <>
-                        <form onSubmit={e => {
-                          setNextQA(a, myRef.current[i].value, a.extras.points, history.length)
-                        }}>
-                          <label htmlFor={a.extras.answeridentifier} className="form-label">{state.lang == 'af' ? a.extras.answertranslation : a.name}</label>
-                          <input required={true} type={a.extras.freeanswer_type} ref={ref => myRef.current[i] = ref} id={a.extras.answeridentifier} name={a.extras.answeridentifier} className={`form-control mb-3`} />
-                          <button type="submit" className={`btn btn-primary mb-2 btn-sm text-start`} key={i} onClick={e => {
-                          }}>{state.lang == 'af' ? "ښه، دوام ورکړئ" : "Ok, continue..."}</button>
-                        </form>
-                      </>
-                    ) : (
-                      <button className={`btn btn-primary mb-2 btn-sm text-start`} key={i} onClick={e => {
+              <div className={`${css.animatedformfield} ${currentClass} `}>
+                <button className={`btn btn-light mb-3 text-start`} disabled>{state.lang == 'af' ? QAs.question.extras.questiontranslation : QAs.question.name}</button >
+                <div className="">
+                  {QAs.answers.map((a, i) => (
+                    <div key={i}>
+                      {a.extras.freeanswer ? (
+                        <>
+                          <form onSubmit={e => {
+                            e.preventDefault()
+                            setCurrentClass(css.dNone)
+                            setNextQA(a, myRef.current[i].value, a.extras.points, history.length)
+
+                          }}>
+                            <label htmlFor={a.extras.answeridentifier} className="form-label">{state.lang == 'af' ? a.extras.answertranslation : a.name}</label>
+                            <input required={true} type={a.extras.freeanswer_type} ref={ref => myRef.current[i] = ref} id={a.extras.answeridentifier} name={a.extras.answeridentifier} className={`form-control mb-3`} />
+                            <button type="submit" className={`btn btn-primary mb-2 btn-sm text-start`} key={i} onClick={e => {
+                            }}>{state.lang == 'af' ? "ښه، دوام ورکړئ" : "Ok, continue..."}</button>
+                          </form>
+                        </>
+                      ) : (
+                        <button className={`btn btn-primary mb-2 btn-sm text-start`} key={i} onClick={e => {
+                          setCurrentClass(css.dNone)
                           setNextQA(a, a.extras.answeridentifier, a.extras.points, history.length)
-                      }}>{state.lang == 'af' ? a.extras.answertranslation : a.name}</button>
-                    )}
-                  </div>)
-                )}
+                        }}>{state.lang == 'af' ? a.extras.answertranslation : a.name}</button>
+                      )}
+                    </div>)
+                  )}
+                </div>
               </div>
             </div>
           </div>
-        ) : "loading..."}
+        ) : !model ? "loading..." : null}
         <div ref={messagesEndRef} />
       </div>
       {modalopen && (
