@@ -1,5 +1,5 @@
 echo "################# Copy files to server #################"
-rsync -riP --exclude '.DS_Store' --exclude '.swp' --exclude '.git' --exclude '.htaccess' --delete . $rh:/var/www/html/MiCompass/ | grep "f.sT...."
+rsync -riP --exclude '.DS_Store' --exclude '.swp' --exclude '.git' --exclude '.htaccess' --exclude '.api/.env' --delete . $rh:/var/www/html/MiCompass/ | grep "f.sT...."
 
 echo "################# Copy .env to server #################"
 scp -rp ./api/prod.env $rh:/var/www/html/MiCompass/api/.env
