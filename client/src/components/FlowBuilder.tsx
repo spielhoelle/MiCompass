@@ -180,7 +180,7 @@ function FlowBuilder() {
           var searchParams = new URLSearchParams(window.location.search);
           const cachedFlow = searchParams.get("flow");
           setallFlows(res.payload.model)
-          const initialModel = res.payload.model.find(f => f.id === cachedFlow) || res.payload.model[0]
+          const initialModel = res.payload.model.find((f: any) => f.id === Number(cachedFlow)) || res.payload.model[0]
           if (initialModel.data) {
             model.deserializeModel(initialModel.data, engine);
           }
