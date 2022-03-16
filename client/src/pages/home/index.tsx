@@ -80,6 +80,7 @@ const ModalBackdrop = styled.div<{ open: boolean }>`
   background-color: rgba(0,0,0,0.4);
 `
 const currentFlow = 'afghan-refugee-chatbot';
+// const currentFlow = 'test-flow';
 
 function Home(props: IProps) {
   const tokenService = new TokenService();
@@ -93,6 +94,7 @@ function Home(props: IProps) {
   const messagesEndRef = useRef(null)
   const [state, stateDispatch] = useGlobalState();
   const [currentClass, setCurrentClass] = useState<string | undefined>(undefined);
+  const [gameover, setgameover] = useState<boolean>(false);
   useEffect(() => {
     setCurrentClass(`${css.animation}`)
     setTimeout(() => {
@@ -112,6 +114,12 @@ function Home(props: IProps) {
   }, []);
 
   const resetQuestions = () => {
+    messageDispatch({
+      type: 'setMessage',
+      payload: {
+        message: ''
+      }
+    });
     const diagramNodes = model.layers.find(layer => layer.type === "diagram-nodes").models
     const startquestion = Object.values(diagramNodes).find((model: any) => model.ports.find(port => port.label === "In").links.length === 0)
     const answers = getAnswers(startquestion, model)
@@ -148,6 +156,7 @@ function Home(props: IProps) {
     const form_payload: Answer = { question: QAs.question.name, answer: value, points: answer.extras.pointanswer ? points : -1, index: index };
     const nextQuestions = getNextQuestion()
     if (!nextQuestions) {
+      setQAs(undefined)
       const finalFormPayload = [...JSON.parse(localStorage.getItem('answers')), form_payload]
       const reachedPoints = finalFormPayload.filter(a => a.points > -1).reduce((acc, answer) => acc += answer.points, 0)
       const maxPoints = finalFormPayload.filter(a => a.points > -1).reduce((acc, answer) => acc += 2, 0)
@@ -196,14 +205,16 @@ function Home(props: IProps) {
         finalFormPayload,
         'POST'
       ).then((res: any) => {
-        setmodalopen(true)
+        localStorage.removeItem('answers')
         messageDispatch({
           type: 'setMessage',
           payload: {
             message: 'Thank you!'
           }
         });
-        localStorage.removeItem('answers')
+        setTimeout(() => {
+          setmodalopen(true)
+        }, 200);
       })
     } else {
       const answers = getAnswers(nextQuestions, model)
@@ -234,9 +245,7 @@ function Home(props: IProps) {
     }
   }
 
-  const maxQuestions = () => {
-    return Object.values(model.layers[1].models).filter((item: ModelQ) => item.extras.customType === "question").length
-  }
+
   return (
     <PageContent>
       <div className={css.bottomspacing}>
@@ -263,20 +272,9 @@ function Home(props: IProps) {
                 <button className={`btn mb-2 btn-sm btn-primary text-start ${css.nottransparent}`} disabled>{state.lang == 'af' ? historyItem.choosenAnswer.extras.answertranslation : historyItem.choosenAnswer.name}</button>
               </div>
             )}
-            {maxQuestions() <= index + 1 && (
-              <>
-                <div className={`row`}>
-                  <div className='col-md-6'>
-                    <button type="button" className="btn btn-success" onClick={e => {
-                      resetQuestions()
-                    }}>Play again!</button>
-                  </div>
-                </div>
-              </>
-            )}
           </div>
         ))}
-        {QAs && QAs.question && history.length < maxQuestions() ? (
+        {QAs && QAs.question ? (
           <div className={`row`}>
             <div className='col-md-6'>
               <div className={`${css.animatedformfield} ${currentClass} `}>
@@ -311,6 +309,18 @@ function Home(props: IProps) {
             </div>
           </div>
         ) : !model ? "loading..." : null}
+        {gameover && (
+          <>
+            <div className={`row`}>
+              <div className='col-md-6'>
+                <button type="button" className="btn btn-success" onClick={e => {
+                  resetQuestions()
+                  setgameover(false)
+                }}>Play again!</button>
+              </div>
+            </div>
+          </>
+        )}
         <div ref={messagesEndRef} />
       </div>
       {modalopen && (
@@ -329,6 +339,7 @@ function Home(props: IProps) {
                 </div>
                 <div className="modal-footer">
                   <button type="button" className="btn btn-secondary" onClick={e => {
+                    setgameover(true)
                     setmodalopen(false)
                   }}>Close</button>
                   <button type="button" className="btn btn-primary" onClick={e => {
