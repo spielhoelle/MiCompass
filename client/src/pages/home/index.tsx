@@ -29,6 +29,7 @@ export interface ModelQ {
     customType: string
     questionidentifier: string
     questiontranslation: string
+    image: string
   }
   id: string
   name: string
@@ -252,6 +253,9 @@ function Home(props: IProps) {
         {history.length > 0 && history.map((historyItem, index) => (
           <div className='row' key={index} >
             <div className='col-md-6'>
+              {historyItem.question.extras.image && (
+                <img src={historyItem.question.extras.image} alt={historyItem.question.name} />
+              )}
               <button className={`btn btn-light mb-3 text-start d-block`} disabled>{state.lang == 'af' ? historyItem.question.extras.questiontranslation : historyItem.question.name}</button >
               {historyItem.choosenAnswer.extras.freeanswer && (
                 <>
@@ -278,6 +282,9 @@ function Home(props: IProps) {
           <div className={`row`}>
             <div className='col-md-6'>
               <div className={`${css.animatedformfield} ${currentClass} `}>
+                {QAs.question.extras.image && (
+                  <img src={QAs.question.extras.image} alt={QAs.question.name} />
+                )}
                 <button className={`btn btn-light mb-3 text-start`} disabled>{state.lang == 'af' ? QAs.question.extras.questiontranslation : QAs.question.name}</button >
                 <div className="">
                   {QAs.answers.map((a, i) => (

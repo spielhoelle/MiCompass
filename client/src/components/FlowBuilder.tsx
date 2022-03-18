@@ -79,6 +79,11 @@ const Pre = styled.pre`
   padding: 10px;
   background-color: white;
 `
+const StyledImage = styled.img`
+  max-height: 2em;
+  max-width: 2em;
+  object-fit: contain;
+ `
 const colorPointanswer = "rgb(255, 144, 0)"
 const colorFreeanswer = "rgb(182, 133, 1)"
 const colorAnswer = "rgb(255, 204, 1)"
@@ -92,6 +97,7 @@ function FlowBuilder() {
     "renderselector": "",
     "question": "",
     'questionidentifier': "",
+    'image': "",
     'questiontranslation': "",
     "answer": "",
     "answeridentifier": "",
@@ -148,6 +154,7 @@ function FlowBuilder() {
               const formFromClickedNode = {
                 "question": currentNode.getOptions().extras.customType === "question" ? (currentNode as any).getOptions().name : relatedQuestion ? relatedQuestion.options.name : "",
                 'questionidentifier': currentNode.getOptions().extras.customType === "question" ? currentNode.getOptions().extras.questionidentifier : relatedQuestion ? relatedQuestion.options.name : "",
+                'image': currentNode.getOptions().extras.customType === "question" ? currentNode.getOptions().extras.image : relatedQuestion ? relatedQuestion.options.image : "",
                 'questiontranslation': currentNode.getOptions().extras.customType === "question" ? currentNode.getOptions().extras.questiontranslation : relatedQuestion ? relatedQuestion.options.extras.questiontranslation : "",
                 "answer": currentNode.getOptions().extras.customType === "answer" ? (currentNode as any).getOptions().name : "",
                 "answeridentifier": currentNode.getOptions().extras.customType === "answer" ? currentNode.getOptions().extras.answeridentifier : "",
@@ -213,6 +220,7 @@ function FlowBuilder() {
       node.options.name = form['question']
       node.options.extras.questionidentifier = form['questionidentifier']
       node.options.extras.questiontranslation = form['questiontranslation']
+      node.options.extras.image = form['image']
     } else {
       node = new CustomNodeModel({
         name: `${e.target.elements.addquestion.value}`,
@@ -220,6 +228,7 @@ function FlowBuilder() {
         extras: {
           customType: e.target.elements.addquestion.dataset.type,
           questionidentifier: e.target.elements.addquestionidentifier.value,
+          image: e.target.elements.addimageselector.value,
           questiontranslation: e.target.elements.addquestiontranslation.value
         }
       });
@@ -372,6 +381,45 @@ function FlowBuilder() {
   }
 
   engine.getActionEventBus().registerAction(new DeleteItemsAction({ keyCodes: [8], modifiers: { shiftKey: true } }));
+
+  const file2Base64 = async (file: File): Promise<string> => {
+    return new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result?.toString() || '');
+      reader.onerror = error => reject(error);
+    })
+  }
+  const resizeImage = (base64Str, maxWidth = 400, maxHeight = 350) => {
+    return new Promise((resolve) => {
+      let img = new Image()
+      img.src = base64Str
+      img.onload = () => {
+        let canvas = document.createElement('canvas')
+        const MAX_WIDTH = maxWidth
+        const MAX_HEIGHT = maxHeight
+        let width = img.width
+        let height = img.height
+
+        if (width > height) {
+          if (width > MAX_WIDTH) {
+            height *= MAX_WIDTH / width
+            width = MAX_WIDTH
+          }
+        } else {
+          if (height > MAX_HEIGHT) {
+            width *= MAX_HEIGHT / height
+            height = MAX_HEIGHT
+          }
+        }
+        canvas.width = width
+        canvas.height = height
+        let ctx = canvas.getContext('2d')
+        ctx.drawImage(img, 0, 0, width, height)
+        resolve(canvas.toDataURL())
+      }
+    })
+  }
 
   return (
     <div className="h-100 d-flex flex-column ">
@@ -535,6 +583,21 @@ function FlowBuilder() {
                         setForm({ ...form, [e.target.name]: e.target.value })
                       }} data-type="questionidentifier" data-color={questioncolor} style={{ borderColor: questioncolor, borderStyle: "solid" }} id="addquestionidentifier" required />
                   </div>
+                  <div className="flex-grow-1">
+                    <label htmlFor="addimage">Image</label>
+                    <div className='d-flex'>
+                      <input disabled={disabled === "question"} className="form-control" name="image" type="file"
+                        onChange={async (e) => {
+                          e.stopPropagation();
+                          const imageElement = e.target
+                          const img = await file2Base64(imageElement.files[0])
+                          const compressed = await resizeImage(img)
+                          setForm({ ...form, [imageElement.name]: compressed })
+                        }} data-type="image" data-color={questioncolor} style={{ borderColor: questioncolor, borderStyle: "solid" }} id="addimage" required />
+                      <StyledImage className="" src={form['image']} />
+                    </div>
+                    <input id="addimageselector" className="form-control d-none" type='text' value={form['image']} />
+                  </div>
                 </div>
               </div>
               <div className="col-md-6 col-lg-3 align-items-end d-flex justify-content0-end">
@@ -592,7 +655,7 @@ function FlowBuilder() {
                   <div className="w-100">
                     <label htmlFor="type">Type</label>
                     <select
-                      disabled={disabled === "answer" || form['freeanswer'] !== true} 
+                      disabled={disabled === "answer" || form['freeanswer'] !== true}
                       id="type"
                       className={`w-100 mr-2 form-control`}
                       value={form['freeanswer_type']}
@@ -604,7 +667,7 @@ function FlowBuilder() {
                         <option key={i} value={f}>{f}</option>
                       ))}
                     </select>
-                  </div> 
+                  </div>
                   <div className="btn-group" role="group" aria-label="Basic example">
 
                     <input

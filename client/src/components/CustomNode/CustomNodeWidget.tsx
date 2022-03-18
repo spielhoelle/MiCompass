@@ -25,7 +25,7 @@ export const Node = styled.div`
 		overflow: visible;
 		font-size: 11px;
 		border: solid 2px ${(p: any) => (p.selected ? 'rgb(0,192,255)' : 'black')};
-		max-width: 120px;
+		max-width: 220px;
 	`;
 
 export const Title = styled.div`
@@ -57,6 +57,9 @@ export const PortsContainer = styled.div`
 		}
 	`;
 
+const Image = styled.img`
+  pointer-events: none;
+`
 export class CustomNodeWidget extends DefaultNodeWidget {
 	generatePort = (port) => {
 		return <DefaultPortLabel engine={this.props.engine} port={port} key={port.getID()} />;
@@ -70,6 +73,9 @@ export class CustomNodeWidget extends DefaultNodeWidget {
 				<Title>
 					<TitleName>{this.props.node.getOptions().name}</TitleName>
 				</Title>
+				{this.props.node.getOptions().extras.image && this.props.node.getOptions().extras.image !== "" && (
+					<Image className="w-100" src={this.props.node.getOptions().extras.image} />
+				)}
 				{this.props.node.getOptions().extras.customType === "question" && (
 					<TitleName>Key: {this.props.node.getOptions().extras.questionidentifier}</TitleName>
 				)}
