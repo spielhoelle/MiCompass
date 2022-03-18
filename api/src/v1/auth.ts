@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router, Request, Response } from 'express';
 const router = Router();
 
 import * as errors from '../helpers/error';
@@ -6,28 +6,7 @@ import { Authentication } from '../services/Authentication';
 import { IUser } from '../types/user.types';
 import { verifyToken } from '../middleware/auth';
 
-router.post('/register', (req, res) => {
-  const auth = new Authentication();
-
-  auth
-    .createUser({
-      firstName: req.body.firstName,
-      lastName: req.body.lastName,
-      email: req.body.email,
-      password: req.body.password
-    })
-    .then(() => {
-      return res.send({
-        success: true,
-        message: 'Thanks for registering! Please log in to continue.'
-      });
-    })
-    .catch((err: any) => {
-      return errors.errorHandler(res, err.message, null);
-    });
-});
-
-router.post('/login', (req, res) => {
+router.post('/login', (req: Request, res: Response) => {
   const authentication = new Authentication();
 
   return authentication
@@ -53,7 +32,7 @@ router.post('/login', (req, res) => {
     });
 });
 
-router.post('/validate', (req, res) => {
+router.post('/validate', (req: Request, res: Response) => {
   const authentication = new Authentication();
 
   return authentication
@@ -72,7 +51,7 @@ router.post('/validate', (req, res) => {
 
 router.use(verifyToken());
 
-router.post('/protected', (req, res) => {
+router.post('/protected', (req: Request, res: Response) => {
   res.send({
     success: true
   });

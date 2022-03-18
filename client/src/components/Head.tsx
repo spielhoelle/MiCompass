@@ -62,20 +62,7 @@ function Header(props: IProps) {
         </Link>
         <div className={`collapse navbar-collapse collapse ${navbar ? `show` : ``}`} id="navbarSupportedContent">
           <ul className="navbar-nav me-auto mb-lg-0">
-            {!auth.email ? (
-              <>
-                <li className='nav-item'>
-                  <Link href="/register">
-                    <a className="nav-link">Register</a>
-                  </Link>
-                </li>
-                <li className='nav-item'>
-                  <Link href="/login">
-                    <a className="nav-link">Login</a>
-                  </Link>
-                </li>
-              </>
-            ) : (
+            {auth.email && (
               <>
                 <li className='nav-item'>
                   <Link href="/dashboard">

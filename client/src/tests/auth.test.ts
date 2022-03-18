@@ -21,16 +21,6 @@ const fakeTokenValue = 'cats';
 const fakeToken = jwt.sign({ ilove: fakeTokenValue }, fakeTokenSecret);
 
 describe('Login and register', () => {
-  it('registers user', () => {
-    return AuthService.registerUser({
-      firstName: newUser.firstName,
-      lastName: newUser.lastName,
-      email: newUser.email,
-      password: newUser.password
-    }).then(response => {
-      expect(response.success).toBeTruthy();
-    });
-  });
   it('logs user in', () => {
     return AuthService.loginUser({
       email: user.email,

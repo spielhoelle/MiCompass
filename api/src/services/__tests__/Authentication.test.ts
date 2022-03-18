@@ -11,32 +11,6 @@ describe('test the Authentication service', () => {
     await thisDb.sequelize.sync({ force: true });
   });
 
-  it('should successfully create a user with valid details', async () => {
-    const authentication = new Authentication();
-    const randomString = faker.random.alphaNumeric(10);
-    const email = `user-${randomString}@email.com`;
-    const password = `password`;
-    const firstName = `John`;
-    const lastName = `Smith`;
-
-    const newUser = await authentication.createUser({ firstName, lastName, email, password });
-
-    expect(newUser).toMatchObject({
-      id: expect.any(Number)
-    });
-  });
-
-  it('should fail to create a user with missing signup data', async () => {
-    const authentication = new Authentication();
-    const password = `password`;
-    const firstName = `John`;
-    const lastName = `Smith`;
-
-    await expect(authentication.createUser({ firstName, lastName, password })).rejects.toThrow(
-      new Error('You must send all register details.')
-    );
-  });
-
   it('should successfully log in a user with correct login details', async () => {
     const authentication = new Authentication();
     const randomString = faker.random.alphaNumeric(10);
