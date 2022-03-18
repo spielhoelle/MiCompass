@@ -1,7 +1,6 @@
 import css from './Head.module.scss';
-
 import Head from 'next/head';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Router from 'next/router';
 
 import TokenService from '../services/Token.service';
@@ -13,6 +12,20 @@ import Link from 'next/link';
 interface IProps { }
 
 function Header(props: IProps) {
+  useEffect(() => {
+    var _paq = (window as any)._paq = (window as any)._paq || [];
+    console.log('_paq', _paq);
+    /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
+    _paq.push(['trackPageView']);
+    _paq.push(['enableLinkTracking']);
+    (function () {
+      var u = "https://piwik.thomaskuhnert.com/";
+      _paq.push(['setTrackerUrl', u + 'matomo.php']);
+      _paq.push(['setSiteId', '18']);
+      var d = document, g = d.createElement('script'), s = d.getElementsByTagName('script')[0];
+      g.type = 'text/javascript'; g.async = true; g.src = u + 'matomo.js'; s.parentNode.insertBefore(g, s);
+    })();
+  }, [])
   const switchLanguage = (e, lang) => {
     e.preventDefault()
     const url = new URL((window as any).location);
@@ -38,6 +51,11 @@ function Header(props: IProps) {
         <meta name="viewport" content="initial-scale=1.0, width=device-width" />
         <link rel="shortcut icon" href="/favicon.ico" />
       </Head>
+      <noscript>
+        <p>
+          <img src="https://piwik.thomaskuhnert.com/matomo.php?idsite=18&amp;rec=1" className='d-none' alt="" />
+        </p>
+      </noscript>
       <div className="container-fluid">
         <Link href="/">
           <a className="navbar-brand">MiCompass</a>

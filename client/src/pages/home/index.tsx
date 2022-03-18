@@ -157,6 +157,8 @@ function Home(props: IProps) {
     setHistory([...history, { question: QAs.question, answers: QAs.answers, choosenAnswer: answer, choosenAnswerValue: value }])
 
     const form_payload: Answer = { question: QAs.question.name, answer: value, points: answer.extras.pointanswer ? points : -1, index: index };
+    var _paq = (window as any)._paq = (window as any)._paq || [];
+    _paq.push(['trackEvent', 'Contact', 'Email Link Click', 'name@example.com']);
     const nextQuestions = getNextQuestion()
     if (!nextQuestions) {
       setQAs(undefined)
@@ -215,7 +217,7 @@ function Home(props: IProps) {
           <div className='row' key={index} >
             <div className='col-md-6'>
               {historyItem.question.extras.image && (
-                <img src={historyItem.question.extras.image} alt={historyItem.question.name} />
+                <img className="rounded-3 mb-3 w-100" src={historyItem.question.extras.image} alt={historyItem.question.name} />
               )}
               <button className={`btn btn-light mb-3 text-start d-block`} disabled>{state.lang == 'af' ? historyItem.question.extras.questiontranslation : historyItem.question.name}</button >
               {historyItem.choosenAnswer.extras.freeanswer && (
@@ -244,7 +246,7 @@ function Home(props: IProps) {
             <div className='col-md-6'>
               <div className={`${css.animatedformfield} ${currentClass} `}>
                 {QAs.question.extras.image && (
-                  <img src={QAs.question.extras.image} alt={QAs.question.name} />
+                  <img className="rounded-3 mb-3 w-100" src={QAs.question.extras.image} alt={QAs.question.name} />
                 )}
                 <button className={`btn btn-light mb-3 text-start`} disabled>{state.lang == 'af' ? QAs.question.extras.questiontranslation : QAs.question.name}</button >
                 <div className="">
