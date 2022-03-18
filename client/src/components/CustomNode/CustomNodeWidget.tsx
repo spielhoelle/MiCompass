@@ -66,7 +66,8 @@ export class CustomNodeWidget extends DefaultNodeWidget {
 			<Node
 				data-default-node-name={this.props.node.getOptions().name}
 				selected={this.props.node.isSelected()}
-				background={this.props.node.getOptions().color}> <Title>
+				background={this.props.node.getOptions().color}>
+				<Title>
 					<TitleName>{this.props.node.getOptions().name}</TitleName>
 				</Title>
 				{this.props.node.getOptions().extras.customType === "question" && (

@@ -230,21 +230,21 @@ function FlowBuilder() {
     model.addAll(node);
     engine.setModel(model);
   }
-  const addAnswer = (e) => {
+  const addAnswer = (e: any) => {
     e.preventDefault()
     const selectedNodes = Object.values(engine.getModel().getActiveNodeLayer().getModels()).filter(i => i.getOptions().selected)
     let node
     if (selectedNodes.length === 1) {
       node = selectedNodes[0]
-      node.options.name = form['answer']
-      node.options.extras.dropdown = form['dropdown']
-      node.options.extras.freeanswer = form['freeanswer']
-      node.options.extras.pointanswer = form['pointanswer']
-      node.options.extras.answeridentifier = form['answeridentifier']
-      node.options.extras.answertranslation = form['answertranslation']
-      node.options.extras.points = form['points']
-      node.options.extras.freeanswer_type = form['freeanswer_type']
-      node.options.color = !!e.target.elements.freeanswer && !!e.target.elements.freeanswer.checked ? colorFreeanswer : !!e.target.elements.pointanswer.checked ? colorPointanswer : e.target.elements.answer.dataset.color
+      node.getOptions().name = form['answer']
+      node.getOptions().extras.dropdown = form['dropdown']
+      node.getOptions().extras.freeanswer = form['freeanswer']
+      node.getOptions().extras.pointanswer = form['pointanswer']
+      node.getOptions().extras.answeridentifier = form['answeridentifier']
+      node.getOptions().extras.answertranslation = form['answertranslation']
+      node.getOptions().extras.points = form['points']
+      node.getOptions().extras.freeanswer_type = form['freeanswer_type']
+      node.getOptions().color = !!e.target.elements.freeanswer && !!e.target.elements.freeanswer.checked ? colorFreeanswer : !!e.target.elements.pointanswer.checked ? colorPointanswer : e.target.elements.answer.dataset.color
     } else {
       node = new CustomNodeModel({
         name: e.target.elements.answer.value,
