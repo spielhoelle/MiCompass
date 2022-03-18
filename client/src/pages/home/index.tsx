@@ -5,6 +5,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { NextPageContext } from 'next';
 
 import PageContent from '../../components/PageContent';
+import { calcResults } from '../../components/helpers'
 
 import { useAuth } from '../../services/Auth.context';
 import FetchService from '../../services/Fetch.service';
@@ -151,6 +152,7 @@ function Home(props: IProps) {
     .filter((links: any) => Object.values(model.layers.find(layer => layer.type === "diagram-links").models)
       .filter((layer: any) => layer.source === question.id).map((l: any) => l.target).includes(links.id))
 
+
   const setNextQA = (answer, value, points, index) => {
     setHistory([...history, { question: QAs.question, answers: QAs.answers, choosenAnswer: answer, choosenAnswerValue: value }])
 
@@ -159,48 +161,7 @@ function Home(props: IProps) {
     if (!nextQuestions) {
       setQAs(undefined)
       const finalFormPayload = [...JSON.parse(localStorage.getItem('answers')), form_payload]
-      const reachedPoints = finalFormPayload.filter(a => a.points > -1).reduce((acc, answer) => acc += answer.points, 0)
-      const maxPoints = finalFormPayload.filter(a => a.points > -1).reduce((acc, answer) => acc += 2, 0)
-      if (reachedPoints < maxPoints / 3) {
-        console.log('1/3')
-        setmodaldata({
-          title: "Gullible Globetrotter", text: `Careful! You’re heading for a risky decision. Build an awareness of what could potentially lay ahead if you were to decide to leave Afghanistan and this will help you to make an informed decision. Keep in mind that individuals with protection needs have the right to claim asylum. Despite this, it’s important to know that asylum procedures are often imperfect and the experience of seeking asylum can have a lasting impact on individuals.
-
-          We can all become Tuned-in Travellers by doing 👇 first:
-          ·      Stop and think - Does this sound true?
-          ·      Check the source – are they trustworthy?
-          ·      Double check with a trustworthy source like UNHCR
-          ·      Search to see if other reliable sites are also writing about the issue
-        `})
-      } else if (maxPoints / 3 < reachedPoints && reachedPoints < maxPoints / 1.5) {
-        console.log('2/3')
-        setmodaldata({
-          title: "Junior Journeyer", text: `ou’re at risk of making a biased decision. Keep building an awareness of what could potentially lay ahead if you were to decide to leave Afghanistan. This will help you to make an informed decision. Keep in mind that individuals with protection needs have the right to claim asylum. Despite this, it’s important to know that asylum procedures are often imperfect and the experience of seeking asylum can have a lasting impact on individuals.
- 
-          You know that many things shared on Facebook or by friends and family aren’t always true or valid so try to get your information from official sources, like UNHCR.
-          
-          
-          We can all become Tuned-in Travellers by doing 👇 first:
-          ·      Stop and think - Does this sound true?
-          ·      Check the source – are they trustworthy?
-          ·      Double check with a trustworthy source like  UNHCR
-          ·      Search to see if other reliable sites are also writing about the issue`})
-      } else {
-        console.log('3/3')
-        setmodaldata({
-          title: "Tuned-in Traveller", text: `Great! You’re starting to build an awareness of what could potentially lay ahead if you were to decide to leave Afghanistan. This will help you to make an informed decision. You know that individuals with protection needs have the right to claim asylum. Despite this, you understand that asylum procedures are often imperfect and the experience can have a lasting impact on individuals.
- 
-          You know that many things shared on Facebook or by friends and family aren’t always true or valid so you also seek out information from official sources, like UNHCR.
-
-          
-          You follow international guidance, and you keep informed about the latest developments in migration policy.
-            
-          You can help protect yourself by doing 👇 before migrating:
-          ·      Stop and think - Does this sound true?
-          ·      Check the source – are they trustworthy?
-          ·      Double check with a trustworthy source like UNHCR
-          ·      Search to see if other reliable sites are also writing about the issue`})
-      }
+      setmodaldata(calcResults(finalFormPayload))
       FetchService.isofetch(
         '/answers/save',
         finalFormPayload,

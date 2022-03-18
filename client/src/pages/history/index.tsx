@@ -4,6 +4,14 @@ import { NextPageContext } from 'next';
 import FetchService from '../../services/Fetch.service';
 import React, { useEffect, useState, useRef } from 'react';
 import PageContent from '../../components/PageContent';
+import { calcResults } from '../../components/helpers';
+
+interface IAnswer {
+  index: number,
+  answer: string,
+  points: number,
+  question: string,
+}[]
 
 function History() {
   const [answerHistory, setHistory] = useState([]);
@@ -11,23 +19,38 @@ function History() {
   useEffect(() => {
     FetchService.isofetchAuthed('/answers/get', undefined, 'GET')
       .then((res) => {
-        const mappedHistory = res.payload.map((item) => {
-          return { ...item, data: JSON.parse(item.data) }
-        })
-        setHistory(mappedHistory)
-        const overview = mappedHistory.reduce((acc, item) => {
-          Object.keys(item.data).map(q => {
-            if (acc[q] === undefined) {
-              acc[q] = []
+        const result = res.payload.reduce((acc, submission) => {
+          const qualifiedAnswers = Object.values(submission.data).filter((a: IAnswer) => a.points > -1)
+          qualifiedAnswers.length > 0 && Object.values(qualifiedAnswers).map((qBatch: IAnswer) => {
+            if (!acc[qBatch.question]) {
+              acc[qBatch.question] = [{
+                answer: qBatch.answer,
+                answered: 1,
+              }]
+            } else {
+              const foundAnswer = acc[qBatch.question].findIndex(a => a.answer === qBatch.answer)
+              if (foundAnswer !== -1) {
+                acc[qBatch.question][foundAnswer].answered++
+              } else {
+                acc[qBatch.question].push({
+                  answer: qBatch.answer,
+                  answered: 1,
+                })
+              }
             }
-            if (acc[q][item.data[q]] === undefined) {
-              acc[q][item.data[q]] = 0
-            }
-            acc[q][item.data[q]]++
           })
           return acc
-        }, {})
-        setAnswerOverview(overview)
+        }, [])
+        setAnswerOverview(result)
+
+        const history = res.payload.map(r => {
+          r.data = Object.values(r.data).filter((a: IAnswer) => a.points > -1 || /^[^@\s]+@[^@\s]+\.\w+$/.test(a.answer))
+          if (r.data.length > 0) {
+            return r
+          }
+        }).filter(i => !!i)
+        console.log('history', history);
+        setHistory(history)
       }).catch(err => {
         console.log(err);
       })
@@ -36,16 +59,16 @@ function History() {
     <PageContent>
       <h3>Overview</h3>
       {Object.keys(answerOverview).map((item, index) => (
-        <div>
-          <h2>{item.slice(0, 50)}</h2>
-          {Object.keys(answerOverview[item]).map((item2, index) => (
+        <div className='mb-4'>
+          <h4>{item.slice(0, 100)}</h4>
+          {answerOverview[item].map((item2, index) => (
             <div>
-              {item2}: {answerOverview[item][item2]}
+              {item2.answer}: {item2.answered}
             </div>
           ))}
+          {Object.keys(answerOverview).length !== index - 1 && <hr />}
         </div>
       ))}
-      <hr />
       <h3 className={css.example}>History</h3>
       {answerHistory.map((item, index) => (
         <div className="mb-3" key={index}>
@@ -55,9 +78,12 @@ function History() {
           <span className='badge bg-primary'>
             createdAt: {item.createdAt.replace("T", " ").replace("Z", "").slice(0, 16)}
           </span>
-          {Object.keys(item.data).map((q, a) => (
-            <div>{q}: <span className='badge bg-light text-dark'>{item.data[q]}</span></div>
+          <span className="badge bg-primary ms-2">{calcResults(item.data).title}</span> with <span className={`badge rounded-pill ${calcResults(item.data).class}`}>{calcResults(item.data).reachedPoints}</span> points.
+          {item.data.map((q, a) => (
+            <div>{q.index}: <span className='badge bg-light text-dark'>{q.answer} {q.points > -1 && q.points} </span></div>
           ))}
+
+
         </div>
       ))}
 
