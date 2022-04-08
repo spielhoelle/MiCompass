@@ -14,7 +14,6 @@ interface IProps { }
 function Header(props: IProps) {
   useEffect(() => {
     var _paq = (window as any)._paq = (window as any)._paq || [];
-    console.log('_paq', _paq);
     /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
     _paq.push(['trackPageView']);
     _paq.push(['enableLinkTracking']);
@@ -62,7 +61,20 @@ function Header(props: IProps) {
         </Link>
         <div className={`collapse navbar-collapse collapse ${navbar ? `show` : ``}`} id="navbarSupportedContent">
           <ul className="navbar-nav me-auto mb-lg-0">
-            {auth.email && (
+            {!auth.email ? (
+              <>
+                <li className='nav-item'>
+                  <Link href="/register">
+                    <a className="nav-link">Register</a>
+                  </Link>
+                </li>
+                <li className='nav-item'>
+                  <Link href="/login">
+                    <a className="nav-link">Login</a>
+                  </Link>
+                </li>
+              </>
+            ) : (
               <>
                 <li className='nav-item'>
                   <Link href="/dashboard">

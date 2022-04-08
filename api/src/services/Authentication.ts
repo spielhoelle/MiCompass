@@ -14,7 +14,6 @@ import { Token } from './Token';
 class Authentication {
   constructor() {}
 
-  //TODO currently just used by tests
   async createUser({ firstName, lastName, email, password }: Partial<IUser>) {
     if (!email || !firstName || !lastName || !password) {
       throw new Error('You must send all register details.');
