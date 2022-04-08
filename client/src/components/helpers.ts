@@ -42,12 +42,14 @@ const calcResults = (answers) => {
     }
   }
 }
-const getTheme = (host): number => {
-  if (host === 'localhost:3000') {
+const getTheme = (host: string): number => {
+  let test = 0
+  if (test === 1 || host === "micompass.org") {
     return 1
-    // } else if (host.location.hostname) {
-  } else {
+  } else if (test === 2 || host === "ua.tmy.io") {
     return 2
+  } else {
+    return 1
   }
 }
 export { calcResults, getTheme }

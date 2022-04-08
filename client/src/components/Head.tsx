@@ -8,10 +8,14 @@ import { useAuth } from '../services/Auth.context';
 import { useGlobalMessaging } from '../services/GlobalMessaging.context';
 import { useGlobalState } from '../services/State.context';
 import Link from 'next/link';
+import { getTheme } from './helpers';
 
-interface IProps { }
+interface IProps {
+  props: any
+  host?: string
+}
 
-function Header(props: IProps) {
+function Header({ props }: IProps) {
   useEffect(() => {
     var _paq = (window as any)._paq = (window as any)._paq || [];
     /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
@@ -56,6 +60,11 @@ function Header(props: IProps) {
         </p>
       </noscript>
       <div className="container-fluid">
+        {getTheme(props.host) === 1 ? (
+          <img className={css.flag} src="/afghanistan-flag-icon-32.png" alt="me" width="64" height="64" />
+        ) : (
+          <img className={css.flag} src="/ukraine-flag-icon-32.png" alt="me" width="64" height="64" />
+        )}
         <Link href="/">
           <a className="navbar-brand">MiCompass</a>
         </Link>

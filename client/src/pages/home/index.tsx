@@ -83,8 +83,6 @@ const ModalBackdrop = styled.div<{ open: boolean }>`
 let currentFlow = 'afghan-refugee-chatbot';
 
 function Home({ props }) {
-  console.log('HOME props', props);
-
   const tokenService = new TokenService();
   const [messageState, messageDispatch] = useGlobalMessaging();
   const [authState, authDispatch] = useAuth();

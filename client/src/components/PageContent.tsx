@@ -11,7 +11,7 @@ function PageContent({ children, props }: any) {
     <React.Fragment>
       <div className={`${css[theme]}`}>
         <div className={`${css.pageContent} ${router.pathname !== "/dashboard" ? `container` : ``} `}>
-          <Head />
+          <Head props={props} />
           {children}
         </div>
       </div>
