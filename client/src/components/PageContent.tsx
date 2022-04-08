@@ -1,14 +1,20 @@
 import css from './PageContent.module.scss';
 import { useRouter } from 'next/router'
 import Head from './Head';
-import * as React from 'react';
+import { getTheme } from './helpers';
+import React, { useEffect, useState } from 'react';
 
-function PageContent({ children }: any) {
+function PageContent({ children, props }: any) {
   const router = useRouter()
+  const theme = getTheme(props.host) === 1 ? 'afghan' : 'ukrain'
   return (
     <React.Fragment>
-      <Head />
-      <div className={`${css.pageContent} ${router.pathname !== "/dashboard" ? `container` : ``}`}>{children}</div>
+      <div className={`${css[theme]}`}>
+        <div className={`${css.pageContent} ${router.pathname !== "/dashboard" ? `container` : ``} `}>
+          <Head />
+          {children}
+        </div>
+      </div>
     </React.Fragment>
   );
 }

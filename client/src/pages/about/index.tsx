@@ -4,9 +4,9 @@ import PageContent from '../../components/PageContent';
 
 import * as React from 'react';
 
-function About() {
+function About(props) {
   return (
-    <PageContent>
+    <PageContent props={props}>
       <h2 className={css.example}>About!</h2>
       <p>
         MiCompass is a virtual migration guide that covers five key areas worth considering before you decide to make a move.

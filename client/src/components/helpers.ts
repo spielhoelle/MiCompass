@@ -42,4 +42,12 @@ const calcResults = (answers) => {
     }
   }
 }
-export { calcResults }
+const getTheme = (host): number => {
+  if (host === 'localhost:3000') {
+    return 1
+    // } else if (host.location.hostname) {
+  } else {
+    return 2
+  }
+}
+export { calcResults, getTheme }

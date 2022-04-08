@@ -11,9 +11,9 @@ const FlowBuilder = dynamic(
   () => import('../../components/FlowBuilder'),
   { ssr: false }
 )
-function Dashboard() {
+function Dashboard(props) {
   return (
-    <PageContent>
+    <PageContent props={props}>
       <FlowBuilder />
     </PageContent>
   );

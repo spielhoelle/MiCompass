@@ -13,7 +13,7 @@ interface IAnswer {
   question: string,
 }[]
 
-function History() {
+function History(props) {
   const [answerHistory, setHistory] = useState([]);
   const [answerOverview, setAnswerOverview] = useState({});
   useEffect(() => {
@@ -56,7 +56,7 @@ function History() {
       })
   }, [])
   return (
-    <PageContent>
+    <PageContent props={props}>
       <h3>Overview</h3>
       {Object.keys(answerOverview).map((item, index) => (
         <div className='mb-4'>

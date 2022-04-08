@@ -1,11 +1,10 @@
-import Link from 'next/link';
 import css from './index.module.scss';
 import Router from 'next/router';
 import React, { useEffect, useState, useRef } from 'react';
 import { NextPageContext } from 'next';
 
 import PageContent from '../../components/PageContent';
-import { calcResults } from '../../components/helpers'
+import { calcResults, getTheme } from '../../components/helpers'
 
 import { useAuth } from '../../services/Auth.context';
 import FetchService from '../../services/Fetch.service';
@@ -81,10 +80,11 @@ const ModalBackdrop = styled.div<{ open: boolean }>`
   left: 0;
   background-color: rgba(0,0,0,0.4);
 `
-const currentFlow = 'afghan-refugee-chatbot';
-// const currentFlow = 'test-flow';
+let currentFlow = 'afghan-refugee-chatbot';
 
-function Home(props: IProps) {
+function Home({ props }) {
+  console.log('HOME props', props);
+
   const tokenService = new TokenService();
   const [messageState, messageDispatch] = useGlobalMessaging();
   const [authState, authDispatch] = useAuth();
@@ -97,6 +97,7 @@ function Home(props: IProps) {
   const [state, stateDispatch] = useGlobalState();
   const [currentClass, setCurrentClass] = useState<string | undefined>(undefined);
   const [gameover, setgameover] = useState<boolean>(false);
+
   useEffect(() => {
     setCurrentClass(`${css.animation}`)
     setTimeout(() => {
@@ -133,6 +134,9 @@ function Home(props: IProps) {
   useEffect(() => {
     FetchService.isofetchAuthed('/flows/get', undefined, 'GET')
       .then((res) => {
+        if (getTheme(props.host) === 2) {
+          currentFlow = 'ukrain-help-bot'
+        }
         const usedFLow = res.payload.model.find(f => f.flowname === currentFlow)
         const diagramNodes = usedFLow.data.layers.find(layer => layer.type === "diagram-nodes").models
         const startquestion = Object.values(diagramNodes).find((model: any) => model.ports.find(port => port.label === "In").links.length === 0)
@@ -211,7 +215,7 @@ function Home(props: IProps) {
 
 
   return (
-    <PageContent>
+    <PageContent props={props}>
       <div className={css.bottomspacing}>
         {history.length > 0 && history.map((historyItem, index) => (
           <div className='row' key={index} >
@@ -261,7 +265,7 @@ function Home(props: IProps) {
 
                           }}>
                             <label htmlFor={a.extras.answeridentifier} className="form-label">{state.lang == 'af' ? a.extras.answertranslation : a.name}</label>
-                            <input required={true} type={a.extras.freeanswer_type} ref={ref => myRef.current[i] = ref} id={a.extras.answeridentifier} name={a.extras.answeridentifier} className={`form-control mb-3`} />
+                            <input required={true} type={a.extras.freeanswer_type ? a.extras.freeanswer_type : "text"} ref={ref => myRef.current[i] = ref} id={a.extras.answeridentifier} name={a.extras.answeridentifier} className={`form-control mb-3`} />
                             <button type="submit" className={`btn btn-primary mb-2 btn-sm text-start`} key={i} onClick={e => {
                             }}>{state.lang == 'af' ? "ښه، دوام ورکړئ" : "Ok, continue..."}</button>
                           </form>
@@ -324,12 +328,24 @@ function Home(props: IProps) {
     </PageContent>
   );
 }
-
 Home.getInitialProps = async (ctx: NextPageContext) => {
   if (ctx.query && ctx.query.l == 't') {
     return { action: 'logout' };
   }
-  return {};
+  console.log('ctx', ctx);
+
+  const { req, query, resource, asPath, pathname } = ctx;
+  let host
+  if (req) {
+    host = req.headers.host // will give you localhost:3000
+  } else {
+    // Get host from window on client
+    host = window.location.host;
+  }
+  console.log('host', host);
+
+  // Pass data to the page via props
+  return { props: { host } }
 };
 
 export default Home;

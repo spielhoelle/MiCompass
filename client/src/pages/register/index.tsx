@@ -23,7 +23,7 @@ function Register(props: IProps) {
     }
   }, []);
   return (
-    <PageContent>
+    <PageContent props={props}>
       <Formik
         initialValues={{
           firstName: '',
