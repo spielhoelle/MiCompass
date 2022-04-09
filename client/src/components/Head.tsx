@@ -1,4 +1,5 @@
 import css from './Head.module.scss';
+import { NextPageContext } from 'next';
 import { useRouter } from 'next/router'
 import Head from 'next/head';
 import React, { useEffect, useState } from 'react';
@@ -9,7 +10,7 @@ import { useAuth } from '../services/Auth.context';
 import { useGlobalMessaging } from '../services/GlobalMessaging.context';
 import { useGlobalState } from '../services/State.context';
 import Link from 'next/link';
-import { getTheme } from './helpers';
+import { getTheme, isAdmin } from './helpers';
 
 interface IProps {
   props: any
@@ -17,6 +18,7 @@ interface IProps {
 }
 
 function Header({ props }: IProps) {
+  console.log('props', props);
   useEffect(() => {
     var _paq = (window as any)._paq = (window as any)._paq || [];
     /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
@@ -50,7 +52,7 @@ function Header({ props }: IProps) {
   const router = useRouter()
   const [state, stateDispatch] = useGlobalState();
   return (
-    <nav className={`navbar navbar-expand-sm fixed-top ${["/dashboard", "/history"].includes(router.pathname) ? `navbar-dark bg-dark` : getTheme(props.host) === 1 ? `navbar-dark bg-dark` : `navbar-light bg-warning`}`}>
+    <nav className={`navbar navbar-expand-sm fixed-top ${isAdmin(router.pathname) ? `navbar-dark bg-dark` : isAdmin(router.pathname) || getTheme(props.host) === 1 ? `navbar-dark bg-dark` : `navbar-light bg-warning`}`}>
       <Head>
         <title>MiCompass</title>
         <meta name="viewport" content="initial-scale=1.0, width=device-width" />
@@ -62,13 +64,10 @@ function Header({ props }: IProps) {
         </p>
       </noscript>
       <div className="container-fluid">
-        {getTheme(props.host) === 1 ? (
-          <img className={css.flag} src="/afghanistan-flag-icon-32.png" alt="me" width="64" height="64" />
-        ) : (
-          <img className={css.flag} src="/ukraine-flag-icon-32.png" alt="me" width="64" height="64" />
-        )}
         <Link href="/">
-          <a className="navbar-brand">MiCompass</a>
+          <a className="navbar-brand">
+            MiCompass
+          </a>
         </Link>
         <div className={`collapse navbar-collapse collapse ${navbar ? `show` : ``}`} id="navbarSupportedContent">
           <ul className="navbar-nav me-auto mb-lg-0">
@@ -108,7 +107,20 @@ function Header({ props }: IProps) {
               {state.lang && state.lang !== "en" ? (
                 <a href='#' className="nav-link" onClick={(e) => switchLanguage(e, 'en')}>EN</a>
               ) : (
-                <a href='#' className="nav-link" onClick={(e) => switchLanguage(e, 'af')}>AF</a>
+                  <a href='#' className="nav-link" onClick={(e) => switchLanguage(e, 'af')}>
+                    {!isAdmin(router.pathname) ?
+                      getTheme(props.host) === 1 ? (
+                        <>
+                          AF
+                          <img className={css.flag} src="/afghanistan-flag-icon-32.png" alt="me" width="64" height="64" />
+                        </>
+                      ) : (
+                        <>
+                          UA
+                          <img className={css.flag} src="/ukraine-flag-icon-32.png" alt="me" width="64" height="64" />
+                        </>
+                      ) : null}
+                  </a>
               )}
             </li>
           </ul>
@@ -144,4 +156,19 @@ function Header({ props }: IProps) {
   );
 }
 
+Header.getInitialProps = async (ctx: NextPageContext) => {
+  if (ctx.query && ctx.query.l == 't') {
+    return { action: 'logout' };
+  }
+  const { req } = ctx;
+  let host
+  if (req) {
+    host = req.headers.host // will give you localhost:3000
+  } else {
+    // Get host from window on client
+    host = window.location.host;
+  }
+  // Pass data to the page via props
+  return { props: { host } }
+};
 export default Header;

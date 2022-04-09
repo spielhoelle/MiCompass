@@ -6,7 +6,7 @@ import { NextPageContext } from 'next';
 import { AuthProvider } from '../services/Auth.context';
 import { GlobalMessagingProvider } from '../services/GlobalMessaging.context';
 import { StateProvider } from '../services/State.context';
-import { getTheme } from '../components/helpers';
+import { getTheme, isAdmin } from '../components/helpers';
 
 import './global.scss';
 import css from './theme.module.scss';
@@ -16,7 +16,7 @@ function MyApp({ Component, pageProps: { props } }: AppProps) {
   const router = useRouter()
 
   return (
-    <div className={`${css['theme']} ${!["/dashboard", "/history"].includes(router.pathname) ? `${css[theme]}` : ``} `}>
+    <div className={`${css['theme']} ${!isAdmin(router.pathname) ? `${css[theme]}` : ``} `}>
       <AuthProvider>
         <GlobalMessagingProvider>
           <StateProvider>

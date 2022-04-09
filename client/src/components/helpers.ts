@@ -52,4 +52,5 @@ const getTheme = (host: string): number => {
     return 1
   }
 }
-export { calcResults, getTheme }
+const isAdmin = (path) => ['/dashboard', '/history'].includes(path)
+export { calcResults, getTheme, isAdmin }

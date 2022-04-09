@@ -1,4 +1,5 @@
-import css from './index.module.scss';
+// import css from './index.module.scss';
+import { NextPageContext } from 'next';
 import Router from 'next/router';
 import { useAuth } from '../../services/Auth.context';
 import { Field, Form, Formik, FormikHelpers } from 'formik';
@@ -85,5 +86,20 @@ function Register(props: IProps) {
     </PageContent>
   );
 }
+Register.getInitialProps = async (ctx: NextPageContext) => {
+  if (ctx.query && ctx.query.l == 't') {
+    return { action: 'logout' };
+  }
+  const { req } = ctx;
+  let host
+  if (req) {
+    host = req.headers.host // will give you localhost:3000
+  } else {
+    // Get host from window on client
+    host = window.location.host;
+  }
+  // Pass data to the page via props
+  return { props: { host } }
+};
 
 export default Register;
