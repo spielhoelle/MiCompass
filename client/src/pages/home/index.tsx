@@ -332,7 +332,7 @@ Home.getInitialProps = async (ctx: NextPageContext) => {
   }
   console.log('ctx', ctx);
 
-  const { req, query, resource, asPath, pathname } = ctx;
+  const { req } = ctx;
   let host
   if (req) {
     host = req.headers.host // will give you localhost:3000
