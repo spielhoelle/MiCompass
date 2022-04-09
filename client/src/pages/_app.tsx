@@ -1,4 +1,5 @@
 import { AppProps } from 'next/app';
+import { useRouter } from 'next/router'
 import * as React from 'react';
 import { NextPageContext } from 'next';
 
@@ -11,10 +12,11 @@ import './global.scss';
 import css from './theme.module.scss';
 
 function MyApp({ Component, pageProps: { props } }: AppProps) {
-  const theme = getTheme(props.host) === 1 ? 'afghan' : 'ukrain'
+  const theme = props && getTheme(props.host) === 1 ? 'afghan' : 'ukrain'
+  const router = useRouter()
 
   return (
-    <div className={`${css['theme']} ${css[theme]}`}>
+    <div className={`${css['theme']} ${!["/dashboard", "/history"].includes(router.pathname) ? `${css[theme]}` : ``} `}>
       <AuthProvider>
         <GlobalMessagingProvider>
           <StateProvider>

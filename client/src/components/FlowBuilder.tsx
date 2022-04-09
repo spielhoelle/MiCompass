@@ -46,6 +46,8 @@ const CanvasWrapper = styled.div`
   flex-grow: 1;
   overflow: hidden;
   position: relative;
+  display: flex;
+  flex-flow: column;
   & > div {
     height: 100%;
     width: 100%;
