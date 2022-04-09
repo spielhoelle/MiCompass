@@ -11,7 +11,6 @@ import FetchService from '../../services/Fetch.service';
 import { useGlobalMessaging } from '../../services/GlobalMessaging.context';
 import TokenService from '../../services/Token.service';
 
-import internal from 'stream';
 import styled from '@emotion/styled';
 import { useGlobalState } from '../../services/State.context';
 import { Answer, ModelA, ModelQ, QA } from '../../types/global.types';
