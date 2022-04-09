@@ -6,14 +6,11 @@ import React, { useEffect, useState } from 'react';
 
 function PageContent({ children, props }: any) {
   const router = useRouter()
-  const theme = getTheme(props.host) === 1 ? 'afghan' : 'ukrain'
   return (
     <React.Fragment>
-      <div className={`${css[theme]}`}>
-        <div className={`${css.pageContent} ${router.pathname !== "/dashboard" ? `container` : ``} `}>
-          <Head props={props} />
-          {children}
-        </div>
+      <div className={`${css.pageContent} ${router.pathname !== "/dashboard" ? `container` : ``} `}>
+        <Head props={props} />
+        {children}
       </div>
     </React.Fragment>
   );
