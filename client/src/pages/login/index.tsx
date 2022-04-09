@@ -9,9 +9,7 @@ import PageContent from '../../components/PageContent';
 
 import FetchService from '../../services/Fetch.service';
 import { useGlobalMessaging } from '../../services/GlobalMessaging.context';
-import { ILoginIn } from '../../types/auth.types';
-
-import { IRegisterIn } from '../../types/auth.types';
+import { ILoginIn } from '../../types/global.types';
 
 interface IProps { }
 

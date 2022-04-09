@@ -1,6 +1,5 @@
 import React, { useContext, useEffect, useReducer } from 'react';
-
-import { IAuthInfo } from '../types/auth.types';
+import { IAction, IAuthInfo } from '../types/global.types';
 
 export const AuthStateContext = React.createContext({});
 
@@ -11,10 +10,6 @@ enum ActionType {
 	RemoveDetails = 'removeAuthDetails'
 }
 
-interface IAction {
-	type: ActionType;
-	payload: IAuthInfo;
-}
 
 const reducer: React.Reducer<{}, IAction> = (state, action) => {
 	switch (action.type) {

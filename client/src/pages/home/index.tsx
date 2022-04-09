@@ -14,62 +14,8 @@ import TokenService from '../../services/Token.service';
 import internal from 'stream';
 import styled from '@emotion/styled';
 import { useGlobalState } from '../../services/State.context';
-interface IProps {
-  action: string;
-}
-interface Answer {
-  question: string,
-  answer: string,
-  points: number,
-  index: number
-};
-export interface ModelQ {
-  color: string
-  extras: {
-    customType: string
-    questionidentifier: string
-    questiontranslation: string
-    image: string
-  }
-  id: string
-  name: string
-  ports: any[]
-  portsInOrder: any[]
-  portsOutOrder: any[]
-  selected: boolean
-  type: string
-  x: number
-  y: number
-}
-export interface ModelA {
-  color: string
-  extras: {
-    customType: string
-    answertranslation: string
-    answeridentifier: string
-    points: number
-    freeanswer: boolean
-    freeanswer_type: string
-    dropdown: boolean
-  }
-  id: string
-  name: string
-  ports: any[]
-  portsInOrder: any[]
-  portsOutOrder: any[]
-  selected: boolean
-  type: string
-  x: number
-  y: number
-}
-export interface QA {
-  question: ModelQ;
-  answers: ModelA[];
-}
-export interface History extends QA {
-  choosenAnswer: ModelA;
-  choosenAnswerValue: string;
-}
+import { Answer, ModelA, ModelQ, QA } from '../../types/global.types';
+
 const ModalBackdrop = styled.div<{ open: boolean }>`
   opacity: ${(props) => !props.open ? 0 : 1};
   pointer-events: ${(props) => !props.open ? `none` : `all`};
@@ -330,8 +276,6 @@ Home.getInitialProps = async (ctx: NextPageContext) => {
   if (ctx.query && ctx.query.l == 't') {
     return { action: 'logout' };
   }
-  console.log('ctx', ctx);
-
   const { req } = ctx;
   let host
   if (req) {
@@ -340,8 +284,6 @@ Home.getInitialProps = async (ctx: NextPageContext) => {
     // Get host from window on client
     host = window.location.host;
   }
-  console.log('host', host);
-
   // Pass data to the page via props
   return { props: { host } }
 };

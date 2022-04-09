@@ -5,13 +5,8 @@ import FetchService from '../../services/Fetch.service';
 import React, { useEffect, useState, useRef } from 'react';
 import PageContent from '../../components/PageContent';
 import { calcResults } from '../../components/helpers';
+import { IAnswer } from '../../types/global.types'
 
-interface IAnswer {
-  index: number,
-  answer: string,
-  points: number,
-  question: string,
-}[]
 
 function History(props) {
   const [answerHistory, setHistory] = useState([]);
@@ -49,7 +44,6 @@ function History(props) {
             return r
           }
         }).filter(i => !!i)
-        console.log('history', history);
         setHistory(history)
       }).catch(err => {
         console.log(err);
