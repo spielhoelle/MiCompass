@@ -48,7 +48,7 @@ function Header({ props }: IProps) {
   const [navbar, toggleNav] = useState(false);
   const [state, stateDispatch] = useGlobalState();
   return (
-    <nav className="navbar navbar-expand-sm navbar-light bg-light fixed-top">
+    <nav className={`navbar navbar-expand-sm fixed-top ${getTheme(props.host) === 1 ? `navbar-dark bg-dark` : `navbar-light bg-warning`}`}>
       <Head>
         <title>MiCompass</title>
         <meta name="viewport" content="initial-scale=1.0, width=device-width" />

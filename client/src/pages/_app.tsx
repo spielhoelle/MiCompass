@@ -15,13 +15,13 @@ function MyApp({ Component, pageProps: { props } }: AppProps) {
 
   return (
     <div className={`${css['theme']} ${css[theme]}`}>
-    <AuthProvider>
-      <GlobalMessagingProvider>
-        <StateProvider>
+      <AuthProvider>
+        <GlobalMessagingProvider>
+          <StateProvider>
             <Component props={props} />
-        </StateProvider>
-      </GlobalMessagingProvider>
-    </AuthProvider>
+          </StateProvider>
+        </GlobalMessagingProvider>
+      </AuthProvider>
     </div>
   );
 }
