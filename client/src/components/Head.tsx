@@ -105,19 +105,22 @@ function Header({ props }: IProps) {
             </li>
             <li className='nav-item'>
               {state.lang && state.lang !== "en" ? (
-                <a href='#' className="nav-link" onClick={(e) => switchLanguage(e, 'en')}>EN</a>
+                <a href='#' className="nav-link" onClick={(e) => switchLanguage(e, 'en')}>
+                  EN
+                  <img className={css.flag} src="/britain-flag-icon-32.jpg" alt="english" width="64" height="64" />
+                </a>
               ) : (
                   <a href='#' className="nav-link" onClick={(e) => switchLanguage(e, 'af')}>
                     {!isAdmin(router.pathname) ?
                       getTheme(props.host) === 1 ? (
                         <>
                           AF
-                          <img className={css.flag} src="/afghanistan-flag-icon-32.png" alt="me" width="64" height="64" />
+                          <img className={css.flag} src="/afghanistan-flag-icon-32.png" alt="afghan" width="64" height="64" />
                         </>
                       ) : (
                         <>
                           UA
-                          <img className={css.flag} src="/ukraine-flag-icon-32.png" alt="me" width="64" height="64" />
+                            <img className={css.flag} src="/ukraine-flag-icon-32.png" alt="ukrain" width="64" height="64" />
                         </>
                       ) : null}
                   </a>
