@@ -1,6 +1,6 @@
 import React, { useContext, useReducer } from 'react';
 
-import { IGlobalStatus, IState } from '../types/global.types';
+import { IGlobalStatus, IState } from '../types/global';
 
 export const StateContext = React.createContext({});
 let lang = 'en'

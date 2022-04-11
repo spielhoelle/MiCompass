@@ -1,6 +1,6 @@
 import React, { useContext, useReducer } from 'react';
 
-import { IGlobalStatus } from '../types/global.types';
+import { IGlobalStatus } from '../types/global';
 
 export const GlobalMessagingContext = React.createContext({});
 

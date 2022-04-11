@@ -38,7 +38,7 @@ class TokenService {
     if (!response.success) {
       const navService = new NavService();
       this.deleteToken();
-      navService.redirectUser('/?l=t', ctx);
+      navService.redirectUser('/', ctx);
     }
   }
 }

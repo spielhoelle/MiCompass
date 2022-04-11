@@ -1,6 +1,6 @@
 import db from '../db/models';
 interface FlowInterface {
-
+//TODO unify dataVolume and _previous
   model: {
     dataValues: {
       id: number,

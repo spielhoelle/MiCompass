@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useReducer } from 'react';
-import { IAction, IAuthInfo } from '../types/global.types';
+import { IAction, IAuthInfo } from '../types/global';
 
 export const AuthStateContext = React.createContext({});
 

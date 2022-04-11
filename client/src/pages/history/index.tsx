@@ -5,7 +5,7 @@ import FetchService from '../../services/Fetch.service';
 import React, { useEffect, useState, useRef } from 'react';
 import PageContent from '../../components/PageContent';
 import { calcResults } from '../../components/helpers';
-import { IAnswer } from '../../types/global.types'
+import { IAnswer } from '../../types/global'
 
 
 function History(props) {
