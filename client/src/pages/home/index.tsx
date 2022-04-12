@@ -25,6 +25,10 @@ const ModalBackdrop = styled.div<{ open: boolean }>`
   left: 0;
   background-color: rgba(0,0,0,0.4);
 `
+const Button = styled.button`
+  white-space: pre-wrap;
+  word-wrap: break-word;
+`
 let currentFlow = 'afghan-refugee-chatbot';
 
 function Home({ props }) {
@@ -170,7 +174,7 @@ function Home({ props }) {
                   </div>
                 </div>
               )}
-              <button className={`btn btn-light mb-3 text-start d-block`} disabled>{state.lang == 'af' ? historyItem.question.extras.questiontranslation : historyItem.question.name}</button >
+              <Button className={`btn btn-light mb-3 text-start d-block`} disabled>{state.lang == 'af' ? historyItem.question.extras.questiontranslation : historyItem.question.name}</Button>
               {historyItem.choosenAnswer.extras.freeanswer && (
                 <>
                   <label htmlFor={historyItem.choosenAnswer.extras.answeridentifier} className="form-label">{state.lang == 'af' ? historyItem.choosenAnswer.extras.answertranslation : historyItem.choosenAnswer.name}</label>
@@ -180,14 +184,14 @@ function Home({ props }) {
               <div className="">
                 {historyItem.answers.map((a: ModelA, i) => (
                   <div key={i}>
-                    <button className={`btn mb-2 btn-sm text-start ${getTheme(props.host) === 1 ? `btn-danger` : `btn-warning`} ${historyItem.choosenAnswer.name === a.name ? `opacity-50` : ` opacity-25`}`} disabled>{historyItem.choosenAnswer.extras.freeanswer ? historyItem.choosenAnswerValue : state.lang == 'af' ? a.extras.answertranslation : a.name}</button>
+                    <Button className={`btn mb-2 btn-sm text-start ${getTheme(props.host) === 1 ? `btn-danger` : `btn-warning`} ${historyItem.choosenAnswer.name === a.name ? `opacity-50` : ` opacity-25`}`} disabled>{historyItem.choosenAnswer.extras.freeanswer ? historyItem.choosenAnswerValue : state.lang == 'af' ? a.extras.answertranslation : a.name}</Button>
                   </div>
                 ))}
               </div>
             </div>
             {!historyItem.choosenAnswer.extras.freeanswer && (
               <div className='offset-md-6 col-md-6 text-end'>
-                <button className={`btn mb-2 btn-sm ${getTheme(props.host) === 1 ? `btn-danger` : `btn-warning`} text-start ${css.nottransparent}`} disabled>{state.lang == 'af' ? historyItem.choosenAnswer.extras.answertranslation : historyItem.choosenAnswer.name}</button>
+                <Button className={`btn mb-2 btn-sm ${getTheme(props.host) === 1 ? `btn-danger` : `btn-warning`} text-start ${css.nottransparent}`} disabled>{state.lang == 'af' ? historyItem.choosenAnswer.extras.answertranslation : historyItem.choosenAnswer.name}</Button>
               </div>
             )}
           </div>
@@ -203,7 +207,7 @@ function Home({ props }) {
                     </div>
                   </div>
                 )}
-                <button className={`btn btn-light mb-3 text-start`} disabled>{state.lang == 'af' ? QAs.question.extras.questiontranslation : QAs.question.name}</button >
+                <Button className={`btn btn-light mb-3 text-start`} disabled>{state.lang == 'af' ? QAs.question.extras.questiontranslation : QAs.question.name}</Button>
                 <div className="">
                   {QAs.answers.map((a, i) => (
                     <div key={i}>
@@ -217,15 +221,15 @@ function Home({ props }) {
                           }}>
                             <label htmlFor={a.extras.answeridentifier} className="form-label">{state.lang == 'af' ? a.extras.answertranslation : a.name}</label>
                             <input required={true} type={a.extras.freeanswer_type ? a.extras.freeanswer_type : "text"} ref={ref => myRef.current[i] = ref} id={a.extras.answeridentifier} name={a.extras.answeridentifier} className={`form-control mb-3`} />
-                            <button type="submit" className={`btn ${getTheme(props.host) === 1 ? `btn-danger` : `btn-warning`} mb-2 btn-sm text-start`} key={i} onClick={e => {
-                            }}>{state.lang == 'af' ? "ښه، دوام ورکړئ" : "Ok, continue..."}</button>
+                            <Button type="submit" className={`btn ${getTheme(props.host) === 1 ? `btn-danger` : `btn-warning`} mb-2 btn-sm text-start`} key={i} onClick={e => {
+                            }}>{state.lang == 'af' ? "ښه، دوام ورکړئ" : "Ok, continue..."}</Button>
                           </form>
                         </>
                       ) : (
-                          <button className={`btn ${getTheme(props.host) === 1 ? `btn-danger` : `btn-warning`} mb-2 btn-sm text-start`} key={i} onClick={e => {
+                          <Button className={`btn ${getTheme(props.host) === 1 ? `btn-danger` : `btn-warning`} mb-2 btn-sm text-start`} key={i} onClick={e => {
                           setCurrentClass(css.dNone)
                           setNextQA(a, a.extras.answeridentifier, a.extras.points, history.length)
-                        }}>{state.lang == 'af' ? a.extras.answertranslation : a.name}</button>
+                          }}>{state.lang == 'af' ? a.extras.answertranslation : a.name}</Button>
                       )}
                     </div>)
                   )}
@@ -238,10 +242,10 @@ function Home({ props }) {
           <>
             <div className={`row`}>
               <div className='col-md-6'>
-                <button type="button" className="btn btn-success" onClick={e => {
+                <Button type="button" className="btn btn-success" onClick={e => {
                   resetQuestions()
                   setgameover(false)
-                }}>Play again!</button>
+                }}>Play again!</Button>
               </div>
             </div>
           </>
@@ -255,21 +259,21 @@ function Home({ props }) {
               <div className="modal-content">
                 <div className="modal-header">
                   <h5 className="modal-title">{modaldata.title}</h5>
-                  <button type="button" className="btn-close" aria-label="Close" onClick={e => {
+                  <Button type="button" className="btn-close" aria-label="Close" onClick={e => {
                     setmodalopen(false)
-                  }}></button>
+                  }}></Button>
                 </div>
                 <div className="modal-body">
                   <p>{modaldata.text}</p>
                 </div>
                 <div className="modal-footer">
-                  <button type="button" className="btn btn-warning" onClick={e => {
+                  <Button type="button" className="btn btn-warning" onClick={e => {
                     setgameover(true)
                     setmodalopen(false)
-                  }}>Close</button>
-                  <button type="button" className={`btn ${getTheme(props.host) === 1 ? `btn-danger` : `btn-warning`}`} onClick={e => {
+                  }}>Close</Button>
+                  <Button type="button" className={`btn ${getTheme(props.host) === 1 ? `btn-danger` : `btn-warning`}`} onClick={e => {
                     resetQuestions()
-                  }}>Play again</button>
+                  }}>Play again</Button>
                 </div>
               </div>
             </div>

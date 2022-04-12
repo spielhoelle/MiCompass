@@ -38,6 +38,8 @@ export const Title = styled.div`
 export const TitleName = styled.div`
 		flex-grow: 1;
 		padding: 5px 5px;
+		white-space: pre-wrap;
+		word-wrap: break-word;
 	`;
 
 export const Ports = styled.div`
@@ -71,7 +73,7 @@ export class CustomNodeWidget extends DefaultNodeWidget {
 				selected={this.props.node.isSelected()}
 				background={this.props.node.getOptions().color}>
 				<Title>
-					<TitleName>{this.props.node.getOptions().name}</TitleName>
+					<TitleName>{`${this.props.node.getOptions().name}`}</TitleName>
 				</Title>
 				{this.props.node.getOptions().extras.image && this.props.node.getOptions().extras.image !== "" && (
 					<Image className="w-100" src={this.props.node.getOptions().extras.image} />

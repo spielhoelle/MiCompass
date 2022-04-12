@@ -561,7 +561,7 @@ function FlowBuilder() {
             <div className="row">
               <div className="col-md-6 col-lg-3">
                 <label htmlFor="addquestion">Add Question</label>
-                <input disabled={disabled === "question"} className="form-control" name="question" type="text" value={form['question']}
+                <textarea disabled={disabled === "question"} className="form-control" name="question" value={form['question']}
                   onChange={(e) => {
                     e.stopPropagation();
                     setForm({ ...form, [e.target.name]: e.target.value })
@@ -569,7 +569,7 @@ function FlowBuilder() {
               </div>
               <div className="col-md-6 col-lg-3">
                 <label htmlFor="addquestiontranslation">AF Questiontranslation</label>
-                <input disabled={disabled === "question"} className="form-control" name="questiontranslation" type="text" value={form['questiontranslation']}
+                <textarea disabled={disabled === "question"} className="form-control" name="questiontranslation" value={form['questiontranslation']}
                   onChange={(e) => {
                     e.stopPropagation();
                     setForm({ ...form, [e.target.name]: e.target.value })
@@ -598,7 +598,7 @@ function FlowBuilder() {
                         const img = await file2Base64(imageElement.files[0])
                         const compressed = await resizeImage(img)
                         setForm({ ...form, [imageElement.name]: compressed })
-                      }} data-type="image" data-color={questioncolor} style={{ borderColor: questioncolor, borderStyle: "solid" }} id="addimage" required />
+                      }} data-type="image" data-color={questioncolor} style={{ borderColor: questioncolor, borderStyle: "solid" }} id="addimage" />
                     <StyledImage className="" src={form['image']} />
                   </div>
                   <input id="addimageselector" className="form-control d-none" type='text' value={form['image']} />
@@ -612,16 +612,16 @@ function FlowBuilder() {
             <div className=" row">
               <div className="col-md-6 col-lg-3">
                 <label htmlFor="addanswer">Add Answer</label>
-                <input disabled={disabled === "answer"} className="form-control w-99" name="answer" value={form['answer']}
+                <textarea disabled={disabled === "answer"} className="form-control w-99" name="answer" value={form['answer']}
                   onChange={(e) => {
                     e.stopPropagation();
                     setForm({ ...form, [e.target.name]: e.target.value })
-                  }} type="text" data-type="answer" data-color="rgb(256, 204, 1)" style={{ borderColor: "rgb(255, 204, 1)", borderStyle: "solid" }} id="addanswer" />
+                  }} data-type="answer" data-color="rgb(256, 204, 1)" style={{ borderColor: "rgb(255, 204, 1)", borderStyle: "solid" }} id="addanswer" />
               </div>
               <div className="col-md-6 col-lg-3">
                 <div>
                   <label htmlFor="answertranslation">Answertranslation</label>
-                  <input disabled={disabled === "answer"} className="form-control w-99" name="answertranslation" type="text" value={form['answertranslation']}
+                  <textarea disabled={disabled === "answer"} className="form-control w-99" name="answertranslation" value={form['answertranslation']}
                     onChange={(e) => {
                       e.stopPropagation();
                       setForm({ ...form, [e.target.name]: e.target.value })
