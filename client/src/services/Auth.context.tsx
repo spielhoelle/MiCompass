@@ -1,14 +1,9 @@
 import React, { useContext, useEffect, useReducer } from 'react';
-import { IAction, IAuthInfo } from '../types/global';
+import { IAction, IAuthInfo, ActionType } from '../types/global';
 
 export const AuthStateContext = React.createContext({});
 
 const initialState: IAuthInfo = { email: '' };
-
-enum ActionType {
-	SetDetails = 'setAuthDetails',
-	RemoveDetails = 'removeAuthDetails'
-}
 
 
 const reducer: React.Reducer<{}, IAction> = (state, action) => {

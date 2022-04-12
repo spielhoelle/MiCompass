@@ -13,7 +13,7 @@ import TokenService from '../../services/Token.service';
 
 import styled from '@emotion/styled';
 import { useGlobalState } from '../../services/State.context';
-import { Answer, ModelA, ModelQ, QA } from '../../types/global';
+import { Answer, ModelA, ModelQ, QA, History } from '../../types/global';
 
 const ModalBackdrop = styled.div<{ open: boolean }>`
   opacity: ${(props) => !props.open ? 0 : 1};

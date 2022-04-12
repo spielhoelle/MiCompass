@@ -7,7 +7,7 @@ import * as React from 'react';
 import TokenService from '../../services/Token.service';
 
 import PageContent from '../../components/PageContent';
-const FlowBuilder = dynamic(
+const FlowBuilder: any = dynamic(
   () => import('../../components/FlowBuilder'),
   { ssr: false }
 )

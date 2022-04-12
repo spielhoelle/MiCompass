@@ -9,7 +9,7 @@ WORKDIR /home/app/client
 
 COPY . .
 
-RUN npm install nextjs -g
+RUN npm install next -g
 # Build the project and copy the files
 RUN npm run build
 

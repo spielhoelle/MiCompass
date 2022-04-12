@@ -1,5 +1,9 @@
 import { NextPageContext } from 'next';
 
+export enum ActionType {
+	SetDetails = 'setAuthDetails',
+	RemoveDetails = 'removeAuthDetails'
+}
 export interface IGlobalStatus {
   message: string;
 }

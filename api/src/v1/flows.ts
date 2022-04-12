@@ -1,7 +1,6 @@
-import { Router } from 'express';
+import { Router,  Request, Response } from 'express';
 import { Flow } from '../services/Flow';
 const router = Router();
-import { Request, Response } from 'express';
 import * as errors from '../helpers/error';
 import { verifyToken } from '../middleware/auth';
 

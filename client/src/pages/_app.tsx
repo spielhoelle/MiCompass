@@ -11,7 +11,7 @@ import { getTheme, isAdmin } from '../components/helpers';
 import './global.scss';
 import css from './theme.module.scss';
 
-function MyApp({ Component, pageProps: { props } }: AppProps) {
+function MyApp({ Component, pageProps: { props } }: any, AppProps) {
   const theme = props && getTheme(props.host) === 1 ? 'afghan' : 'ukrain'
   const router = useRouter()
 
