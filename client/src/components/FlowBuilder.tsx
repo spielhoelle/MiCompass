@@ -585,24 +585,24 @@ function FlowBuilder() {
                         setForm({ ...form, [e.target.name]: e.target.value })
                       }} data-type="questionidentifier" data-color={questioncolor} style={{ borderColor: questioncolor, borderStyle: "solid" }} id="addquestionidentifier" required />
                   </div>
-                  <div className="flex-grow-1">
-                    <label htmlFor="addimage">Image</label>
-                    <div className='d-flex'>
-                      <input disabled={disabled === "question"} className="form-control" name="image" type="file"
-                        onChange={async (e) => {
-                          e.stopPropagation();
-                          const imageElement = e.target
-                          const img = await file2Base64(imageElement.files[0])
-                          const compressed = await resizeImage(img)
-                          setForm({ ...form, [imageElement.name]: compressed })
-                        }} data-type="image" data-color={questioncolor} style={{ borderColor: questioncolor, borderStyle: "solid" }} id="addimage" required />
-                      <StyledImage className="" src={form['image']} />
-                    </div>
-                    <input id="addimageselector" className="form-control d-none" type='text' value={form['image']} />
-                  </div>
                 </div>
               </div>
               <div className="col-md-6 col-lg-3 align-items-end d-flex justify-content0-end">
+                <div className="flex-grow-1">
+                  <label htmlFor="addimage">Image</label>
+                  <div className='d-flex'>
+                    <input disabled={disabled === "question"} className="form-control" name="image" type="file"
+                      onChange={async (e) => {
+                        e.stopPropagation();
+                        const imageElement = e.target
+                        const img = await file2Base64(imageElement.files[0])
+                        const compressed = await resizeImage(img)
+                        setForm({ ...form, [imageElement.name]: compressed })
+                      }} data-type="image" data-color={questioncolor} style={{ borderColor: questioncolor, borderStyle: "solid" }} id="addimage" required />
+                    <StyledImage className="" src={form['image']} />
+                  </div>
+                  <input id="addimageselector" className="form-control d-none" type='text' value={form['image']} />
+                </div>
                 <button className="btn btn-primary ml-1" type="submit">{button}</button>
               </div>
             </div>
@@ -640,63 +640,57 @@ function FlowBuilder() {
                   </div>
                 </div>
               </div>
-              <div className="col-md-3 col-lg-1">
-                <div className='flex-grow-1'>
-                  <div>
-                    <label htmlFor="points">Points</label>
-                    <input disabled={disabled === "answer"} className="form-control " name="points" type="number" value={form['points']}
-                      onChange={(e) => {
-                        e.stopPropagation();
-                        setForm({ ...form, [e.target.name]: Number(e.target.value) })
-                      }} data-type="points" data-color={questioncolor} style={{ borderColor: "rgb(255, 204, 1)", borderStyle: "solid" }} id="points" required />
-                  </div>
+              <div className="col-md-6 col-lg-3 d-flex">
+                <div>
+                  <label htmlFor="points">Points</label>
+                  <input disabled={disabled === "answer"} className="form-control " name="points" type="number" value={form['points']}
+                    onChange={(e) => {
+                      e.stopPropagation();
+                      setForm({ ...form, [e.target.name]: Number(e.target.value) })
+                    }} data-type="points" data-color={questioncolor} style={{ borderColor: "rgb(255, 204, 1)", borderStyle: "solid" }} id="points" required />
                 </div>
-              </div>
-              <div className="col-md-4 col-lg-2 d-flex flex-column">
-                <div className="flex-grow-1 d-flex align-items-end">
-                  <div className="w-100">
-                    <label htmlFor="type">Type</label>
-                    <select
-                      disabled={disabled === "answer" || form['freeanswer'] !== true}
-                      id="type"
-                      className={`w-100 mr-2 form-control`}
-                      value={form['freeanswer_type']}
-                      onChange={e => {
-                        setForm({ ...form, freeanswer_type: e.target.selectedOptions[0].value, dropdown: false, freeanswer: true })
-                      }}>
-                      <option disabled>select type</option>
-                      {["text", "email", "number", "tel", "textarea", "hidden"].map((f, i) => (
-                        <option key={i} value={f}>{f}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div className="btn-group" role="group" aria-label="Basic example">
+                <div className="w-100">
+                  <label htmlFor="type">Type</label>
+                  <select
+                    disabled={disabled === "answer" || form['freeanswer'] !== true}
+                    id="type"
+                    className={`w-100 mr-2 form-control`}
+                    value={form['freeanswer_type']}
+                    onChange={e => {
+                      setForm({ ...form, freeanswer_type: e.target.selectedOptions[0].value, dropdown: false, freeanswer: true })
+                    }}>
+                    <option disabled>select type</option>
+                    {["text", "email", "number", "tel", "textarea", "hidden"].map((f, i) => (
+                      <option key={i} value={f}>{f}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="btn-group" role="group" aria-label="Basic example">
 
-                    <input
-                      checked={form['pointanswer']}
-                      name='pointanswer'
-                      type="checkbox" className="btn-check"
-                      onChange={(e) => {
-                        e.stopPropagation();
-                        setForm({ ...form, [e.target.name]: e.target.checked, freeanswer: false, dropdown: false })
-                      }}
-                      style={{ borderColor: "rgb(255, 204, 1)", borderStyle: "solid" }}
-                      id="pointanswer" />
-                    <label className="btn btn-primary" htmlFor="pointanswer">Has Points</label>
-                    <input
-                      checked={form['freeanswer']}
-                      name='freeanswer'
-                      type="checkbox" className="btn-check"
-                      onChange={(e) => {
-                        e.stopPropagation();
-                        setForm({ ...form, [e.target.name]: e.target.checked, pointanswer: false, dropdown: false })
-                      }}
-                      style={{ borderColor: "rgb(255, 204, 1)", borderStyle: "solid" }}
-                      id="freeanswer" />
-                    <label className="btn btn-primary" htmlFor="freeanswer">Free answer</label>
-                    {/* <a title="If checked you can split by a ':' between the fieldlabel and the placeholder. Eg: fieldlabel:placeholder or Phone:+490987654321" className="btn btn-secondary badge ml-2" type="button"> ? </a> */}
-                    <button className="btn btn-primary ml-1" type="submit">{button}</button>
-                  </div>
+                  <input
+                    checked={form['pointanswer']}
+                    name='pointanswer'
+                    type="checkbox" className="btn-check"
+                    onChange={(e) => {
+                      e.stopPropagation();
+                      setForm({ ...form, [e.target.name]: e.target.checked, freeanswer: false, dropdown: false })
+                    }}
+                    style={{ borderColor: "rgb(255, 204, 1)", borderStyle: "solid" }}
+                    id="pointanswer" />
+                  <label className="btn btn-primary" htmlFor="pointanswer">Has Points</label>
+                  <input
+                    checked={form['freeanswer']}
+                    name='freeanswer'
+                    type="checkbox" className="btn-check"
+                    onChange={(e) => {
+                      e.stopPropagation();
+                      setForm({ ...form, [e.target.name]: e.target.checked, pointanswer: false, dropdown: false })
+                    }}
+                    style={{ borderColor: "rgb(255, 204, 1)", borderStyle: "solid" }}
+                    id="freeanswer" />
+                  <label className="btn btn-primary" htmlFor="freeanswer">Free answer</label>
+                  {/* <a title="If checked you can split by a ':' between the fieldlabel and the placeholder. Eg: fieldlabel:placeholder or Phone:+490987654321" className="btn btn-secondary badge ml-2" type="button"> ? </a> */}
+                  <button className="btn btn-primary ml-1" type="submit">{button}</button>
                 </div>
               </div>
             </div>
