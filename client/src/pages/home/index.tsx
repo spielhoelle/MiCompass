@@ -164,7 +164,11 @@ function Home({ props }) {
           <div className='row' key={index} >
             <div className='col-md-6'>
               {historyItem.question.extras.image && (
-                <img className="rounded-3 mb-3 w-100" src={historyItem.question.extras.image} alt={historyItem.question.name} />
+                <div className='row'>
+                  <div className='col-md-6'>
+                    <img className="rounded-3 mb-3 w-100" src={historyItem.question.extras.image} alt={historyItem.question.name} />
+                  </div>
+                </div>
               )}
               <button className={`btn btn-light mb-3 text-start d-block`} disabled>{state.lang == 'af' ? historyItem.question.extras.questiontranslation : historyItem.question.name}</button >
               {historyItem.choosenAnswer.extras.freeanswer && (
@@ -176,7 +180,7 @@ function Home({ props }) {
               <div className="">
                 {historyItem.answers.map((a: ModelA, i) => (
                   <div key={i}>
-                    <button className={`btn mb-2 btn-sm text-start ${historyItem.choosenAnswer.name === a.name ? `${getTheme(props.host) === 1 ? `btn-danger` : `btn-warning`} opacity-50` : `btn-warning opacity-50`}`} disabled>{historyItem.choosenAnswer.extras.freeanswer ? historyItem.choosenAnswerValue : state.lang == 'af' ? a.extras.answertranslation : a.name}</button>
+                    <button className={`btn mb-2 btn-sm text-start ${getTheme(props.host) === 1 ? `btn-danger` : `btn-warning`} ${historyItem.choosenAnswer.name === a.name ? `opacity-50` : ` opacity-25`}`} disabled>{historyItem.choosenAnswer.extras.freeanswer ? historyItem.choosenAnswerValue : state.lang == 'af' ? a.extras.answertranslation : a.name}</button>
                   </div>
                 ))}
               </div>
@@ -193,7 +197,11 @@ function Home({ props }) {
             <div className='col-md-6'>
               <div className={`${css.animatedformfield} ${currentClass} `}>
                 {QAs.question.extras.image && (
-                  <img className="rounded-3 mb-3 w-100" src={QAs.question.extras.image} alt={QAs.question.name} />
+                  <div className='row'>
+                    <div className='col-6'>
+                      <img className="rounded-3 mb-3 w-100" src={QAs.question.extras.image} alt={QAs.question.name} />
+                    </div>
+                  </div>
                 )}
                 <button className={`btn btn-light mb-3 text-start`} disabled>{state.lang == 'af' ? QAs.question.extras.questiontranslation : QAs.question.name}</button >
                 <div className="">

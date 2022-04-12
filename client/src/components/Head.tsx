@@ -51,10 +51,11 @@ function Header({ props }: IProps) {
   const [navbar, toggleNav] = useState(false);
   const router = useRouter()
   const [state, stateDispatch] = useGlobalState();
+  const sitetitle = getTheme(props.host) === 1 ? "MiCompass" : "HandbookUkraine" 
   return (
     <nav className={`navbar navbar-expand-sm fixed-top ${isAdmin(router.pathname) ? `navbar-dark bg-dark` : isAdmin(router.pathname) || getTheme(props.host) === 1 ? `navbar-dark bg-dark` : `navbar-light bg-warning`}`}>
       <Head>
-        <title>MiCompass</title>
+        <title>{sitetitle}</title>
         <meta name="viewport" content="initial-scale=1.0, width=device-width" />
         <link rel="shortcut icon" href="/favicon.ico" />
       </Head>
@@ -66,7 +67,7 @@ function Header({ props }: IProps) {
       <div className="container-fluid">
         <Link href="/">
           <a className="navbar-brand">
-            MiCompass
+            {sitetitle}
           </a>
         </Link>
         <div className={`collapse navbar-collapse collapse ${navbar ? `show` : ``}`} id="navbarSupportedContent">
