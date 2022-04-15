@@ -2,8 +2,10 @@ import db from '../db/models';
 
 class Answer {
   public data: string;
+  public flow: string;
 
-  constructor(data: string | null) {
+  constructor(flow: string, data: string | null) {
+    this.flow = flow;
     if (data) {
       this.data = data;
     }
@@ -11,6 +13,7 @@ class Answer {
 
   saveAnswer() {
     return db.answers.create({
+      flow: this.flow,
       data: this.data
     });
   }

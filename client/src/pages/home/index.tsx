@@ -117,7 +117,7 @@ function Home({ props }) {
       setmodaldata(calcResults(finalFormPayload))
       FetchService.isofetch(
         '/answers/save',
-        finalFormPayload,
+        { flow: currentFlow, data: finalFormPayload },
         'POST'
       ).then((res: any) => {
         localStorage.removeItem('answers')

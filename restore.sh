@@ -1,19 +1,11 @@
+# psql -U user flowbuilder
 echo "################# Upload dump to server #################"
 dumpfile=$(ls | grep ".sql" | tail -n 1)
-
-
-
-
 
 # # Restore local docker DB
 # docker cp $dumpfile flowbuilder-db:/
 # docker exec flowbuilder-db /bin/bash -c "dumpfile=$(ls / | grep ".sql" | tail -n 1)"
 # docker exec flowbuilder-db /bin/bash -c "psql -v -U user -d flowbuilder < /$dumpfile"
-
-
-
-
-
 
 # Restore remote docker DB
 scp -rp $dumpfile $rh:/

@@ -7,14 +7,14 @@ const router = Router();
 // import * as errors from '../helpers/error';
 
 router.post('/save', async (req, res) => {
-  const answer = new Answer(req.body)
+  const answer = new Answer(req.body.flow, req.body.data)
   await answer.saveAnswer()
   res.send({
     success: true
   });
 });
 router.get('/get', verifyToken(), async (req, res) => {
-  const answer = new Answer(null)
+  const answer = new Answer("newAnswer", null)
   const allAnswers = await answer.getAnswers()
   if (allAnswers[0]) {
     return res.send({

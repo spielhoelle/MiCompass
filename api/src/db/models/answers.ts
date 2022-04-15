@@ -2,6 +2,7 @@ module.exports = (sequelize: any, DataTypes: any) => {
   const answers = sequelize.define(
     'answers',
     {
+      flow: DataTypes.STRING,
       data: DataTypes.JSONB
     },
     {}

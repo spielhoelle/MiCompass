@@ -44,7 +44,7 @@ function History(props) {
             return r
           }
         }).filter(i => !!i)
-        setHistory(history)
+        setHistory(history.reverse())
       }).catch(err => {
         console.log(err);
       })
@@ -54,10 +54,11 @@ function History(props) {
       <h3>Overview</h3>
       {Object.keys(answerOverview).map((item, index) => (
         <div className='mb-4'>
-          <h4>{item.slice(0, 100)}</h4>
+          <h5>{item.slice(0, 100)}</h5>
+          Answers:
           {answerOverview[item].map((item2, index) => (
             <div>
-              {item2.answer}: {item2.answered}
+              {item2.answer}: <span className='badge bg-primary me-2'>{item2.answered} people </span>
             </div>
           ))}
           {Object.keys(answerOverview).length !== index - 1 && <hr />}
