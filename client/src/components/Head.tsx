@@ -105,6 +105,11 @@ function Header({ props }: IProps) {
               </Link>
             </li>
             <li className='nav-item'>
+              <Link href="/contact">
+                <a className="nav-link">Contact</a>
+              </Link>
+            </li>
+            <li className='nav-item'>
               {state.lang && state.lang !== "en" ? (
                 <a href='#' className="nav-link" onClick={(e) => switchLanguage(e, 'en')}>
                   EN

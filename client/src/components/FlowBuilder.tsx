@@ -559,7 +559,7 @@ function FlowBuilder() {
               </div>
             </div>
             <div className="row">
-              <div className="col-md-6 col-lg-3">
+              <div className="col-md-6 col-lg-2">
                 <label htmlFor="addquestion">Add Question</label>
                 <textarea disabled={disabled === "question"} className="form-control" name="question" value={form['question']}
                   onChange={(e) => {
@@ -587,7 +587,7 @@ function FlowBuilder() {
                   </div>
                 </div>
               </div>
-              <div className="col-md-6 col-lg-3 align-items-end d-flex justify-content0-end">
+              <div className="col-md-6 col-lg-4 align-items-end d-flex justify-content0-end">
                 <div className="flex-grow-1">
                   <label htmlFor="addimage">Image</label>
                   <div className='d-flex'>
@@ -610,7 +610,7 @@ function FlowBuilder() {
 
           <form className="" onSubmit={addAnswer}>
             <div className=" row">
-              <div className="col-md-6 col-lg-3">
+              <div className="col-md-6 col-lg-2">
                 <label htmlFor="addanswer">Add Answer</label>
                 <textarea disabled={disabled === "answer"} className="form-control w-99" name="answer" value={form['answer']}
                   onChange={(e) => {
@@ -640,7 +640,7 @@ function FlowBuilder() {
                   </div>
                 </div>
               </div>
-              <div className="col-md-6 col-lg-3 d-flex">
+              <div className="col-md-6 col-lg-4 d-flex">
                 <div>
                   <label htmlFor="points">Points</label>
                   <input disabled={disabled === "answer"} className="form-control " name="points" type="number" value={form['points']}
