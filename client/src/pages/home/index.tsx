@@ -105,12 +105,19 @@ function Home({ props }) {
 
 
   const setNextQA = (answer, value, points, index) => {
+    if (answer.extras.dropdown) {
+      if (state.lang === 'af') {
+        value = answer.name.split(":").reverse()[0].trim().split(",")[answer.extras.answertranslation.split(":").reverse()[0].trim().split(",").findIndex(i => i.trim() === value.trim())]
+      } else {
+        value = answer.name.split(":").reverse()[0].trim().split(",").find(i => i.trim() === value.trim())
+      }
+    }
     setHistory([...history, { question: QAs.question, answers: QAs.answers, choosenAnswer: answer, choosenAnswerValue: value }])
 
     const form_payload: Answer = { question: QAs.question.name, answer: value, points: answer.extras.pointanswer ? points : -1, index: index };
     var _paq = (window as any)._paq = (window as any)._paq || [];
     _paq.push(['trackEvent', 'Contact', 'Email Link Click', 'name@example.com']);
-    const nextQuestions = getNextQuestion()
+    const nextQuestions = getNextQuestion(answer)
     if (!nextQuestions) {
       setQAs(undefined)
       const finalFormPayload = [...JSON.parse(localStorage.getItem('answers')), form_payload]
@@ -149,10 +156,10 @@ function Home({ props }) {
     }
   }
   const myRef = useRef([]);
-  const getNextQuestion = () => {
+  const getNextQuestion = (answer) => {
     if (model && QAs) {
       var nextQuestions = Object.values(model.layers[1].models).find((n: any) => {
-        return n.ports[0].links.includes(QAs.answers[0].ports[1].links[0])
+        return n.ports[0].links.includes(answer.ports[1].links[0])
       });
       return nextQuestions
     } else {
@@ -177,21 +184,50 @@ function Home({ props }) {
               <Button className={`btn btn-light mb-3 text-start d-block`} disabled>{state.lang == 'af' ? historyItem.question.extras.questiontranslation : historyItem.question.name}</Button>
               {historyItem.choosenAnswer.extras.freeanswer && (
                 <>
-                  <label htmlFor={historyItem.choosenAnswer.extras.answeridentifier} className="form-label">{state.lang == 'af' ? historyItem.choosenAnswer.extras.answertranslation : historyItem.choosenAnswer.name}</label>
+                  <label htmlFor={historyItem.choosenAnswer.extras.answeridentifier} className="form-label">{
+                    state.lang == 'af' ?
+                      historyItem.choosenAnswer.extras.dropdown ?
+                        historyItem.choosenAnswerValue
+                        : historyItem.choosenAnswer.extras.answertranslation
+                      :
+                      historyItem.choosenAnswer.extras.dropdown ?
+                        historyItem.choosenAnswerValue
+                        : historyItem.choosenAnswer.name
+                  }</label>
                   <input value={historyItem.choosenAnswerValue} disabled className={`form-control mb-3`} />
                 </>
               )}
               <div className="">
                 {historyItem.answers.map((a: ModelA, i) => (
                   <div key={i}>
-                    <Button className={`btn mb-2 btn-sm text-start ${getTheme(props.host) === 1 ? `btn-danger` : `btn-warning`} ${historyItem.choosenAnswer.name === a.name ? `opacity-50` : ` opacity-25`}`} disabled>{historyItem.choosenAnswer.extras.freeanswer ? historyItem.choosenAnswerValue : state.lang == 'af' ? a.extras.answertranslation : a.name}</Button>
+                    <Button className={`btn mb-2 btn-sm text-start ${getTheme(props.host) === 1 ? `btn-danger` : `btn-warning`} ${historyItem.choosenAnswer.name === a.name ? `opacity-50` : ` opacity-25`}`} disabled>
+                      {state.lang === 'af' ?
+                        historyItem.choosenAnswer.extras.dropdown ?
+                          historyItem.choosenAnswer.extras.answertranslation.split(":").reverse()[0].trim().split(",")[historyItem.choosenAnswer.name.split(":").reverse()[0].trim().split(",").findIndex(i => i.trim() === historyItem.choosenAnswerValue)]
+                          : historyItem.choosenAnswer.extras.answertranslation
+                        :
+                        historyItem.choosenAnswer.extras.dropdown ?
+                          historyItem.choosenAnswerValue
+                          : historyItem.choosenAnswer.name
+                      }
+                    </Button>
                   </div>
                 ))}
               </div>
             </div>
             {!historyItem.choosenAnswer.extras.freeanswer && (
               <div className='offset-md-6 col-md-6 text-end'>
-                <Button className={`btn mb-2 btn-sm ${getTheme(props.host) === 1 ? `btn-danger` : `btn-warning`} text-start ${css.nottransparent}`} disabled>{state.lang == 'af' ? historyItem.choosenAnswer.extras.answertranslation : historyItem.choosenAnswer.name}</Button>
+                <Button className={`btn mb-2 btn-sm ${getTheme(props.host) === 1 ? `btn-danger` : `btn-warning`} text-start ${css.nottransparent}`} disabled>
+                  {state.lang == 'af' ?
+                    historyItem.choosenAnswer.extras.dropdown ?
+                      historyItem.choosenAnswer.extras.answertranslation.split(":").reverse()[0].trim().split(",")[historyItem.choosenAnswer.name.split(":").reverse()[0].trim().split(",").findIndex(i => i.trim() === historyItem.choosenAnswerValue)]
+                      : historyItem.choosenAnswer.extras.answertranslation
+                    :
+                    historyItem.choosenAnswer.extras.dropdown ?
+                      historyItem.choosenAnswerValue
+                      : historyItem.choosenAnswer.name
+                  }</Button>
+
               </div>
             )}
           </div>
@@ -211,7 +247,7 @@ function Home({ props }) {
                 <div className="">
                   {QAs.answers.map((a, i) => (
                     <div key={i}>
-                      {a.extras.freeanswer ? (
+                      {a.extras.freeanswer || a.extras.dropdown ? (
                         <>
                           <form onSubmit={e => {
                             e.preventDefault()
@@ -219,8 +255,40 @@ function Home({ props }) {
                             setNextQA(a, myRef.current[i].value, a.extras.points, history.length)
 
                           }}>
-                            <label htmlFor={a.extras.answeridentifier} className="form-label">{state.lang == 'af' ? a.extras.answertranslation : a.name}</label>
-                            <input required={true} type={a.extras.freeanswer_type ? a.extras.freeanswer_type : "text"} ref={ref => myRef.current[i] = ref} id={a.extras.answeridentifier} name={a.extras.answeridentifier} className={`form-control mb-3`} />
+
+                            {a.extras.dropdown ? (
+                              <>
+                                <label htmlFor={`dropdown_${a.extras.answeridentifier}`}>
+                                  {state.lang === 'af' && a.extras.answertranslation ? a.extras.answertranslation.split(":")[0] : a.name.split(":")[0]}
+                                </label>
+                                <select
+                                  id={`dropdown_${a.extras.answeridentifier}`}
+                                  name={a.extras.answeridentifier}
+                                  className="form-select mb-5 dynamicinput dropdown"
+                                  ref={ref => myRef.current[i] = ref}
+                                  required>
+                                  <option
+                                    className="form-control mb-4" data-type="question" placeholder={state.lang === 'af' ? `...غوره کړه` : state.lang === 'ua' ? 'Виберіть...' : `Select...`} value="" disabled selected>
+                                    {state.lang === 'af' ? "...غوره کړه" : state.lang === 'ua' ? 'Виберіть...' : "Select..."}
+                                  </option>
+
+                                  {(state.lang === 'af' && a.extras.answertranslation ? a.extras.answertranslation : a.name).split(":").reverse()[0].split(',').map(dropdownItem => (
+                                    <option className="form-control mb-4"
+                                      data-type="question"
+                                      value={dropdownItem.replace(/\(.*\)/, '').trim()}
+                                      placeholder={a.extras.answeridentifier}
+                                    >
+                                      {dropdownItem.replace(/.*\((.*)\)/, '$1')}
+                                    </option>
+                                  ))}
+                                </select>
+                              </>
+                            ) : a.extras.freeanswer ? (
+                              <>
+                                  <label htmlFor={a.extras.answeridentifier} className="form-label">{state.lang == 'af' ? a.extras.answertranslation : a.name}</label>
+                                  <input required={true} type={a.extras.freeanswer_type ? a.extras.freeanswer_type : "text"} ref={ref => myRef.current[i] = ref} id={a.extras.answeridentifier} name={a.extras.answeridentifier} className={`form-control mb-3`} />
+                              </>
+                            ) : null}
                             <Button type="submit" className={`btn ${getTheme(props.host) === 1 ? `btn-danger` : `btn-warning`} mb-2 btn-sm text-start`} key={i} onClick={e => {
                             }}>{state.lang == 'af' ? "ښه، دوام ورکړئ" : "Ok, continue..."}</Button>
                           </form>

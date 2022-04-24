@@ -1,7 +1,7 @@
 import { PortModelAlignment } from '@projectstorm/react-diagrams';
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import createEngine, { DiagramModel } from '@projectstorm/react-diagrams';
-import { CanvasWidget, DeleteItemsAction, DeserializeEvent } from '@projectstorm/react-canvas-core';
+import { CanvasWidget, DeleteItemsAction, DeserializeEvent, BaseModel } from '@projectstorm/react-canvas-core';
 import styled from '@emotion/styled';
 import { CustomNodeModel } from './CustomNode/CustomNodeModel';
 import { CustomNodeFactory } from './CustomNode/CustomNodeFactory';
@@ -88,6 +88,7 @@ const StyledImage = styled.img`
  `
 const colorPointanswer = "rgb(255, 144, 0)"
 const colorFreeanswer = "rgb(182, 133, 1)"
+const colorDropdown = "rgb(144, 133, 1)"
 const colorAnswer = "rgb(255, 204, 1)"
 const colorError = "rgb(255,0,0)"
 const questioncolor = "rgb(0, 128, 129)"
@@ -255,11 +256,11 @@ function FlowBuilder() {
       node.getOptions().extras.answertranslation = form['answertranslation']
       node.getOptions().extras.points = form['points']
       node.getOptions().extras.freeanswer_type = form['freeanswer_type']
-      node.getOptions().color = !!e.target.elements.freeanswer && !!e.target.elements.freeanswer.checked ? colorFreeanswer : !!e.target.elements.pointanswer.checked ? colorPointanswer : e.target.elements.answer.dataset.color
+      node.getOptions().color = !!e.target.elements.freeanswer && !!e.target.elements.freeanswer.checked ? colorFreeanswer : !!e.target.elements.pointanswer.checked ? colorPointanswer : !!e.target.elements.dropdown.checked ? colorDropdown : e.target.elements.answer.dataset.color
     } else {
       node = new CustomNodeModel({
         name: e.target.elements.answer.value,
-        color: !!e.target.elements.freeanswer && !!e.target.elements.freeanswer.checked ? colorFreeanswer : !!e.target.elements.pointanswer.checked ? colorPointanswer : e.target.elements.answer.dataset.color,
+        color: !!e.target.elements.freeanswer.checked ? colorFreeanswer : !!e.target.elements.pointanswer.checked ? colorPointanswer : !!e.target.elements.dropdown.checked ? colorDropdown : e.target.elements.answer.dataset.color,
         extras: {
           customType: e.target.elements.answer.dataset.type,
           freeanswer: !!e.target.elements.freeanswer && !!e.target.elements.freeanswer.checked,
@@ -305,6 +306,8 @@ function FlowBuilder() {
           color = colorFreeanswer
         } else if (a.getOptions().extras.pointanswer) {
           color = colorPointanswer
+        } else if (a.getOptions().extras.dropdown) {
+          color = colorDropdown
         }
         (a.getOptions() as any).color = color
       }
@@ -372,14 +375,28 @@ function FlowBuilder() {
   const cloneSelected = () => {
     setloading(true)
     let itemMap = {};
-    model.getSelectedEntities().filter(m => m.getOptions().type === "custom_question_node").map(item => {
-      let newItem = item.clone(itemMap)
-      model.addNode(newItem)
-      newItem.setPosition(newItem.getX() + 20, newItem.getY() + 20)
-      engine.setModel(model);
-      item.setSelected(!1)
-      setloading(false)
-    })
+    let localModel = engine.getModel()
+    localModel.getSelectedEntities()
+      // .filter(m => m.getOptions().type === "custom_question_node")
+      .map(item => {
+        let newItem = item.clone(itemMap)
+        if (newItem.options.type === "custom_question_node") {
+          newItem.setPosition(newItem.getX() + 20, newItem.getY() + 20)
+          localModel.addNode(newItem)
+        }
+        else if (newItem.options.type === 'default') {
+          //TODO cloning many links is lagyy and increases time per iteration
+          newItem.getPoints().map((p) => {
+            p.setPosition(p.getX() + 20, p.getY() + 20);
+          });
+          localModel.addLink(newItem)
+        }
+        engine.setModel(localModel);
+        engine.setModel(localModel);
+        item.setSelected(!1);
+        (newItem as BaseModel).setSelected(true);
+      })
+    setloading(false)
   }
 
   engine.getActionEventBus().registerAction(new DeleteItemsAction({ keyCodes: [8], modifiers: { shiftKey: true } }));
@@ -690,23 +707,22 @@ function FlowBuilder() {
                     id="freeanswer" />
                   <label className="btn btn-primary" htmlFor="freeanswer">Free answer</label>
                   {/* <a title="If checked you can split by a ':' between the fieldlabel and the placeholder. Eg: fieldlabel:placeholder or Phone:+490987654321" className="btn btn-secondary badge ml-2" type="button"> ? </a> */}
+                <input
+                  checked={form['dropdown']}
+                  name='dropdown'
+                    type="checkbox" className="btn-check"
+                  onChange={(e) => {
+                    e.stopPropagation();
+                    setForm({ ...form, [e.target.name]: e.target.checked, freeanswer: false })
+                  }} style={{ borderColor: "rgb(255, 204, 1)", borderStyle: "solid" }} id="dropdown" />
+                  <label className="btn btn-primary" htmlFor="dropdown">Dropdown</label>
                   <button className="btn btn-primary ml-1" type="submit">{button}</button>
                 </div>
               </div>
             </div>
             <div className="d-flex w-100 mt-2">
-              {/* <div className="form-group form-check d-flex align-items-center mr-3 mb-3">
-                <input
-                  checked={form['dropdown']}
-                  name='dropdown'
-                  type="checkbox" className="form-check-input"
-                  onChange={(e) => {
-                    e.stopPropagation();
-                    setForm({ ...form, [e.target.name]: e.target.checked, freeanswer: false })
-                  }} style={{ borderColor: "rgb(255, 204, 1)", borderStyle: "solid" }} id="dropdown" />
-                <label className="form-check-label" htmlFor="dropdown">Is dropdown</label>
-                <button className="btn btn-secondary badge ml-2" type="button" data-container="body" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="If checked, the name field gets more complex. Use a label followed by semicolon and then a comma seperated list to define the dropdown and its items. You can provide a optional dropdown label also with putting it in ().Eg: 'Whats your language level: A1(Beginner), A2, B1, B2(Mother tongue)' - or: 'State: Berlin(Haupstadt), Bayern'." data-original-title="" title=""> ? </button>
-              </div> */}
+              <div className="form-group form-check d-flex align-items-center mr-3 mb-3">
+              </div>
             </div>
           </form>
 

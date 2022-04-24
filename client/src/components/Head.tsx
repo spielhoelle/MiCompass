@@ -18,7 +18,6 @@ interface IProps {
 }
 
 function Header({ props }: IProps) {
-  console.log('props', props);
   useEffect(() => {
     var _paq = (window as any)._paq = (window as any)._paq || [];
     /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
