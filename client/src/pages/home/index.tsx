@@ -112,12 +112,13 @@ function Home({ props }) {
         value = answer.name.split(":").reverse()[0].trim().split(",").find(i => i.trim() === value.trim())
       }
     }
-    setHistory([...history, { question: QAs.question, answers: QAs.answers, choosenAnswer: answer, choosenAnswerValue: value }])
+    const localHistory = [...history, { question: QAs.question, answers: QAs.answers, choosenAnswer: answer, choosenAnswerValue: value.trim() }]
+    setHistory(localHistory)
 
     const form_payload: Answer = { question: QAs.question.name, answer: value, points: answer.extras.pointanswer ? points : -1, index: index };
     var _paq = (window as any)._paq = (window as any)._paq || [];
     _paq.push(['trackEvent', 'Contact', 'Email Link Click', 'name@example.com']);
-    const nextQuestions = getNextQuestion(answer)
+    const nextQuestions = getNextQuestion(answer, localHistory)
     if (!nextQuestions) {
       setQAs(undefined)
       const finalFormPayload = [...JSON.parse(localStorage.getItem('answers')), form_payload]
@@ -156,11 +157,32 @@ function Home({ props }) {
     }
   }
   const myRef = useRef([]);
-  const getNextQuestion = (answer) => {
+  const getNextQuestion = (answer, history) => {
     if (model && QAs) {
-      var nextQuestions = Object.values(model.layers[1].models).find((n: any) => {
+      var nextQuestions: Partial<ModelA> = Object.values(model.layers[1].models).find((n: any) => {
         return n.ports[0].links.includes(answer.ports[1].links[0])
       });
+      if (nextQuestions.extras.customType === 'answer' && nextQuestions.extras.condition) {
+        const conditions: Partial<ModelA>[] = Object.values(model.layers[1].models).filter((n: ModelA) => {
+          const res = answer.ports[1].links.filter(link => {
+            if (n.ports[0].links.includes(link)) {
+              return n
+            }
+          })
+          if (res.length) {
+            return res
+          }
+        })
+        const existingConditionValue = history.find(hist => {
+          return hist.choosenAnswer.extras.answeridentifier === "country"
+        }).choosenAnswerValue
+
+        const followingAnswer = conditions.find(cond => cond.extras.answeridentifier.split('=').reverse()[0] === existingConditionValue)
+
+        nextQuestions = Object.values(model.layers[1].models).find((n: ModelA) => {
+          return n.ports[0].links.includes(followingAnswer.ports[1].links[0])
+        });
+      }
       return nextQuestions
     } else {
       false

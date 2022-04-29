@@ -55,6 +55,7 @@ export interface ModelA {
     freeanswer: boolean
     freeanswer_type: string
     dropdown: boolean
+    condition: boolean
   }
   id: string
   name: string

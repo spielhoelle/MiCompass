@@ -89,6 +89,7 @@ const StyledImage = styled.img`
 const colorPointanswer = "rgb(255, 144, 0)"
 const colorFreeanswer = "rgb(182, 133, 1)"
 const colorDropdown = "rgb(144, 133, 1)"
+const colorCondition = "rgb(144, 133, 64)"
 const colorAnswer = "rgb(255, 204, 1)"
 const colorError = "rgb(255,0,0)"
 const questioncolor = "rgb(0, 128, 129)"
@@ -109,7 +110,8 @@ function FlowBuilder() {
     "freeanswer": false,
     "pointanswer": false,
     "freeanswer_type": "text",
-    "dropdown": false
+    "dropdown": false,
+    "condition": false
   }
   let [form, setForm] = useState(emptyForm)
   let formRef = useRef(form)
@@ -166,6 +168,7 @@ function FlowBuilder() {
                 "freeanswer": currentNode.getOptions().extras.customType === "answer" ? currentNode.getOptions().extras.freeanswer : "",
                 "pointanswer": currentNode.getOptions().extras.customType === "answer" ? currentNode.getOptions().extras.pointanswer : "",
                 "dropdown": currentNode.getOptions().extras.customType === "answer" ? currentNode.getOptions().extras.dropdown : "",
+                "condition": currentNode.getOptions().extras.customType === "answer" ? currentNode.getOptions().extras.condition : "",
                 "freeanswer_type": currentNode.getOptions().extras.customType === "answer" ? currentNode.getOptions().extras.freeanswer_type : "text",
                 "flowname": name
               }
@@ -250,13 +253,14 @@ function FlowBuilder() {
       node = selectedNodes[0]
       node.getOptions().name = form['answer']
       node.getOptions().extras.dropdown = form['dropdown']
+      node.getOptions().extras.condition = form['condition']
       node.getOptions().extras.freeanswer = form['freeanswer']
       node.getOptions().extras.pointanswer = form['pointanswer']
       node.getOptions().extras.answeridentifier = form['answeridentifier']
       node.getOptions().extras.answertranslation = form['answertranslation']
       node.getOptions().extras.points = form['points']
       node.getOptions().extras.freeanswer_type = form['freeanswer_type']
-      node.getOptions().color = !!e.target.elements.freeanswer && !!e.target.elements.freeanswer.checked ? colorFreeanswer : !!e.target.elements.pointanswer.checked ? colorPointanswer : !!e.target.elements.dropdown.checked ? colorDropdown : e.target.elements.answer.dataset.color
+      node.getOptions().color = !!e.target.elements.freeanswer && !!e.target.elements.freeanswer.checked ? colorFreeanswer : !!e.target.elements.pointanswer.checked ? colorPointanswer : !!e.target.elements.dropdown.checked ? colorDropdown : !!e.target.elements.condition.checked ? colorCondition : e.target.elements.answer.dataset.color
     } else {
       node = new CustomNodeModel({
         name: e.target.elements.answer.value,
@@ -267,6 +271,7 @@ function FlowBuilder() {
           pointanswer: !!e.target.elements.pointanswer && !!e.target.elements.pointanswer.checked,
           freeanswer_type: !!e.target.elements.freeanswer_type && !!e.target.elements.freeanswer_type.selectedOptions[0].value,
           dropdown: !!e.target.elements.dropdown && !!e.target.elements.dropdown.checked,
+          condition: !!e.target.elements.condition && !!e.target.elements.condition.checked,
           answeridentifier: e.target.elements.answeridentifier.value,
           answertranslation: e.target.elements.answertranslation.value,
           points: e.target.elements.points.value
@@ -308,6 +313,8 @@ function FlowBuilder() {
           color = colorPointanswer
         } else if (a.getOptions().extras.dropdown) {
           color = colorDropdown
+        } else if (a.getOptions().extras.condition) {
+          color = colorCondition
         }
         (a.getOptions() as any).color = color
       }
@@ -443,53 +450,6 @@ function FlowBuilder() {
   return (
     <div className="h-100 d-flex flex-column ">
       <div className="container-fluid">
-        <h2>Contactforms
-          <button className="btn btn-secondary badge mx-2" type="button" data-container="body" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Link questions to one or multiple answers. If a question is followed by a freeanswer, it should be the only anwer of that question" data-original-title="" title=""> ?
-          </button>
-          <button className={`btn btn-outline-secondary mr-2`} onClick={e => {
-            if (confirm("This will create a new empty flow in the database. Sure?")) {
-              if (form.flowname) {
-                setloading(true)
-                const newModel = new StartNodeModel();
-
-                const payload = {
-                  id: "",
-                  flowname: "New Flow",
-                  renderselector: "",
-                  model: newModel.serialize(),
-                }
-                FetchService.isofetchAuthed(
-                  `/flows/save`,
-                  payload,
-                  "POST",
-                )
-                  .then(res => {
-                    if (res.error) {
-                      seterror([...error, res.error])
-                    } else {
-                      // setallFlows([...allFlows, res.payload])
-                      // setForm({
-                      //   ...formRef.current,
-                      //   flowname: res.payload.name,
-                      //   active: false,
-                      //   renderselector: ""
-                      // })
-                      // setmodelState(res.payload.model.id)
-                      // model.deserializeModel(res.payload.model, engine);
-                      // engine.setModel(newModel)
-                    }
-                    setloading(false)
-                  })
-              } else {
-                seterror([...error, `Name must be provided`])
-              }
-            }
-          }}>Add new Flow</button>
-          <button className={`btn btn-secondary mr-2 word-break-break-all`} onClick={e => {
-            setnodevisibility(!nodevisibility)
-          }}>{!nodevisibility ? `Configure current flow ` : `Hide nodespanel`} </button>
-
-        </h2>
 
 
 
@@ -503,7 +463,7 @@ function FlowBuilder() {
         <div className={!nodevisibility ? `d-none` : ``}>
           <form onSubmit={addQuestion}>
             <div className="row form-row align-items-end">
-              <div className="col-3 flex-column d-flex">
+              <div className="col-2 flex-column d-flex">
                 <label htmlFor="flowselector">flowselector</label>
                 <select
                   id="flowselector"
@@ -532,15 +492,15 @@ function FlowBuilder() {
                   ))}
                 </select>
               </div>
-              <div className="col-3">
+              <div className="col-md-6 col-lg-3">
                 <label htmlFor="flowname">Flow name</label>
                 <input className="form-control" id="flowname" name="flowname" value={form['flowname']} onChange={(e) => {
                   e.stopPropagation();
                   setForm({ ...form, [e.target.name]: e.target.value })
                 }} />
               </div>
-              <div className="col-3 ">
-                <label htmlFor="renderselector">Flow renderselector</label>
+              <div className="col-md-6 col-lg-3 ">
+                <label htmlFor="renderselector">Renderselector</label>
                 <input className="form-control" id="renderselector" name="renderselector" value={form['renderselector']} onChange={(e) => {
                   e.stopPropagation();
                   setForm({ ...form, [e.target.name]: e.target.value })
@@ -559,18 +519,62 @@ function FlowBuilder() {
                 <button className="btn btn-secondary badge ml-2" type="button" data-container="body" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="That results in sending a alternative email to settings.tourmailreceiver and prevents a redirect to /thank-you"> ? </button>
               </div> */}
 
-              <div className="col-3 ">
-                <div className="btn-group" role="group" aria-label="Basic example">
+              <div className="col-md-6 col-lg-4 align-items-start d-flex justify-content-end ">
+                <div className="btn-group w-100" role="group" aria-label="Basic example">
                   <button className="btn btn-primary mr-2"
                     disabled={loading}
                     onClick={() => {
                       cloneSelected()
-                    }}>{loading ? "Loading" : "Clone selected"}</button>
+                    }}>{loading ? "Loading" : "Clone sel."}</button>
                   <button className="btn btn-success"
                     disabled={loading}
                     onClick={(e) => {
                       saveModel(e)
                     }}>{loading ? "Loading" : "Save"}</button>
+                  {/* <button className="btn btn-secondary badge mx-2" type="button" data-container="body" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Link questions to one or multiple answers. If a question is followed by a freeanswer, it should be the only anwer of that question" data-original-title="" title=""> ?
+                  </button> */}
+                  <button className={`btn btn-outline-secondary mr-2`} onClick={e => {
+                    if (confirm("This will create a new empty flow in the database. Sure?")) {
+                      if (form.flowname) {
+                        setloading(true)
+                        const newModel = new StartNodeModel();
+
+                        const payload = {
+                          id: "",
+                          flowname: "New Flow",
+                          renderselector: "",
+                          model: newModel.serialize(),
+                        }
+                        FetchService.isofetchAuthed(
+                          `/flows/save`,
+                          payload,
+                          "POST",
+                        )
+                          .then(res => {
+                            if (res.error) {
+                              seterror([...error, res.error])
+                            } else {
+                              // setallFlows([...allFlows, res.payload])
+                              // setForm({
+                              //   ...formRef.current,
+                              //   flowname: res.payload.name,
+                              //   active: false,
+                              //   renderselector: ""
+                              // })
+                              // setmodelState(res.payload.model.id)
+                              // model.deserializeModel(res.payload.model, engine);
+                              // engine.setModel(newModel)
+                            }
+                            setloading(false)
+                          })
+                      } else {
+                        seterror([...error, `Name must be provided`])
+                      }
+                    }
+                  }}>New Flow</button>
+                  <button className={`btn btn-secondary mr-2 word-break-break-all`} onClick={e => {
+                    setnodevisibility(!nodevisibility)
+                  }}>{!nodevisibility ? `Configure current flow ` : `Hide`} </button>
 
                 </div>
               </div>
@@ -578,21 +582,21 @@ function FlowBuilder() {
             <div className="row">
               <div className="col-md-6 col-lg-2">
                 <label htmlFor="addquestion">Add Question</label>
-                <textarea disabled={disabled === "question"} className="form-control" name="question" value={form['question']}
+                <textarea rows="1" disabled={disabled === "question"} className="form-control" name="question" value={form['question']}
                   onChange={(e) => {
                     e.stopPropagation();
                     setForm({ ...form, [e.target.name]: e.target.value })
                   }} data-type="question" data-color={questioncolor} style={{ borderColor: questioncolor, borderStyle: "solid" }} id="addquestion" required />
               </div>
-              <div className="col-md-6 col-lg-3">
+              <div className="col-md-6 col-lg-2">
                 <label htmlFor="addquestiontranslation">AF Questiontranslation</label>
-                <textarea disabled={disabled === "question"} className="form-control" name="questiontranslation" value={form['questiontranslation']}
+                <textarea rows="1" disabled={disabled === "question"} className="form-control" name="questiontranslation" value={form['questiontranslation']}
                   onChange={(e) => {
                     e.stopPropagation();
                     setForm({ ...form, [e.target.name]: e.target.value })
                   }} data-type="questiontranslation" data-color={questioncolor} style={{ borderColor: questioncolor, borderStyle: "solid" }} id="addquestiontranslation" required />
               </div>
-              <div className="col-md-6 col-lg-3">
+              <div className="col-md-6 col-lg-2">
                 <div className=''>
                   <div className="flex-grow-1">
                     <label htmlFor="addquestionidentifier">Questionidentifier</label>
@@ -604,7 +608,7 @@ function FlowBuilder() {
                   </div>
                 </div>
               </div>
-              <div className="col-md-6 col-lg-4 align-items-end d-flex justify-content0-end">
+              <div className="col-md-6 col-lg-6 align-items-start d-flex justify-content-end">
                 <div className="flex-grow-1">
                   <label htmlFor="addimage">Image</label>
                   <div className='d-flex'>
@@ -620,7 +624,7 @@ function FlowBuilder() {
                   </div>
                   <input id="addimageselector" className="form-control d-none" type='text' value={form['image']} />
                 </div>
-                <button className="btn btn-primary ml-1" type="submit">{button}</button>
+                <button className="btn btn-primary ml-1 align-self-center" type="submit">{button}</button>
               </div>
             </div>
           </form>
@@ -629,23 +633,23 @@ function FlowBuilder() {
             <div className=" row">
               <div className="col-md-6 col-lg-2">
                 <label htmlFor="addanswer">Add Answer</label>
-                <textarea disabled={disabled === "answer"} className="form-control w-99" name="answer" value={form['answer']}
+                <textarea rows="1" disabled={disabled === "answer" || form['condition']} className="form-control w-99" name="answer" value={form['answer']}
                   onChange={(e) => {
                     e.stopPropagation();
                     setForm({ ...form, [e.target.name]: e.target.value })
                   }} data-type="answer" data-color="rgb(256, 204, 1)" style={{ borderColor: "rgb(255, 204, 1)", borderStyle: "solid" }} id="addanswer" />
               </div>
-              <div className="col-md-6 col-lg-3">
+              <div className="col-md-6 col-lg-2">
                 <div>
                   <label htmlFor="answertranslation">Answertranslation</label>
-                  <textarea disabled={disabled === "answer"} className="form-control w-99" name="answertranslation" value={form['answertranslation']}
+                  <textarea rows="1" disabled={disabled === "answer" || form['condition']} className="form-control w-99" name="answertranslation" value={form['answertranslation']}
                     onChange={(e) => {
                       e.stopPropagation();
                       setForm({ ...form, [e.target.name]: e.target.value })
                     }} data-type="answertranslation" data-color={questioncolor} style={{ borderColor: "rgb(256, 204, 1)", borderStyle: "solid" }} id="answertranslation" required />
                 </div>
               </div>
-              <div className="col-md-6 col-lg-3">
+              <div className="col-md-6 col-lg-2">
                 <div className='flex-grow-1'>
                   <div>
                     <label htmlFor="answeridentifier">Answeridentifier</label>
@@ -657,7 +661,7 @@ function FlowBuilder() {
                   </div>
                 </div>
               </div>
-              <div className="col-md-6 col-lg-4 d-flex">
+              <div className="col-md-6 col-lg-6 d-flex">
                 <div>
                   <label htmlFor="points">Points</label>
                   <input disabled={disabled === "answer"} className="form-control " name="points" type="number" value={form['points']}
@@ -666,7 +670,7 @@ function FlowBuilder() {
                       setForm({ ...form, [e.target.name]: Number(e.target.value) })
                     }} data-type="points" data-color={questioncolor} style={{ borderColor: "rgb(255, 204, 1)", borderStyle: "solid" }} id="points" required />
                 </div>
-                <div className="w-100">
+                <div className="">
                   <label htmlFor="type">Type</label>
                   <select
                     disabled={disabled === "answer" || form['freeanswer'] !== true}
@@ -682,7 +686,7 @@ function FlowBuilder() {
                     ))}
                   </select>
                 </div>
-                <div className="btn-group" role="group" aria-label="Basic example">
+                <div className="btn-group w-100 align-items-center" role="group" aria-label="Basic example">
 
                   <input
                     checked={form['pointanswer']}
@@ -694,7 +698,7 @@ function FlowBuilder() {
                     }}
                     style={{ borderColor: "rgb(255, 204, 1)", borderStyle: "solid" }}
                     id="pointanswer" />
-                  <label className="btn btn-primary" htmlFor="pointanswer">Has Points</label>
+                  <label className="btn btn-primary" htmlFor="pointanswer">Point A</label>
                   <input
                     checked={form['freeanswer']}
                     name='freeanswer'
@@ -705,17 +709,26 @@ function FlowBuilder() {
                     }}
                     style={{ borderColor: "rgb(255, 204, 1)", borderStyle: "solid" }}
                     id="freeanswer" />
-                  <label className="btn btn-primary" htmlFor="freeanswer">Free answer</label>
+                  <label className="btn btn-primary" htmlFor="freeanswer">Free A</label>
                   {/* <a title="If checked you can split by a ':' between the fieldlabel and the placeholder. Eg: fieldlabel:placeholder or Phone:+490987654321" className="btn btn-secondary badge ml-2" type="button"> ? </a> */}
-                <input
-                  checked={form['dropdown']}
-                  name='dropdown'
+                  <input
+                    checked={form['dropdown']}
+                    name='dropdown'
                     type="checkbox" className="btn-check"
-                  onChange={(e) => {
-                    e.stopPropagation();
-                    setForm({ ...form, [e.target.name]: e.target.checked, freeanswer: false })
-                  }} style={{ borderColor: "rgb(255, 204, 1)", borderStyle: "solid" }} id="dropdown" />
+                    onChange={(e) => {
+                      e.stopPropagation();
+                      setForm({ ...form, [e.target.name]: e.target.checked, freeanswer: false })
+                    }} style={{ borderColor: "rgb(255, 204, 1)", borderStyle: "solid" }} id="dropdown" />
                   <label className="btn btn-primary" htmlFor="dropdown">Dropdown</label>
+                  <input
+                    checked={form['condition']}
+                    name='condition'
+                    type="checkbox" className="btn-check"
+                    onChange={(e) => {
+                      e.stopPropagation();
+                      setForm({ ...form, [e.target.name]: e.target.checked, freeanswer: false, dropdown: false, pointanswer: false })
+                    }} style={{ borderColor: "rgb(255, 204, 1)", borderStyle: "solid" }} id="condition" />
+                  <label className="btn btn-primary" htmlFor="condition">Condition</label>
                   <button className="btn btn-primary ml-1" type="submit">{button}</button>
                 </div>
               </div>
