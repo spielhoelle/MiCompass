@@ -291,18 +291,26 @@ function FlowBuilder() {
     var nodes = Object.values(model.getLayers().find(layer => layer.getOptions().type === "diagram-nodes").getModels())
     const questions = nodes.filter(n => n.getOptions().extras.customType !== "answer")
     const answers = nodes.filter(n => n.getOptions().extras.customType === "answer")
-    const qErrorNodes = questions.map(q => {
-      return Object.values((q as any).portsOut[0].links).map((link: any) => {
+    const qErrorNodes = questions.map((q: any) => {
+      return Object.values((q).portsOut[0].links).map((link: any) => {
         if (link.targetPort.parent.options.extras.customType !== "answer") {
           engine.getModel().getNode(link.targetPort.parent.options.id).setSelected(true);
-          engine.getModel().getNode(link.targetPort.parent.options.id).getOptions().extras.color = "rgb(255,0,0)"
+          (engine.getModel().getNode(link.targetPort.parent.options.id).getOptions() as any).color = "rgb(255,0,0)"
           return link.targetPort.parent
         }
       }).filter(l => !!l)
-    }).filter(l => l == [])
+    })
+      .filter(l => l.length > 0)
+      .flatMap(x => x)
 
-    answers.map(a => {
-      if (answers.filter(a2 => a2.getOptions().extras.answeridentifier === a.getOptions().extras.answeridentifier).length > 1) {
+    answers.filter((a: any) => !a.getOptions().extras.condition).map(a => {
+      if (
+        answers.filter(a2 => a2.getOptions().extras.answeridentifier === a.getOptions().extras.answeridentifier).length > 1
+        // || 
+        // check if there are more than one answer with the same identifier
+
+        //TODO check if answer just contains condition answer
+      ) {
         (a.getOptions() as any).color = "rgb(255,0,0)"
         errorNodes = [...errorNodes, (a.getOptions() as any).name]
       } else {
@@ -321,7 +329,7 @@ function FlowBuilder() {
     })
     const currenErrors = []
     if (qErrorNodes.length > 0) {
-      currenErrors.push(`Questions have problems: ${qErrorNodes.map(e => e + ', ').join("")}`)
+      currenErrors.push(`Questions have problems: ${qErrorNodes.map(e => e.options.name + ', ').join("")}`)
     }
     if (errorNodes.length > 0) {
       currenErrors.push(`Answer have overlapping answeridentifier: ${errorNodes.map(e => e + ', ').join("")}`)
@@ -582,7 +590,7 @@ function FlowBuilder() {
             <div className="row">
               <div className="col-md-6 col-lg-2">
                 <label htmlFor="addquestion">Add Question</label>
-                <textarea rows="1" disabled={disabled === "question"} className="form-control" name="question" value={form['question']}
+                <textarea rows={1} disabled={disabled === "question"} className="form-control" name="question" value={form['question']}
                   onChange={(e) => {
                     e.stopPropagation();
                     setForm({ ...form, [e.target.name]: e.target.value })
@@ -590,7 +598,7 @@ function FlowBuilder() {
               </div>
               <div className="col-md-6 col-lg-2">
                 <label htmlFor="addquestiontranslation">AF Questiontranslation</label>
-                <textarea rows="1" disabled={disabled === "question"} className="form-control" name="questiontranslation" value={form['questiontranslation']}
+                <textarea rows={1} disabled={disabled === "question"} className="form-control" name="questiontranslation" value={form['questiontranslation']}
                   onChange={(e) => {
                     e.stopPropagation();
                     setForm({ ...form, [e.target.name]: e.target.value })
@@ -633,7 +641,7 @@ function FlowBuilder() {
             <div className=" row">
               <div className="col-md-6 col-lg-2">
                 <label htmlFor="addanswer">Add Answer</label>
-                <textarea rows="1" disabled={disabled === "answer" || form['condition']} className="form-control w-99" name="answer" value={form['answer']}
+                <textarea rows={1} disabled={disabled === "answer" || form['condition']} className="form-control w-99" name="answer" value={form['answer']}
                   onChange={(e) => {
                     e.stopPropagation();
                     setForm({ ...form, [e.target.name]: e.target.value })
@@ -642,7 +650,7 @@ function FlowBuilder() {
               <div className="col-md-6 col-lg-2">
                 <div>
                   <label htmlFor="answertranslation">Answertranslation</label>
-                  <textarea rows="1" disabled={disabled === "answer" || form['condition']} className="form-control w-99" name="answertranslation" value={form['answertranslation']}
+                  <textarea rows={1} disabled={disabled === "answer" || form['condition']} className="form-control w-99" name="answertranslation" value={form['answertranslation']}
                     onChange={(e) => {
                       e.stopPropagation();
                       setForm({ ...form, [e.target.name]: e.target.value })
@@ -750,9 +758,9 @@ function FlowBuilder() {
       </div >
       <CanvasWrapper >
         <CanvasWidget engine={engine} />
-        <Loader loading={loading} >
+        {/* <Loader loading={loading} >
           <div></div>
-        </Loader>
+        </Loader> */}
       </CanvasWrapper>
     </div>
   );

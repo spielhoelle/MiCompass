@@ -158,30 +158,38 @@ function Home({ props }) {
   }
   const myRef = useRef([]);
   const getNextQuestion = (answer, history) => {
+    let i = 0
     if (model && QAs) {
       var nextQuestions: Partial<ModelA> = Object.values(model.layers[1].models).find((n: any) => {
         return n.ports[0].links.includes(answer.ports[1].links[0])
       });
-      if (nextQuestions.extras.customType === 'answer' && nextQuestions.extras.condition) {
-        const conditions: Partial<ModelA>[] = Object.values(model.layers[1].models).filter((n: ModelA) => {
-          const res = answer.ports[1].links.filter(link => {
-            if (n.ports[0].links.includes(link)) {
-              return n
+      while (nextQuestions.extras.condition && i < 5) {
+        i++
+        if (nextQuestions && nextQuestions.extras.customType === 'answer' && nextQuestions.extras.condition) {
+          const conditions: Partial<ModelA>[] = Object.values(model.layers[1].models).filter((n: ModelA) => {
+            const res = answer.ports[1].links.filter(link => {
+              if (n.ports[0].links.includes(link)) {
+                return n
+              }
+            })
+            if (res.length) {
+              return res
             }
           })
-          if (res.length) {
-            return res
-          }
-        })
-        const existingConditionValue = history.find(hist => {
-          return hist.choosenAnswer.extras.answeridentifier === "country"
-        }).choosenAnswerValue
+          const existingConditionValue = history.find(hist => {
+            return hist.choosenAnswer.extras.answeridentifier === "country" || hist.choosenAnswer.extras.answeridentifier === "helptype"
+          }).choosenAnswerValue
 
-        const followingAnswer = conditions.find(cond => cond.extras.answeridentifier.split('=').reverse()[0] === existingConditionValue)
+          const followingAnswer = conditions.find(cond => cond.extras.answeridentifier.split('=').reverse()[0].replace(/["|']/g, '') === existingConditionValue)
 
-        nextQuestions = Object.values(model.layers[1].models).find((n: ModelA) => {
-          return n.ports[0].links.includes(followingAnswer.ports[1].links[0])
-        });
+          nextQuestions = Object.values(model.layers[1].models).find((n: ModelA) => {
+            return n.ports[0].links.includes(followingAnswer.ports[1].links[0])
+          });
+        }
+        if (nextQuestions.extras.condition) {
+
+          //TODO traverse through conditions to find final answer
+        }
       }
       return nextQuestions
     } else {
