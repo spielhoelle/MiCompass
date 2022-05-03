@@ -71,7 +71,7 @@ function Home({ props }) {
       }
     });
     const diagramNodes = model.layers.find(layer => layer.type === "diagram-nodes").models
-    const startquestion = Object.values(diagramNodes).find((model: any) => model.ports.find(port => port.label === "In").links.length === 0)
+    const startquestion = Object.values(diagramNodes).find((model: ModelQ) => model.ports.find(port => port.label === "In").links.length === 0)
     const answers = getAnswers(startquestion, model)
     const sortedanswers = answers.sort((a: ModelA, b: ModelA) => a.y - b.y)
     setHistory([])
@@ -86,7 +86,7 @@ function Home({ props }) {
         }
         const usedFLow = res.payload.model.find(f => f.flowname === currentFlow)
         const diagramNodes = usedFLow.data.layers.find(layer => layer.type === "diagram-nodes").models
-        const startquestion = Object.values(diagramNodes).find((model: any) => model.ports.find(port => port.label === "In").links.length === 0)
+        const startquestion = Object.values(diagramNodes).find((model: ModelQ) => model.ports.find(port => port.label === "In").links.length === 0)
         const answers = getAnswers(startquestion, usedFLow.data)
         setmodel(usedFLow.data)
         const sortedanswers = answers.sort((a: ModelA, b: ModelA) => a.y - b.y)
@@ -100,7 +100,7 @@ function Home({ props }) {
   const scrollToBottom = () => messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
 
   const getAnswers = (question, model) => Object.values(model.layers.find(layer => layer.type === "diagram-nodes").models)
-    .filter((links: any) => Object.values(model.layers.find(layer => layer.type === "diagram-links").models)
+    .filter((links: ModelA) => Object.values(model.layers.find(layer => layer.type === "diagram-links").models)
       .filter((layer: any) => layer.source === question.id).map((l: any) => l.target).includes(links.id))
 
 
@@ -157,41 +157,35 @@ function Home({ props }) {
     }
   }
   const myRef = useRef([]);
-  const getNextQuestion = (answer, history) => {
-    let i = 0
-    if (model && QAs) {
-      var nextQuestions: Partial<ModelA> = Object.values(model.layers[1].models).find((n: any) => {
-        return n.ports[0].links.includes(answer.ports[1].links[0])
-      });
-      while (nextQuestions.extras.condition && i < 5) {
-        i++
-        if (nextQuestions && nextQuestions.extras.customType === 'answer' && nextQuestions.extras.condition) {
-          const conditions: Partial<ModelA>[] = Object.values(model.layers[1].models).filter((n: ModelA) => {
-            const res = answer.ports[1].links.filter(link => {
-              if (n.ports[0].links.includes(link)) {
-                return n
-              }
-            })
-            if (res.length) {
-              return res
-            }
-          })
-          const existingConditionValue = history.find(hist => {
-            return hist.choosenAnswer.extras.answeridentifier === "country" || hist.choosenAnswer.extras.answeridentifier === "helptype"
-          }).choosenAnswerValue
-
-          const followingAnswer = conditions.find(cond => cond.extras.answeridentifier.split('=').reverse()[0].replace(/["|']/g, '') === existingConditionValue)
-
-          nextQuestions = Object.values(model.layers[1].models).find((n: ModelA) => {
-            return n.ports[0].links.includes(followingAnswer.ports[1].links[0])
-          });
+  const getConnectedNodes = (model, nodeThatFollows): Partial<ModelA>[] => {
+    return Object.values(model.layers[1].models).filter((n: ModelA) => {
+      const res = nodeThatFollows.ports[1].links.filter(link => {
+        if (n.ports[0].links.includes(link)) {
+          return n
         }
-        if (nextQuestions.extras.condition) {
-
-          //TODO traverse through conditions to find final answer
+      })
+      if (res.length) {
+        return res
+      }
+    })
+  }
+  const getNextQuestion = (answer, history) => {
+    if (model && QAs) {
+      let nodeThatFollows = answer
+      let connectedNextNodes: Partial<ModelA>[] = getConnectedNodes(model, nodeThatFollows)
+      nodeThatFollows = connectedNextNodes[0]
+      if (connectedNextNodes.length > 1) {
+        let i = 0
+        while (nodeThatFollows.extras.condition && connectedNextNodes.length > 1 && i < 5) {
+          var nextConditionValue = history.find(hist => {
+            return hist.choosenAnswer.extras.answeridentifier === connectedNextNodes[0].extras.answeridentifier.split("=")[0]
+          }).choosenAnswerValue
+          nodeThatFollows = connectedNextNodes.find(cond => cond.extras.answeridentifier.split('=').reverse()[0].replace(/["|']/g, '') === nextConditionValue)
+          connectedNextNodes = getConnectedNodes(model, nodeThatFollows)
+          i++
         }
       }
-      return nextQuestions
+      return nodeThatFollows
     } else {
       false
     }
@@ -302,8 +296,9 @@ function Home({ props }) {
                                     {state.lang === 'af' ? "...غوره کړه" : state.lang === 'ua' ? 'Виберіть...' : "Select..."}
                                   </option>
 
-                                  {(state.lang === 'af' && a.extras.answertranslation ? a.extras.answertranslation : a.name).split(":").reverse()[0].split(',').map(dropdownItem => (
+                                  {(state.lang === 'af' && a.extras.answertranslation ? a.extras.answertranslation : a.name).split(":").reverse()[0].split(',').map((dropdownItem, i) => (
                                     <option className="form-control mb-4"
+                                      key={i}
                                       data-type="question"
                                       value={dropdownItem.replace(/\(.*\)/, '').trim()}
                                       placeholder={a.extras.answeridentifier}
@@ -315,8 +310,8 @@ function Home({ props }) {
                               </>
                             ) : a.extras.freeanswer ? (
                               <>
-                                  <label htmlFor={a.extras.answeridentifier} className="form-label">{state.lang == 'af' ? a.extras.answertranslation : a.name}</label>
-                                  <input required={true} type={a.extras.freeanswer_type ? a.extras.freeanswer_type : "text"} ref={ref => myRef.current[i] = ref} id={a.extras.answeridentifier} name={a.extras.answeridentifier} className={`form-control mb-3`} />
+                                <label htmlFor={a.extras.answeridentifier} className="form-label">{state.lang == 'af' ? a.extras.answertranslation : a.name}</label>
+                                <input required={true} type={a.extras.freeanswer_type ? a.extras.freeanswer_type : "text"} ref={ref => myRef.current[i] = ref} id={a.extras.answeridentifier} name={a.extras.answeridentifier} className={`form-control mb-3`} />
                               </>
                             ) : null}
                             <Button type="submit" className={`btn ${getTheme(props.host) === 1 ? `btn-danger` : `btn-warning`} mb-2 btn-sm text-start`} key={i} onClick={e => {
@@ -324,10 +319,10 @@ function Home({ props }) {
                           </form>
                         </>
                       ) : (
-                          <Button className={`btn ${getTheme(props.host) === 1 ? `btn-danger` : `btn-warning`} mb-2 btn-sm text-start`} key={i} onClick={e => {
+                        <Button className={`btn ${getTheme(props.host) === 1 ? `btn-danger` : `btn-warning`} mb-2 btn-sm text-start`} key={i} onClick={e => {
                           setCurrentClass(css.dNone)
                           setNextQA(a, a.extras.answeridentifier, a.extras.points, history.length)
-                          }}>{state.lang == 'af' ? a.extras.answertranslation : a.name}</Button>
+                        }}>{state.lang == 'af' ? a.extras.answertranslation : a.name}</Button>
                       )}
                     </div>)
                   )}
@@ -398,3 +393,4 @@ Home.getInitialProps = async (ctx: NextPageContext) => {
 };
 
 export default Home;
+
