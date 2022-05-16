@@ -267,7 +267,7 @@ function Home({ props }) {
                     </div>
                   </div>
                 )}
-                <Button className={`btn btn-light mb-3 text-start`} disabled>{state.lang == 'af' ? QAs.question.extras.questiontranslation : QAs.question.name}</Button>
+                <Button className={`btn btn-light mb-3 text-start`} disabled>{state.lang == 'af' || state.lang === 'ua' ? QAs.question.extras.questiontranslation : QAs.question.name}</Button>
                 <div className="">
                   {QAs.answers.map((a, i) => (
                     <div key={i}>
@@ -283,7 +283,8 @@ function Home({ props }) {
                             {a.extras.dropdown ? (
                               <>
                                 <label htmlFor={`dropdown_${a.extras.answeridentifier}`}>
-                                  {state.lang === 'af' && a.extras.answertranslation ? a.extras.answertranslation.split(":")[0] : a.name.split(":")[0]}
+                                  {state.lang === 'af' ? "وټاکئ" : state.lang === 'ua' ? "Виберіть" : "Select" }
+                                  {state.lang}
                                 </label>
                                 <select
                                   id={`dropdown_${a.extras.answeridentifier}`}
@@ -315,7 +316,7 @@ function Home({ props }) {
                               </>
                             ) : null}
                             <Button type="submit" className={`btn ${getTheme(props.host) === 1 ? `btn-danger` : `btn-warning`} mb-2 btn-sm text-start`} key={i} onClick={e => {
-                            }}>{state.lang == 'af' ? "ښه، دوام ورکړئ" : "Ok, continue..."}</Button>
+                            }}>{state.lang == 'af' ? "ښه، دوام ورکړئ" : state.lang === 'ua' ? 'Добре, продовжуй...' : "Ok, continue..."}</Button>
                           </form>
                         </>
                       ) : (

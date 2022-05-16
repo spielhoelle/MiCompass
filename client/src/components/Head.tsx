@@ -50,6 +50,38 @@ function Header({ props }: IProps) {
   const [navbar, toggleNav] = useState(false);
   const router = useRouter()
   const [state, stateDispatch] = useGlobalState();
+  const translationMapping = {
+    register: {
+      en: 'Register',
+      af: 'راجستر',
+      ua: 'Реєстрація'
+    },
+    login: {
+      en: 'Login',
+      af: 'د ننه کیدل',
+      ua: 'Увійти'
+    },
+    flowbuilder: {
+      en: 'Flowbuilder',
+      af: 'جریان جوړونکی',
+      ua: 'Потік-побудовник'
+    },
+    history: {
+      en: 'History',
+      af: 'تاریخ',
+      ua: 'Історія'
+    },
+    about: {
+      en: 'About',
+      af: 'په اړه',
+      ua: 'Про'
+    },
+    contact: {
+      en: 'Contact',
+      af: 'اړیکه',
+      ua: 'Контакти'
+    },
+  }
   const sitetitle = getTheme(props.host) === 1 ? "MiCompass" : "HandbookUkraine" 
   return (
     <nav className={`navbar navbar-expand-sm fixed-top ${isAdmin(router.pathname) ? `navbar-dark bg-dark` : isAdmin(router.pathname) || getTheme(props.host) === 1 ? `navbar-dark bg-dark` : `navbar-light bg-warning`}`}>
@@ -75,12 +107,12 @@ function Header({ props }: IProps) {
               <>
                 <li className='nav-item'>
                   <Link href="/register">
-                    <a className="nav-link">Register</a>
+                    <a className="nav-link">{translationMapping.register[state.lang]}</a>
                   </Link>
                 </li>
                 <li className='nav-item'>
                   <Link href="/login">
-                    <a className="nav-link">Login</a>
+                    <a className="nav-link">{translationMapping.login[state.lang]}</a>
                   </Link>
                 </li>
               </>
@@ -88,24 +120,24 @@ function Header({ props }: IProps) {
               <>
                 <li className='nav-item'>
                   <Link href="/dashboard">
-                    <a className="nav-link">Flowbuilder</a>
+                    <a className="nav-link">{translationMapping.flowbuilder[state.lang]}</a>
                   </Link>
                 </li>
                 <li className='nav-item'>
                   <Link href="/history">
-                    <a className="nav-link">History</a>
+                    <a className="nav-link">{translationMapping.history[state.lang]}</a>
                   </Link>
                 </li>
               </>
             )}
             <li className='nav-item'>
               <Link href="/about">
-                <a className="nav-link">About</a>
+                <a className="nav-link">{translationMapping.about[state.lang]}</a>
               </Link>
             </li>
             <li className='nav-item'>
               <Link href="/contact">
-                <a className="nav-link">Contact</a>
+                <a className="nav-link">{translationMapping.register[state.lang]}</a>
               </Link>
             </li>
             <li className='nav-item'>
@@ -115,7 +147,7 @@ function Header({ props }: IProps) {
                   <img className={css.flag} src="/britain-flag-icon-32.jpg" alt="english" width="64" height="64" />
                 </a>
               ) : (
-                  <a href='#' className="nav-link" onClick={(e) => switchLanguage(e, 'af')}>
+                  <a href='#' className="nav-link" onClick={(e) => switchLanguage(e, getTheme(props.host) === 1 ? 'af' : 'ua')}>
                     {!isAdmin(router.pathname) ?
                       getTheme(props.host) === 1 ? (
                         <>
