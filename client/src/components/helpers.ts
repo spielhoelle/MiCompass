@@ -46,7 +46,7 @@ const getTheme = (host: string): number => {
   let test = 0
   if (test === 1 || host === "micompass.org") {
     return 1
-  } else if (test === 2 || host === "ua.tmy.io") {
+  } else if (test === 2 || host === "ua.tmy.io" || host === "handbook-ukraine.com") {
     return 2
   } else {
     return 1
