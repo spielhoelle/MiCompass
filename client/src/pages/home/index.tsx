@@ -205,11 +205,11 @@ function Home({ props }) {
                   </div>
                 </div>
               )}
-              <Button className={`btn btn-light mb-3 text-start d-block`} disabled>{state.lang == 'af' ? historyItem.question.extras.questiontranslation : historyItem.question.name}</Button>
+              <Button className={`btn btn-light mb-3 text-start d-block`} disabled>{state.lang !== 'en' ? historyItem.question.extras.questiontranslation : historyItem.question.name}</Button>
               {historyItem.choosenAnswer.extras.freeanswer && (
                 <>
                   <label htmlFor={historyItem.choosenAnswer.extras.answeridentifier} className="form-label">{
-                    state.lang == 'af' ?
+                    state.lang == 'af' || state.lang === 'ua' ?
                       historyItem.choosenAnswer.extras.dropdown ?
                         historyItem.choosenAnswerValue
                         : historyItem.choosenAnswer.extras.answertranslation
@@ -221,11 +221,11 @@ function Home({ props }) {
                   <input value={historyItem.choosenAnswerValue} disabled className={`form-control mb-3`} />
                 </>
               )}
-              <div className="">
+              <div className="history">
                 {historyItem.answers.map((a: ModelA, i) => (
                   <div key={i}>
                     <Button className={`btn mb-2 btn-sm text-start ${getTheme(props.host) === 1 ? `btn-danger` : `btn-warning`} ${historyItem.choosenAnswer.name === a.name ? `opacity-50` : ` opacity-25`}`} disabled>
-                      {state.lang === 'af' ?
+                      {state.lang !== 'en' ?
                         historyItem.choosenAnswer.extras.dropdown ?
                           historyItem.choosenAnswer.extras.answertranslation.split(":").reverse()[0].trim().split(",")[historyItem.choosenAnswer.name.split(":").reverse()[0].trim().split(",").findIndex(i => i.trim() === historyItem.choosenAnswerValue)]
                           : historyItem.choosenAnswer.extras.answertranslation
@@ -242,7 +242,7 @@ function Home({ props }) {
             {!historyItem.choosenAnswer.extras.freeanswer && (
               <div className='offset-md-6 col-md-6 text-end'>
                 <Button className={`btn mb-2 btn-sm ${getTheme(props.host) === 1 ? `btn-danger` : `btn-warning`} text-start ${css.nottransparent}`} disabled>
-                  {state.lang == 'af' ?
+                  {state.lang !== 'en' ?
                     historyItem.choosenAnswer.extras.dropdown ?
                       historyItem.choosenAnswer.extras.answertranslation.split(":").reverse()[0].trim().split(",")[historyItem.choosenAnswer.name.split(":").reverse()[0].trim().split(",").findIndex(i => i.trim() === historyItem.choosenAnswerValue)]
                       : historyItem.choosenAnswer.extras.answertranslation
@@ -267,7 +267,11 @@ function Home({ props }) {
                     </div>
                   </div>
                 )}
-                <Button className={`btn btn-light mb-3 text-start`} disabled>{state.lang == 'af' || state.lang === 'ua' ? QAs.question.extras.questiontranslation : QAs.question.name}</Button>
+                <Button className={`btn btn-light mb-3 text-start`} disabled>{state.lang !== 'en' ? 
+                  (QAs.question.extras.customType === 'answer' ? (QAs.question.extras as any ).answertranslation :
+                QAs.question.extras.questiontranslation) : QAs.question.name
+                
+                }</Button>
                 <div className="">
                   {QAs.answers.map((a, i) => (
                     <div key={i}>
@@ -283,7 +287,7 @@ function Home({ props }) {
                             {a.extras.dropdown ? (
                               <>
                                 <label htmlFor={`dropdown_${a.extras.answeridentifier}`}>
-                                  {state.lang === 'af' ? "وټاکئ" : state.lang === 'ua' ? "Виберіть" : "Select" }
+                                  {state.lang === 'af' ? "وټاکئ" : state.lang === 'ua' ? "Виберіть" : "Select"}
                                   {state.lang}
                                 </label>
                                 <select
@@ -323,7 +327,7 @@ function Home({ props }) {
                         <Button className={`btn ${getTheme(props.host) === 1 ? `btn-danger` : `btn-warning`} mb-2 btn-sm text-start`} key={i} onClick={e => {
                           setCurrentClass(css.dNone)
                           setNextQA(a, a.extras.answeridentifier, a.extras.points, history.length)
-                        }}>{state.lang == 'af' ? a.extras.answertranslation : a.name}</Button>
+                        }}>{state.lang !== 'en' ? a.extras.answertranslation : a.name}</Button>
                       )}
                     </div>)
                   )}

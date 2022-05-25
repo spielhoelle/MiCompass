@@ -73,7 +73,7 @@ export class CustomNodeWidget extends DefaultNodeWidget {
 				selected={this.props.node.isSelected()}
 				background={this.props.node.getOptions().color}>
 				<Title>
-					<TitleName>{`${this.props.node.getOptions().name}`}</TitleName>
+					<TitleName>{`${this.props.node.getOptions().name.slice(0, 300)}`} {this.props.node.getOptions().name.length > 300 ? `...` : ``}</TitleName>
 				</Title>
 				{this.props.node.getOptions().extras.image && this.props.node.getOptions().extras.image !== "" && (
 					<Image className="w-100" src={this.props.node.getOptions().extras.image} />
@@ -82,7 +82,7 @@ export class CustomNodeWidget extends DefaultNodeWidget {
 					<TitleName>Key: {this.props.node.getOptions().extras.questionidentifier}</TitleName>
 				)}
 				{this.props.node.getOptions().extras.customType === "question" && (
-					<TitleName>DE trans: {this.props.node.getOptions().extras.questiontranslation}</TitleName>
+					<TitleName>Trans: {this.props.node.getOptions().extras.questiontranslation.slice(0, 300)} {this.props.node.getOptions().extras.questiontranslation.length > 300 ? `...` : ``}</TitleName>
 				)}
 				{this.props.node.getOptions().extras.customType === "answer" && this.props.node.getOptions().extras.dropdown && (
 					<TitleName>Type: dropdown</TitleName>
@@ -91,7 +91,7 @@ export class CustomNodeWidget extends DefaultNodeWidget {
 					<TitleName>Key: {this.props.node.getOptions().extras.answeridentifier}</TitleName>
 				)}
 				{this.props.node.getOptions().extras.customType === "answer" && this.props.node.getOptions().extras.answertranslation && (
-					<TitleName>DE trans: {this.props.node.getOptions().extras.answertranslation}</TitleName>
+					<TitleName>Trans: {this.props.node.getOptions().extras.answertranslation.slice(0, 300)} {this.props.node.getOptions().extras.answertranslation.length > 300 ? `...` : ``}</TitleName>
 				)}
 				{this.props.node.getOptions().extras.customType === "answer" && !isNaN(this.props.node.getOptions().extras.points) && (
 					<TitleName>Points: {this.props.node.getOptions().extras.points}</TitleName>

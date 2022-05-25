@@ -6,7 +6,10 @@ export const StateContext = React.createContext({});
 let lang = 'en'
 if (typeof window !== "undefined") {
 	const url = new URL((window as any).location);
-	lang = url.searchParams.get('lang')
+	const urlLang = url.searchParams.get('lang')
+	if(urlLang){
+		lang = urlLang
+	}
 }
 const initialState: IState = { lang: lang };
 
