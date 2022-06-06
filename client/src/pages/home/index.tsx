@@ -49,8 +49,10 @@ function Home({ props }) {
     setCurrentClass(`${css.animation}`)
     setTimeout(() => {
       setCurrentClass(`${css.animation} ${css.nottransparent}`)
-    }, 20);
-    scrollToBottom()
+    }, 80);
+    setTimeout(() => {
+      scrollToBottom()
+    }, 300);
   }, [history]);
 
   useEffect(() => {
@@ -194,13 +196,13 @@ function Home({ props }) {
 
   return (
     <PageContent props={props}>
-      <div className={css.bottomspacing}>
+      <div className={`${css.bottomspacing} h-100`}>
         {history.length > 0 && history.map((historyItem, index) => (
           <div className='row' key={index} >
-            <div className='col-md-6'>
+            <div className='col-md-4 col-lg-3 offset-md-2 offset-lg-3'>
               {historyItem.question.extras.image && (
                 <div className='row'>
-                  <div className='col-md-6'>
+                  <div className='col'>
                     <img className="rounded-3 mb-3 w-100" src={historyItem.question.extras.image} alt={historyItem.question.name} />
                   </div>
                 </div>
@@ -240,7 +242,7 @@ function Home({ props }) {
               </div>
             </div>
             {!historyItem.choosenAnswer.extras.freeanswer && (
-              <div className='offset-md-6 col-md-6 text-end'>
+              <div className='col-md-4 col-lg-3 text-end d-flex justify-content-end align-items-end'>
                 <Button className={`btn mb-2 btn-sm ${getTheme(props.host) === 1 ? `btn-danger` : `btn-warning`} text-start ${css.nottransparent}`} disabled>
                   {state.lang !== 'en' ?
                     historyItem.choosenAnswer.extras.dropdown ?
@@ -257,12 +259,12 @@ function Home({ props }) {
           </div>
         ))}
         {QAs && QAs.question ? (
-          <div className={`row`}>
-            <div className='col-md-6'>
+          <div className={`row question mt-4`}>
+            <div className='col-md-4 col-lg-3 offset-lg-3 offset-md-2'>
               <div className={`${css.animatedformfield} ${currentClass} `}>
                 {QAs.question.extras.image && (
                   <div className='row'>
-                    <div className='col-6'>
+                    <div className='col'>
                       <img className="rounded-3 mb-3 w-100" src={QAs.question.extras.image} alt={QAs.question.name} />
                     </div>
                   </div>
@@ -339,7 +341,7 @@ function Home({ props }) {
         {gameover && (
           <>
             <div className={`row`}>
-              <div className='col-md-6'>
+              <div className='col-md-4 col-lg-4 offset-md-2 offset-lg-3'>
                 <Button type="button" className="btn btn-success" onClick={e => {
                   resetQuestions()
                   setgameover(false)

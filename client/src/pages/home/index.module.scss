@@ -61,6 +61,9 @@
 .bottomspacing {
   padding-top: 70px;
   padding-bottom: 70px;
+  display: flex;
+  flex-flow: column;
+  justify-content: flex-end;
 }
 
 .animatedformfield {
