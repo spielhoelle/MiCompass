@@ -19,17 +19,20 @@ interface IProps {
 
 function Header({ props }: IProps) {
   useEffect(() => {
-    var _paq = (window as any)._paq = (window as any)._paq || [];
-    /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
-    _paq.push(['trackPageView']);
-    _paq.push(['enableLinkTracking']);
-    (function () {
-      var u = "https://piwik.thomaskuhnert.com/";
-      _paq.push(['setTrackerUrl', u + 'matomo.php']);
-      _paq.push(['setSiteId', '18']);
-      var d = document, g = d.createElement('script'), s = d.getElementsByTagName('script')[0];
-      g.type = 'text/javascript'; g.async = true; g.src = u + 'matomo.js'; s.parentNode.insertBefore(g, s);
-    })();
+    const existingScripts = document.querySelectorAll("script[src='https://piwik.thomaskuhnert.com/matomo.js']")
+    if (existingScripts.length === 0) {
+      var _paq = (window as any)._paq = (window as any)._paq || [];
+      /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
+      _paq.push(['trackPageView']);
+      _paq.push(['enableLinkTracking']);
+      (function () {
+        var u = "https://piwik.thomaskuhnert.com/";
+        _paq.push(['setTrackerUrl', u + 'matomo.php']);
+        _paq.push(['setSiteId', '18']);
+        var d = document, g = d.createElement('script'), s = d.getElementsByTagName('script')[0];
+        g.type = 'text/javascript'; g.async = true; g.src = u + 'matomo.js'; s.parentNode.insertBefore(g, s);
+      })();
+    }
   }, [])
   const switchLanguage = (e, lang) => {
     e.preventDefault()
@@ -105,7 +108,7 @@ function Header({ props }: IProps) {
           <ul className="navbar-nav me-auto mb-lg-0">
             {!auth.email ? (
               <>
-                <li className='nav-item'>
+                {/* <li className='nav-item'>
                   <Link href="/register">
                     <a className="nav-link">{translationMapping.register[state.lang]}</a>
                   </Link>
@@ -114,7 +117,7 @@ function Header({ props }: IProps) {
                   <Link href="/login">
                     <a className="nav-link">{translationMapping.login[state.lang]}</a>
                   </Link>
-                </li>
+                </li> */}
               </>
             ) : (
               <>
@@ -137,7 +140,7 @@ function Header({ props }: IProps) {
             </li>
             <li className='nav-item'>
               <Link href="/contact">
-                <a className="nav-link">{translationMapping.register[state.lang]}</a>
+                <a className="nav-link">{translationMapping.contact[state.lang]}</a>
               </Link>
             </li>
             <li className='nav-item'>

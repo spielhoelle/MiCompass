@@ -6,26 +6,26 @@ import { Authentication } from '../services/Authentication';
 import { IUser } from '../types/user.types';
 import { verifyToken } from '../middleware/auth';
 
-router.post('/register', (req, res) => {
-  const auth = new Authentication();
+// router.post('/register', (req, res) => {
+//   const auth = new Authentication();
 
-  auth
-    .createUser({
-      firstName: req.body.firstName,
-      lastName: req.body.lastName,
-      email: req.body.email,
-      password: req.body.password
-    })
-    .then(() => {
-      return res.send({
-        success: true,
-        message: 'Thanks for registering! Please log in to continue.'
-      });
-    })
-    .catch((err: any) => {
-      return errors.errorHandler(res, err.message, null);
-    });
-});
+//   auth
+//     .createUser({
+//       firstName: req.body.firstName,
+//       lastName: req.body.lastName,
+//       email: req.body.email,
+//       password: req.body.password
+//     })
+//     .then(() => {
+//       return res.send({
+//         success: true,
+//         message: 'Thanks for registering! Please log in to continue.'
+//       });
+//     })
+//     .catch((err: any) => {
+//       return errors.errorHandler(res, err.message, null);
+//     });
+// });
 
 router.post('/login', (req, res) => {
   const authentication = new Authentication();

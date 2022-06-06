@@ -117,7 +117,7 @@ function Home({ props }) {
 
     const form_payload: Answer = { question: QAs.question.name, answer: value, points: answer.extras.pointanswer ? points : -1, index: index };
     var _paq = (window as any)._paq = (window as any)._paq || [];
-    _paq.push(['trackEvent', 'Contact', 'Email Link Click', 'name@example.com']);
+    _paq.push(['trackEvent', 'Answer', QAs.question.name, value.trim()]);
     const nextQuestions = getNextQuestion(answer, localHistory)
     if (!nextQuestions) {
       setQAs(undefined)
@@ -224,17 +224,17 @@ function Home({ props }) {
               <div className="history">
                 {historyItem.answers.map((a: ModelA, i) => (
                   <div key={i}>
-                    <Button className={`btn mb-2 btn-sm text-start ${getTheme(props.host) === 1 ? `btn-danger` : `btn-warning`} ${historyItem.choosenAnswer.name === a.name ? `opacity-50` : ` opacity-25`}`} disabled>
-                      {state.lang !== 'en' ?
+                    <Button className={`btn mb-2 btn-sm text-start ${getTheme(props.host) === 1 ? `btn-danger` : `btn-warning`} ${historyItem.choosenAnswer.name === a.name ? `opacity-50` : ` opacity-25`}`} disabled
+                      dangerouslySetInnerHTML={{
+                        __html: (state.lang !== 'en' ?
                         historyItem.choosenAnswer.extras.dropdown ?
                           historyItem.choosenAnswer.extras.answertranslation.split(":").reverse()[0].trim().split(",")[historyItem.choosenAnswer.name.split(":").reverse()[0].trim().split(",").findIndex(i => i.trim() === historyItem.choosenAnswerValue)]
                           : historyItem.choosenAnswer.extras.answertranslation
                         :
                         historyItem.choosenAnswer.extras.dropdown ?
                           historyItem.choosenAnswerValue
-                          : historyItem.choosenAnswer.name
-                      }
-                    </Button>
+                          : historyItem.choosenAnswer.name).replace(/((http|ftp|https):\/\/([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-]))/g, '<a href="$1" target="_blank">$1</a>')
+                      }} />
                   </div>
                 ))}
               </div>

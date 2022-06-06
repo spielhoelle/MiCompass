@@ -468,6 +468,9 @@ function FlowBuilder() {
             ))}
           </div>
         </div>
+        <div className={nodevisibility ? `d-none` : `position-absolute top left z-index-1`}>
+          <button className='btn btn-outline-dark' onClick={(e) => setnodevisibility(!nodevisibility)}>Show nodes</button>
+        </div>
         <div className={!nodevisibility ? `d-none` : ``}>
           <form onSubmit={addQuestion}>
             <div className="row form-row align-items-end">
