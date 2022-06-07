@@ -20,7 +20,7 @@ class Token {
 
   createToken(user: IUser) {
     this.token = jwt.sign(_.omit(user, 'password'), config.authSecret, {
-      expiresIn: '30m'
+      expiresIn: '30d'
     });
   }
 

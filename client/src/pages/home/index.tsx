@@ -88,7 +88,8 @@ function Home({ props }) {
         }
         const usedFLow = res.payload.model.find(f => f.flowname === currentFlow)
         const diagramNodes = usedFLow.data.layers.find(layer => layer.type === "diagram-nodes").models
-        const startquestion = Object.values(diagramNodes).find((model: ModelQ) => model.ports.find(port => port.label === "In").links.length === 0)
+        const startquestion = Object.values(diagramNodes).find((model: ModelQ) => model.extras.customType == 'question' && model.ports.find(port => port.label === "In").links.length === 0 && model.ports.find(port => port.label === "Out").links.length !== 0)
+
         const answers = getAnswers(startquestion, usedFLow.data)
         setmodel(usedFLow.data)
         const sortedanswers = answers.sort((a: ModelA, b: ModelA) => a.y - b.y)
@@ -198,7 +199,7 @@ function Home({ props }) {
     <PageContent props={props}>
       <div className={`${css.bottomspacing} h-100`}>
         {history.length > 0 && history.map((historyItem, index) => (
-          <div className='row' key={index} >
+          <div className='row history mt-5' key={index} >
             <div className='col-md-4 col-lg-3 offset-md-2 offset-lg-3'>
               {historyItem.question.extras.image && (
                 <div className='row'>
@@ -223,7 +224,7 @@ function Home({ props }) {
                   <input value={historyItem.choosenAnswerValue} disabled className={`form-control mb-3`} />
                 </>
               )}
-              <div className="history">
+              <div className="historyItem.answers">
                 {historyItem.answers.map((a: ModelA, i) => (
                   <div key={i}>
                     <Button className={`btn mb-2 btn-sm text-start ${getTheme(props.host) === 1 ? `btn-danger` : `btn-warning`} ${historyItem.choosenAnswer.name === a.name ? `opacity-50` : ` opacity-25`}`} disabled
@@ -259,7 +260,7 @@ function Home({ props }) {
           </div>
         ))}
         {QAs && QAs.question ? (
-          <div className={`row question mt-4`}>
+          <div className={`row question mt-5`}>
             <div className='col-md-4 col-lg-3 offset-lg-3 offset-md-2'>
               <div className={`${css.animatedformfield} ${currentClass} `}>
                 {QAs.question.extras.image && (
@@ -290,7 +291,6 @@ function Home({ props }) {
                               <>
                                 <label htmlFor={`dropdown_${a.extras.answeridentifier}`}>
                                   {state.lang === 'af' ? "وټاکئ" : state.lang === 'ua' ? "Виберіть" : "Select"}
-                                  {state.lang}
                                 </label>
                                 <select
                                   id={`dropdown_${a.extras.answeridentifier}`}
@@ -340,7 +340,7 @@ function Home({ props }) {
         ) : !model ? "loading..." : null}
         {gameover && (
           <>
-            <div className={`row`}>
+            <div className={`row mt-5`}>
               <div className='col-md-4 col-lg-4 offset-md-2 offset-lg-3'>
                 <Button type="button" className="btn btn-success" onClick={e => {
                   resetQuestions()
