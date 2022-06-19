@@ -124,13 +124,17 @@ function FlowBuilder() {
   const tokenService = new TokenService();
   let [answers, setanswers] = useState([])
   let [disabled, setdisabled] = useState(undefined)
-  let [currentModelId, setmodelState] = useState("")
+  let [currentModel, setmodelState] = useState<any>({})
+  let currentModelIdRef = useRef<any>(currentModel)
   let [error, seterror] = useState([])
   const [fakeState, setFakeState] = useState(false)
   const [messageState, messageDispatch] = useGlobalMessaging();
   useEffect(() => {
     formRef.current = form
   }, [form])
+  useEffect(() => {
+    currentModelIdRef.current = currentModel
+  }, [currentModel.id])
   useEffect(() => {
     nodevisibilityRef.current = nodevisibility
   }, [nodevisibility])
@@ -146,44 +150,47 @@ function FlowBuilder() {
       window.removeEventListener("keydown", handleUserKeyPress);
     };
   }, [handleUserKeyPress]);
-  const addEventListeners = (name) => {
-    Object.values(model.getActiveNodeLayer().getModels()).forEach((currentNode) => {
-      currentNode.registerListener({
-        eventDidFire: (e: any) => {
-          e.stopPropagation();
-          if (e.function === "selectionChanged") {
-            e.isSelected ? setbutton('update') : setbutton('add')
-            let relatedQuestion
-            if (e.isSelected) {
-              setdisabled(currentNode.getOptions().extras.customType === "question" ? "answer" : "question")
-              const formFromClickedNode = {
-                "question": currentNode.getOptions().extras.customType === "question" ? (currentNode as any).getOptions().name : relatedQuestion ? relatedQuestion.options.name : "",
-                'questionidentifier': currentNode.getOptions().extras.customType === "question" ? currentNode.getOptions().extras.questionidentifier : relatedQuestion ? relatedQuestion.options.name : "",
-                'image': currentNode.getOptions().extras.customType === "question" ? currentNode.getOptions().extras.image : relatedQuestion ? relatedQuestion.options.image : "",
-                'questiontranslation': currentNode.getOptions().extras.customType === "question" ? currentNode.getOptions().extras.questiontranslation : relatedQuestion ? relatedQuestion.options.extras.questiontranslation : "",
-                "answer": currentNode.getOptions().extras.customType === "answer" ? (currentNode as any).getOptions().name : "",
-                "answeridentifier": currentNode.getOptions().extras.customType === "answer" ? currentNode.getOptions().extras.answeridentifier : "",
-                "answertranslation": currentNode.getOptions().extras.customType === "answer" ? currentNode.getOptions().extras.answertranslation : "",
-                "points": currentNode.getOptions().extras.customType === "answer" ? currentNode.getOptions().extras.points : 0,
-                "freeanswer": currentNode.getOptions().extras.customType === "answer" ? currentNode.getOptions().extras.freeanswer : "",
-                "pointanswer": currentNode.getOptions().extras.customType === "answer" ? currentNode.getOptions().extras.pointanswer : "",
-                "dropdown": currentNode.getOptions().extras.customType === "answer" ? currentNode.getOptions().extras.dropdown : "",
-                "condition": currentNode.getOptions().extras.customType === "answer" ? currentNode.getOptions().extras.condition : "",
-                "freeanswer_type": currentNode.getOptions().extras.customType === "answer" ? currentNode.getOptions().extras.freeanswer_type : "text",
-                "flowname": name
-              }
-              setForm({ ...formRef.current, ...formFromClickedNode })
+  const registerNodeListener = (currentNode): any => {
+    currentNode.registerListener({
+      eventDidFire: (e: any) => {
+        e.stopPropagation();
+        if (e.function === "selectionChanged") {
+          e.isSelected ? setbutton('update') : setbutton('add')
+          let relatedQuestion
+          if (e.isSelected) {
+            setdisabled(currentNode.getOptions().extras.customType === "question" ? "answer" : "question")
+            const formFromClickedNode = {
+              "question": currentNode.getOptions().extras.customType === "question" ? (currentNode as any).getOptions().name : relatedQuestion ? relatedQuestion.options.name : "",
+              'questionidentifier': currentNode.getOptions().extras.customType === "question" ? currentNode.getOptions().extras.questionidentifier : relatedQuestion ? relatedQuestion.options.name : "",
+              'image': currentNode.getOptions().extras.customType === "question" ? currentNode.getOptions().extras.image : relatedQuestion ? relatedQuestion.options.image : "",
+              'questiontranslation': currentNode.getOptions().extras.customType === "question" ? currentNode.getOptions().extras.questiontranslation : relatedQuestion ? relatedQuestion.options.extras.questiontranslation : "",
+              "answer": currentNode.getOptions().extras.customType === "answer" ? (currentNode as any).getOptions().name : "",
+              "answeridentifier": currentNode.getOptions().extras.customType === "answer" ? currentNode.getOptions().extras.answeridentifier : "",
+              "answertranslation": currentNode.getOptions().extras.customType === "answer" ? currentNode.getOptions().extras.answertranslation : "",
+              "points": currentNode.getOptions().extras.customType === "answer" ? currentNode.getOptions().extras.points : 0,
+              "freeanswer": currentNode.getOptions().extras.customType === "answer" ? currentNode.getOptions().extras.freeanswer : "",
+              "pointanswer": currentNode.getOptions().extras.customType === "answer" ? currentNode.getOptions().extras.pointanswer : "",
+              "dropdown": currentNode.getOptions().extras.customType === "answer" ? currentNode.getOptions().extras.dropdown : "",
+              "condition": currentNode.getOptions().extras.customType === "answer" ? currentNode.getOptions().extras.condition : "",
+              "freeanswer_type": currentNode.getOptions().extras.customType === "answer" ? currentNode.getOptions().extras.freeanswer_type : "text",
+              "flowname": currentModelIdRef.current.name
             }
-            else {
-              setdisabled(undefined)
-              const emptyFormClone = { ...emptyForm }
-              delete emptyFormClone.flowname
-              delete emptyFormClone.renderselector
-              setForm({ ...formRef.current, ...emptyFormClone })
-            }
+            setForm({ ...formRef.current, ...formFromClickedNode })
+          }
+          else {
+            setdisabled(undefined)
+            const emptyFormClone = { ...emptyForm }
+            delete emptyFormClone.flowname
+            delete emptyFormClone.renderselector
+            setForm({ ...formRef.current, ...emptyFormClone })
           }
         }
-      });
+      }
+    });
+  }
+  const addEventListeners = () => {
+    Object.values(model.getActiveNodeLayer().getModels()).forEach((currentNode) => {
+      registerNodeListener(currentNode)
     });
   }
   useEffect(() => {
@@ -197,8 +204,8 @@ function FlowBuilder() {
           if (initialModel.data) {
             model.deserializeModel(initialModel.data, engine);
           }
-          setmodelState(initialModel.id)
-          addEventListeners(initialModel.flowname)
+          setmodelState(initialModel)
+          addEventListeners()
           setForm({
             ...form,
             flowname: initialModel.flowname,
@@ -344,7 +351,7 @@ function FlowBuilder() {
     setloading(true)
     checkQABalance()
     const payload = {
-      id: currentModelId,
+      id: currentModel.id,
       flowname: form.flowname,
       renderselector: form.renderselector,
       model: model.serialize(),
@@ -410,6 +417,7 @@ function FlowBuilder() {
         engine.setModel(localModel);
         item.setSelected(!1);
         (newItem as BaseModel).setSelected(true);
+        registerNodeListener(newItem)
       })
     setloading(false)
   }
@@ -454,7 +462,6 @@ function FlowBuilder() {
       }
     })
   }
-
   return (
     <div className="h-100 d-flex flex-column ">
       <div className="container-fluid">
@@ -479,7 +486,7 @@ function FlowBuilder() {
                 <select
                   id="flowselector"
                   className={`form-control w-100 mr-2`}
-                  value={currentModelId}
+                  value={currentModel.id}
                   onChange={e => {
                     const theModelToSet = allFlows.find(f => f.id === Number(e.target.selectedOptions[0].value))
                     var searchParams = new URLSearchParams(window.location.search);
@@ -488,14 +495,14 @@ function FlowBuilder() {
                     if (theModelToSet.data) {
                       model.deserializeModel(theModelToSet.data, engine);
                       setForm({ ...form, flowname: theModelToSet.flowname, active: theModelToSet.active, renderselector: theModelToSet.renderselector })
-                      setmodelState(theModelToSet.id)
+                      setmodelState(theModelToSet)
                       engine.setModel(model);
                     } else {
                       const newModel = new StartNodeModel();
                       model.deserializeModel((newModel as any), engine);
                       engine.setModel(newModel)
                     }
-                    addEventListeners(theModelToSet.flowname)
+                    addEventListeners()
                   }}>
                   <option disabled>select flow...</option>
                   {allFlows.map((f, i) => (
@@ -534,7 +541,8 @@ function FlowBuilder() {
                 <div className="btn-group w-100" role="group" aria-label="Basic example">
                   <button className="btn btn-primary mr-2"
                     disabled={loading}
-                    onClick={() => {
+                    onClick={(e) => {
+                      e.preventDefault()
                       cloneSelected()
                     }}>{loading ? "Loading" : "Clone sel."}</button>
                   <button className="btn btn-success"
