@@ -1,4 +1,4 @@
-# MMiCompass
+# MiCompass
 
 Have you ever considered leaving Afghanistan to start a new life in Europe? Do you think you know enough to make an informed decision?  
 

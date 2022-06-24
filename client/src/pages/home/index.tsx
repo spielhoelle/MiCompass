@@ -29,7 +29,8 @@ const Button = styled.button`
   white-space: pre-wrap;
   word-wrap: break-word;
 `
-let currentFlow = 'afghan-refugee-chatbot';
+// let currentFlow = 'afghan-refugee-chatbot';
+let currentFlow = 'bla';
 
 function Home({ props }) {
   const tokenService = new TokenService();
@@ -179,7 +180,7 @@ function Home({ props }) {
       nodeThatFollows = connectedNextNodes[0]
       if (connectedNextNodes.length > 1) {
         let i = 0
-        while (nodeThatFollows.extras.condition && connectedNextNodes.length > 1 && i < 5) {
+        while (nodeThatFollows.extras.condition || connectedNextNodes.length > 1 && i < 5) {
           var nextConditionValue = history.find(hist => {
             return hist.choosenAnswer.extras.answeridentifier === connectedNextNodes[0].extras.answeridentifier.split("=")[0]
           }).choosenAnswerValue

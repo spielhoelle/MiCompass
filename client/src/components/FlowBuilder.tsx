@@ -89,7 +89,7 @@ const StyledImage = styled.img`
 const colorPointanswer = "rgb(255, 144, 0)"
 const colorFreeanswer = "rgb(182, 133, 1)"
 const colorDropdown = "rgb(144, 133, 1)"
-const colorCondition = "rgb(144, 133, 64)"
+const colorCondition = "rgb(0, 155, 24)"
 const colorAnswer = "rgb(255, 204, 1)"
 const colorError = "rgb(255,0,0)"
 const questioncolor = "rgb(0, 128, 129)"
@@ -271,7 +271,7 @@ function FlowBuilder() {
     } else {
       node = new CustomNodeModel({
         name: e.target.elements.answer.value,
-        color: !!e.target.elements.freeanswer.checked ? colorFreeanswer : !!e.target.elements.pointanswer.checked ? colorPointanswer : !!e.target.elements.dropdown.checked ? colorDropdown : e.target.elements.answer.dataset.color,
+        color: !!e.target.elements.freeanswer.checked ? colorFreeanswer : !!e.target.elements.pointanswer.checked ? colorPointanswer : !!e.target.elements.dropdown.checked ? colorDropdown : !!e.target.elements.condition.checked ? colorCondition : e.target.elements.answer.dataset.color,
         extras: {
           customType: e.target.elements.answer.dataset.type,
           freeanswer: !!e.target.elements.freeanswer && !!e.target.elements.freeanswer.checked,
