@@ -44,10 +44,13 @@ const calcResults = (answers) => {
 }
 const getTheme = (host: string): number => {
   let test = 0
+  console.log('host', host);
   if (test === 1 || host === "micompass.org") {
     return 1
   } else if (test === 2 || host === "ua.tmy.io" || host === "handbook-ukraine.com") {
     return 2
+  } else if (test === 2 || host === "ua.tmy.io" || host === "toshodex-ai.tmy.io") {
+    return 3
   } else {
     return 1
   }

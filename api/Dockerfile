@@ -1,4 +1,4 @@
-FROM node:12.12.0-alpine
+FROM node:16-alpine
 
 WORKDIR /home/app/api
 
