@@ -78,10 +78,10 @@ jobs:
             --path kubernetes/charts/micompass-ui
             --revision ${{ github.ref_name }}
             --dest-server https://kubernetes.default.svc
-            --dest-namespace flophub
+            --dest-namespace micompass
             --auth-token ${{ secrets.ARGOCD_AUTH_TOKEN }}
             --server cd.tmy.io
-            --project flophub
+            --project micompass
             --sync-policy automated
             --helm-set ingress.enabled=true
             --helm-set image.tag=${{ github.ref_name }}@${{ steps.build-and-push.outputs.digest }}
@@ -98,10 +98,10 @@ jobs:
             --path kubernetes/charts/micompass-ui
             --revision main
             --dest-server https://kubernetes.default.svc
-            --dest-namespace flophub
+            --dest-namespace micompass
             --auth-token ${{ secrets.ARGOCD_AUTH_TOKEN }}
             --server cd.tmy.io
-            --project flophub
+            --project micompass
             --sync-policy automated
             --helm-set ingress.enabled=true
             --helm-set ingress.hosts[0].host=mi.tmy.io
@@ -124,10 +124,10 @@ jobs:
             --path kubernetes/charts/micompass-ui
             --revision ${{ github.head_ref }}
             --dest-server https://kubernetes.default.svc
-            --dest-namespace flophub
+            --dest-namespace micompass
             --auth-token ${{ secrets.ARGOCD_AUTH_TOKEN }}
             --server cd.tmy.io
-            --project flophub
+            --project micompass
             --sync-policy automated
             --helm-set ingress.enabled=true
             --helm-set ingress.hosts[0].host=pr-${{ github.event.number }}.mi.tmy.io
