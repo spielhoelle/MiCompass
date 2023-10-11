@@ -2,11 +2,11 @@ name: Docker
 
 on:
   push:
-    branches: [ "master" ]
+    branches: [ "main" ]
     # Publish semver tags as releases.
     tags: [ 'v*.*.*' ]
   pull_request:
-    branches: [ "master" ]
+    branches: [ "main" ]
 
 env:
   # Use docker.io for Docker Hub if empty
@@ -87,16 +87,16 @@ jobs:
             --helm-set image.tag=${{ github.ref_name }}@${{ steps.build-and-push.outputs.digest }}
 
       - uses: clowdhaus/argo-cd-action/@main
-        if: github.ref == 'refs/heads/master'
+        if: github.ref == 'refs/heads/main'
         with:
           version: 2.7.4
-          command: app create micompass-ui-master
+          command: app create micompass-ui-main
           options: >-
             --grpc-web
             --upsert
             --repo https://github.com/spielhoelle/MiCompass.git
             --path kubernetes/charts/micompass
-            --revision master
+            --revision main
             --dest-server https://kubernetes.default.svc
             --dest-namespace micompass
             --auth-token ${{ secrets.ARGOCD_AUTH_TOKEN }}
@@ -110,7 +110,7 @@ jobs:
             --helm-set ingress.tls[0].hosts[0]=mi.tmy.io
             --helm-set ingress.tls[0].secretName=micompass-ui-dev-tls
             --helm-set databaseExistingSecret=micompass-credentials-dev
-            --helm-set image.tag=master@${{ steps.build-and-push.outputs.digest }}
+            --helm-set image.tag=main@${{ steps.build-and-push.outputs.digest }}
 
       - uses: clowdhaus/argo-cd-action/@main
         if: ${{ github.event_name == 'pull_request' }}
