@@ -8,9 +8,9 @@ ENV PATH /home/app/api/node_modules/.bin:$PATH
 COPY package*.json ./
 # ARG CACHEBUST=1 
 # RUN npm install
-RUN npm uninstall -g typescript
+# RUN npm uninstall -g typescript
 # RUN ls -la 
-RUN npm ci && npm install -g typescript@4.3.5
+RUN npm install -g typescript@4.3.5
 
 # RUN npm rebuild
 # RUN npx tsc -v
