@@ -5,7 +5,7 @@ WORKDIR /home/app/api
 
 ENV PATH /home/app/api/node_modules/.bin:$PATH
 
-COPY package*.json package-lock.json ./
+COPY package*.json ./
 # ARG CACHEBUST=1 
 # RUN npm install
 RUN npm uninstall -g typescript
