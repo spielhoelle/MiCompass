@@ -66,7 +66,7 @@ jobs:
           cache-to: type=gha,mode=max
           build-args: DATABASE_URL=${{ secrets.DATABASE_URL }}
 
-      - uses: clowdhaus/argo-cd-action/@master
+      - uses: clowdhaus/argo-cd-action/@main
         if: startsWith(github.ref, 'refs/tags/v')
         with:
           version: 2.7.4
@@ -86,7 +86,7 @@ jobs:
             --helm-set ingress.enabled=true
             --helm-set image.tag=${{ github.ref_name }}@${{ steps.build-and-push.outputs.digest }}
 
-      - uses: clowdhaus/argo-cd-action/@master
+      - uses: clowdhaus/argo-cd-action/@main
         if: github.ref == 'refs/heads/master'
         with:
           version: 2.7.4
@@ -112,7 +112,7 @@ jobs:
             --helm-set databaseExistingSecret=micompass-credentials-dev
             --helm-set image.tag=master@${{ steps.build-and-push.outputs.digest }}
 
-      - uses: clowdhaus/argo-cd-action/@master
+      - uses: clowdhaus/argo-cd-action/@main
         if: ${{ github.event_name == 'pull_request' }}
         with:
           version: 2.7.4
