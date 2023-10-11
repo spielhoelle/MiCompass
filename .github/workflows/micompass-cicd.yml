@@ -75,7 +75,7 @@ jobs:
             --grpc-web
             --upsert
             --repo https://github.com/spielhoelle/MiCompass.git
-            --path kubernetes/charts/micompass-ui
+            --path kubernetes/charts/micompass
             --revision ${{ github.ref_name }}
             --dest-server https://kubernetes.default.svc
             --dest-namespace micompass
@@ -95,7 +95,7 @@ jobs:
             --grpc-web
             --upsert
             --repo https://github.com/spielhoelle/MiCompass.git
-            --path kubernetes/charts/micompass-ui
+            --path kubernetes/charts/micompass
             --revision master
             --dest-server https://kubernetes.default.svc
             --dest-namespace micompass
@@ -121,7 +121,7 @@ jobs:
             --grpc-web
             --upsert
             --repo https://github.com/spielhoelle/MiCompass.git
-            --path kubernetes/charts/micompass-ui
+            --path kubernetes/charts/micompass
             --revision ${{ github.head_ref }}
             --dest-server https://kubernetes.default.svc
             --dest-namespace micompass
