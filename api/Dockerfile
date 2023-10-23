@@ -4,6 +4,7 @@ LABEL org.opencontainers.image.source https://github.com/spielhoelle/micompass
 WORKDIR /home/app/api
 
 ENV PATH /home/app/api/node_modules/.bin:$PATH
+ENV NODE_ENV=production
 
 COPY package*.json ./
 ARG DATABASE_URL
