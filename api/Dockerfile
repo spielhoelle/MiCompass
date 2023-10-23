@@ -19,9 +19,7 @@ COPY . .
 # RUN ls -la node_modules
 
 EXPOSE 3000
-ARG CACHEBUST=1 
-RUN echo env
-ARG CACHEBUST=1 
 RUN echo $DATABASE_URL
 RUN npm run db-migrate
+RUN ls -lat
 CMD ["npm", "run", "run-prod"]

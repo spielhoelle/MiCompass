@@ -64,6 +64,7 @@ class Flow {
         });
       }
     }).catch((err: string) => {
+      // @ts-ignore
       console.log(err);
     });
 

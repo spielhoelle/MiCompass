@@ -15,8 +15,10 @@ if (config.use_env_variable) {
   sequelize = new Sequelize(config.database, config.username, config.password, config);
 }
 
+console.log('__dirname', __dirname)
 fs.readdirSync(__dirname)
   .filter((file: any) => {
+    console.log('file', file)
     return (
       file.indexOf('.') !== 0 &&
       file !== basename &&
@@ -24,11 +26,14 @@ fs.readdirSync(__dirname)
     );
   })
   .forEach((file: any) => {
+    console.log('file', file)
     const model = require(path.join(__dirname, file))(sequelize, Sequelize);
+    console.log('model', model)
     db[model.name] = model;
   });
 
 Object.keys(db).forEach((modelName) => {
+  console.log('modelName', modelName)
   if (db[modelName].associate) {
     db[modelName].associate(db);
   }
