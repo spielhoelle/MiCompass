@@ -64,6 +64,7 @@ router.post('/validate', (req, res) => {
       });
     })
     .catch((err: string) => {
+      console.log('err', err)
       res.send({
         success: false
       });

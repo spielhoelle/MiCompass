@@ -1,5 +1,4 @@
 import * as jwt from 'jsonwebtoken';
-import * as _ from 'lodash';
 
 import db from '../db/models';
 import config from '../config';
@@ -19,7 +18,10 @@ class Token {
   }
 
   createToken(user: IUser) {
-    this.token = jwt.sign(_.omit(user, 'password'), config.authSecret, {
+    // TODO fix that
+    const userClone = { ...user }
+    delete userClone.password
+    this.token = jwt.sign(userClone, config.authSecret, {
       expiresIn: '30d'
     });
   }
@@ -63,7 +65,7 @@ class Token {
   }
 
   validateAuthToken(authToken: string) {
-    return new Promise((res, rej) => {
+    return new Promise<void>((res, rej) => {
       jwt.verify(authToken, config.authSecret, (err: any) => {
         if (err) {
           rej();

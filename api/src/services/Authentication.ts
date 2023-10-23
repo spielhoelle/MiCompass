@@ -1,5 +1,4 @@
 import * as bcrypt from 'bcrypt';
-import * as _ from 'lodash';
 
 import db from '../db/models';
 import { ILoginIn, IUser } from '../types/user.types';
@@ -73,7 +72,7 @@ class Authentication {
   }
 
   private compareHashedPassword(password: string, hashedPassword: string) {
-    return new Promise((res, rej) => {
+    return new Promise<void>((res, rej) => {
       bcrypt.compare(password, hashedPassword, (err: Error, success: boolean) => {
         if (err) {
           rej(new Error('The has been an unexpected error, please try again later'));

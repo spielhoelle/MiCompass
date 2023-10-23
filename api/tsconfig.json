@@ -3,7 +3,7 @@
     "module": "commonjs",
     "moduleResolution": "node",
     "skipLibCheck": true,
-    "sourceMap": true,
+    "sourceMap": false,
     "target": "es6",
     "lib": ["es2017"],
     "allowJs": true,
@@ -14,7 +14,6 @@
     "noImplicitThis": true,
     "noImplicitAny": true,
     "strictNullChecks": true,
-    "suppressImplicitAnyIndexErrors": true,
     "noUnusedLocals": true,
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true

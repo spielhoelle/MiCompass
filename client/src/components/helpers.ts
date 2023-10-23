@@ -44,8 +44,7 @@ const calcResults = (answers) => {
 }
 const getTheme = (host: string): number => {
   let test = 0
-  console.log('host', host);
-  if (test === 1 || host === "micompass.org") {
+  if (test === 1 || host === "handbook-ukraine.com") {
     return 1
   } else if (test === 2 || host === "ua.tmy.io" || host === "handbook-ukraine.com") {
     return 2

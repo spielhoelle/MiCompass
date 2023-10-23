@@ -27,7 +27,9 @@ class StartNodeModel extends DiagramModel {
       icon: this.icon,
     };
   }
+  // @ts-ignore
   deserialize(event: DeserializeEvent<this>) {
+    // @ts-ignore
     super.deserialize(event);
     this.extras = event.data.extras;
     this.label = event.data.label;
@@ -38,8 +40,11 @@ class StartNodeModel extends DiagramModel {
 const model = new StartNodeModel();
 engine
   .getPortFactories()
+  // @ts-ignore
   .registerFactory(new CustomPortFactory('tommy', config => new CustomPortModel(PortModelAlignment.LEFT)));
+// @ts-ignore
 engine.getNodeFactories().registerFactory(new CustomNodeFactory());
+// @ts-ignore
 engine.setModel(model);
 
 const CanvasWrapper = styled.div`
@@ -196,6 +201,7 @@ function FlowBuilder() {
   useEffect(() => {
     FetchService.isofetchAuthed('/flows/get', undefined, 'GET')
       .then(res => {
+        console.log('res.payload?.model', res.payload?.model)
         if (res.payload?.model) {
           var searchParams = new URLSearchParams(window.location.search);
           const cachedFlow = searchParams.get("flow");
@@ -212,6 +218,7 @@ function FlowBuilder() {
             active: initialModel.active,
             renderselector: initialModel.renderselector
           })
+          // @ts-ignore
           engine.setModel(model);
         } else {
           console.log("no model");
@@ -228,6 +235,7 @@ function FlowBuilder() {
     e.preventDefault()
     const selectedNodes = Object.values(engine.getModel().getActiveNodeLayer().getModels()).filter(i => i.getOptions().selected)
     let node
+    console.log('selectedNodes', selectedNodes)
     if (selectedNodes.length === 1) {
       node = selectedNodes[0]
       node.options.name = form['question']
@@ -250,6 +258,7 @@ function FlowBuilder() {
       node.addOutPort('Out');
     }
     model.addAll(node);
+    // @ts-ignore
     engine.setModel(model);
   }
   const addAnswer = (e: any) => {
@@ -291,6 +300,7 @@ function FlowBuilder() {
     setFakeState(!fakeState)
     checkQABalance()
     model.addAll(node);
+    // @ts-ignore
     engine.setModel(model);
   }
   var checkQABalance = () => {
@@ -422,6 +432,7 @@ function FlowBuilder() {
     setloading(false)
   }
 
+  // @ts-ignore
   engine.getActionEventBus().registerAction(new DeleteItemsAction({ keyCodes: [8], modifiers: { shiftKey: true } }));
 
   const file2Base64 = async (file: File): Promise<string> => {
@@ -489,6 +500,7 @@ function FlowBuilder() {
                   value={currentModel.id}
                   onChange={e => {
                     const theModelToSet = allFlows.find(f => f.id === Number(e.target.selectedOptions[0].value))
+                    console.log('theModelToSet', theModelToSet)
                     var searchParams = new URLSearchParams(window.location.search);
                     searchParams.set("flow", theModelToSet.id);
                     window.history.replaceState({}, '', `${location.pathname}?${searchParams}`);
@@ -496,10 +508,12 @@ function FlowBuilder() {
                       model.deserializeModel(theModelToSet.data, engine);
                       setForm({ ...form, flowname: theModelToSet.flowname, active: theModelToSet.active, renderselector: theModelToSet.renderselector })
                       setmodelState(theModelToSet)
+                      // @ts-ignore
                       engine.setModel(model);
                     } else {
                       const newModel = new StartNodeModel();
                       model.deserializeModel((newModel as any), engine);
+                      // @ts-ignore
                       engine.setModel(newModel)
                     }
                     addEventListeners()
@@ -768,6 +782,7 @@ function FlowBuilder() {
         }
       </div >
       <CanvasWrapper >
+        {/* @ts-ignore */}
         <CanvasWidget engine={engine} />
         {/* <Loader loading={loading} >
           <div></div>

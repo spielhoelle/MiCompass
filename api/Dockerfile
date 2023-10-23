@@ -7,10 +7,10 @@ ENV PATH /home/app/api/node_modules/.bin:$PATH
 
 COPY package*.json ./
 # ARG CACHEBUST=1 
-# RUN npm install
+RUN npm install
 # RUN npm uninstall -g typescript
 # RUN ls -la 
-RUN npm install -g typescript@4.3.5
+# RUN npm install -g typescript@4.3.5
 
 # RUN npm rebuild
 # RUN npx tsc -v
@@ -19,3 +19,5 @@ COPY . .
 # RUN ls -la node_modules
 
 EXPOSE 3000
+RUN npm run db-migrate
+CMD ["npm", "run", "run-prod"]
