@@ -108,8 +108,8 @@ jobs:
             --helm-set ingress.hosts[0].paths[0].path=/
             --helm-set ingress.hosts[0].paths[0].pathType=Prefix
             --helm-set ingress.tls[0].hosts[0]=handbook-ukraine.com
-            --helm-set ingress.tls[0].secretName=micompass-ui-dev-tls
-            --helm-set databaseExistingSecret=micompass-credentials-dev
+            --helm-set ingress.tls[0].secretName=micompass-ui-tls
+            --helm-set databaseExistingSecret=micompass-credentials
             --helm-set image.tag=main@${{ steps.build-and-push.outputs.digest }}
 
       - uses: clowdhaus/argo-cd-action/@main
