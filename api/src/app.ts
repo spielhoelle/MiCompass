@@ -21,7 +21,7 @@ const answers = require('./v1/answers');
 const app: express.Application = express();
 
 // Express configuration
-app.set('port', process.env.API_PORT || process.env.OPENSHIFT_NODEJS_PORT || 3001);
+app.set('port', process.env.API_PORT || process.env.OPENSHIFT_NODEJS_PORT || 3000)
 app.use(compression());
 app.use(morgan('dev'));
 app.use(bodyParser.urlencoded({ extended: true }));

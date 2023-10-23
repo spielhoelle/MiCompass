@@ -18,4 +18,4 @@ RUN npm install -g typescript@4.3.5
 COPY . .
 # RUN ls -la node_modules
 
-EXPOSE 3001
+EXPOSE 3000
