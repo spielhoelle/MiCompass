@@ -1,11 +1,11 @@
 {
   "scripts": {
-    "db-migrate": "cd ./src/db && tsc && cd ./../../db-build && sequelize db:migrate --url $DATABASE_URL && cd ../ && rimraf ./db-build",
-    "db-seed": "cd ./src/db && tsc && cd ./../../db-build && sequelize db:seed:all --url $DATABASE_URL && cd ../ && rimraf ./db-build",
+    "db-migrate": "cd ./src/db && npx tsc && cd ./../../db-build && sequelize db:migrate --url $DATABASE_URL && cd ../ && rimraf ./db-build",
+    "db-seed": "cd ./src/db && npx tsc && cd ./../../db-build && sequelize db:seed:all --url $DATABASE_URL && cd ../ && rimraf ./db-build",
     "linter": "tslint '**/*.{ts,js,css}'",
     "prettier": "prettier --write '**/*.{ts,js,css,html,json}' && npx sort-package-json",
     "run-dev": "ts-node-dev --respawn --transpile-only ./src/server.ts",
-    "run-prod": "NODE_ENV=production tsc && node ./build/src/server.js",
+    "run-prod": "NODE_ENV=production npx tsc && node ./build/src/server.js",
     "update-all": "npx npm-check-updates -u"
   },
   "dependencies": {
@@ -33,6 +33,7 @@
     "path": "0.12.7",
     "pg": "^8.3.0",
     "pg-hstore": "^2.3.3",
+    "rimraf": "^3.0.2",
     "sequelize": "^6.3.3",
     "sequelize-cli": "^6.2.0"
   },
@@ -41,7 +42,6 @@
     "@types/jest": "^29.5.6",
     "faker": "^4.1.0",
     "prettier": "^2.0.5",
-    "rimraf": "^3.0.2",
     "supertest": "^4.0.2",
     "ts-node-dev": "^1.0.0-pre.52",
     "tslint": "^6.1.2",
