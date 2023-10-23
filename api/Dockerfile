@@ -6,7 +6,7 @@ WORKDIR /home/app/api
 ENV PATH /home/app/api/node_modules/.bin:$PATH
 
 COPY package*.json ./
-# ARG CACHEBUST=1 
+ARG DATABASE_URL
 RUN npm install
 # RUN npm uninstall -g typescript
 # RUN ls -la 
@@ -19,5 +19,9 @@ COPY . .
 # RUN ls -la node_modules
 
 EXPOSE 3000
+ARG CACHEBUST=1 
+RUN echo env
+ARG CACHEBUST=1 
+RUN echo $DATABASE_URL
 RUN npm run db-migrate
 CMD ["npm", "run", "run-prod"]
