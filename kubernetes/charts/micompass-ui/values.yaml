@@ -43,7 +43,6 @@ service:
   type: ClusterIP
   port: 80
 
-
 ingress:
   enabled: false
   annotations:
@@ -52,12 +51,14 @@ ingress:
     traefik.ingress.kubernetes.io/router.entrypoints: websecure
     traefik.ingress.kubernetes.io/router.tls: "true"
   hosts:
-    - host: chart-example.local
-      paths: []
-  tls: []
-  #  - secretName: chart-example-tls
-  #    hosts:
-  #      - chart-example.local
+  - host: handbook-ukraine.com
+    paths:
+      - path: "/"
+        pathType: Prefix
+  tls:
+  - hosts:
+      - handbook-ukraine.com
+    secretName: micompass-ui-tls
 
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious
@@ -75,4 +76,11 @@ nodeSelector: {}
 
 tolerations: []
 
-affinity: {}
+# Assign to control plane node
+affinity:
+  nodeAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: handbook-ukraine.com/control-plane
+          operator: Exists
